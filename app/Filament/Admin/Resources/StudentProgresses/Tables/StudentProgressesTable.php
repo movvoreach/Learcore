@@ -1,0 +1,51 @@
+<?php
+
+namespace App\Filament\Admin\Resources\StudentProgresses\Tables;
+
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Enums\FiltersLayout;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+
+class StudentProgressesTable
+{
+    public static function configure(Table $table): Table
+    {
+        return $table
+            ->modifyQueryUsing(fn (Builder $query): Builder => $query->with(['course', 'student']))
+            ->columns([
+                TextColumn::make('student.student_code')->label('លេខកូដ')->searchable()->sortable(),
+                TextColumn::make('student.first_name')->label('និស្សិត')->searchable()->sortable(),
+                TextColumn::make('course.course_name')->label('វគ្គសិក្សា')->searchable()->sortable(),
+                TextColumn::make('progress_percent')->label('វឌ្ឍនភាព')->suffix('%')->sortable(),
+                TextColumn::make('score')->label('ពិន្ទុ')->sortable(),
+                TextColumn::make('status')->label('ស្ថានភាព')->badge(),
+                TextColumn::make('progress_date')->label('កាលបរិច្ឆេទ')->date()->sortable(),
+            ])
+            ->filters([
+                SelectFilter::make('course_id')->label('វគ្គសិក្សា')->relationship('course', 'course_name')->searchable()->preload(false),
+                SelectFilter::make('status')
+                    ->label('ស្ថានភាព')
+                    ->options([
+                        'in_progress' => 'កំពុងដំណើរការ',
+                        'completed' => 'បានបញ្ចប់',
+                        'needs_support' => 'ត្រូវការជំនួយ',
+                    ]),
+            ], layout: FiltersLayout::AboveContent)
+            ->recordActions([
+                EditAction::make(),
+                DeleteAction::make(),
+            ])
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
+                ]),
+            ])
+            ->defaultSort('created_at', 'desc');
+    }
+}

@@ -1,0 +1,716 @@
+Table users {
+  id bigint [pk, increment]
+  name varchar(255) [not null]
+  email varchar(255) [not null, unique]
+  email_verified_at timestamp
+  email_otp_code varchar(10)
+  email_otp_sent_at timestamp
+  email_otp_expires_at timestamp
+  email_otp_verified_at timestamp
+  password varchar(255) [not null]
+  remember_token varchar(100)
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table faculties {
+  faculty_id bigint [pk, increment]
+  faculty_code varchar(30) [not null, unique]
+  faculty_name varchar(150) [not null]
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table departments {
+  department_id bigint [pk, increment]
+  faculty_id bigint [not null]
+  department_code varchar(30) [not null, unique]
+  department_name varchar(150) [not null]
+  deans varchar(255)
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table course_categories {
+  course_category_id bigint [pk, increment]
+  category_code varchar(30) [not null, unique]
+  category_name varchar(150) [not null]
+  description text
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table academic_years {
+  academic_year_id bigint [pk, increment]
+  year_name varchar(50) [not null, unique]
+  start_date date
+  end_date date
+  is_active boolean [not null, default: false]
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table semesters {
+  semester_id bigint [pk, increment]
+  academic_year_id bigint [not null]
+  semester_name varchar(100) [not null]
+  start_date date [not null]
+  end_date date [not null]
+  is_active boolean [not null, default: false]
+  created_at timestamp
+  updated_at timestamp
+
+  Indexes {
+    (academic_year_id, semester_name) [unique]
+  }
+}
+
+Table courses {
+  course_id bigint [pk, increment]
+  course_category_id bigint [not null]
+  department_id bigint
+  academic_year_id bigint
+  semester_id bigint
+  course_code varchar(30) [not null, unique]
+  course_name varchar(150) [not null]
+  description text
+  created_at timestamp
+  updated_at timestamp
+
+  Indexes {
+    (department_id, academic_year_id, semester_id) [name: 'courses_academic_scope_idx']
+    (course_category_id, department_id) [name: 'courses_category_department_idx']
+  }
+}
+
+Table subjects {
+  subject_id bigint [pk, increment]
+  course_id bigint [not null]
+  subject_code varchar(30) [not null, unique]
+  subject_name varchar(150) [not null]
+  credit smallint [not null, default: 0]
+  description text
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table class_rooms {
+  class_room_id bigint [pk, increment]
+  course_id bigint [not null]
+  academic_year_id bigint
+  class_code varchar(30) [not null, unique]
+  class_name varchar(150) [not null]
+  room varchar(100)
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table students {
+  student_id bigint [pk, increment]
+  user_id bigint [unique]
+  student_code varchar(30) [not null, unique]
+  department_id bigint
+  academic_year_id bigint
+  semester_id bigint
+  first_name varchar(100) [not null]
+  last_name varchar(100)
+  gender varchar(20)
+  date_of_birth date
+  phone varchar(30)
+  email varchar(150) [unique]
+  address text
+  status varchar(30) [not null, default: 'active']
+  created_at timestamp
+  updated_at timestamp
+
+  Indexes {
+    (department_id, academic_year_id, semester_id, status) [name: 'students_academic_status_idx']
+    (first_name, last_name) [name: 'students_name_idx']
+  }
+}
+
+Table teachers {
+  teacher_id bigint [pk, increment]
+  user_id bigint [unique]
+  department_id bigint
+  employment_type varchar(30) [not null, default: 'full_time']
+  teacher_code varchar(30) [not null, unique]
+  first_name varchar(100) [not null]
+  last_name varchar(100)
+  gender varchar(20)
+  phone varchar(30)
+  email varchar(150) [unique]
+  specialization varchar(150)
+  hire_date date
+  status varchar(30) [not null, default: 'active']
+  address text
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table enrollments {
+  enrollment_id bigint [pk, increment]
+  student_id bigint [not null]
+  course_id bigint [not null]
+  class_room_id bigint
+  academic_year_id bigint
+  semester_id bigint
+  enrollment_date date
+  status varchar(30) [not null, default: 'studying']
+  note text
+  created_at timestamp
+  updated_at timestamp
+
+  Indexes {
+    (student_id, course_id, semester_id) [name: 'enrollments_student_course_semester_idx']
+    (course_id, academic_year_id, semester_id, status) [name: 'enrollments_course_period_status_idx']
+  }
+}
+
+Table attendances {
+  attendance_id bigint [pk, increment]
+  student_id bigint [not null]
+  class_room_id bigint
+  attendance_date date [not null]
+  status varchar(30) [not null, default: 'present']
+  note text
+  created_at timestamp
+  updated_at timestamp
+
+  Indexes {
+    (student_id, attendance_date) [name: 'attendances_student_date_idx']
+    (class_room_id, attendance_date) [name: 'attendances_class_date_idx']
+  }
+}
+
+Table student_progresses {
+  progress_id bigint [pk, increment]
+  student_id bigint [not null]
+  course_id bigint
+  class_room_id bigint
+  progress_date date
+  progress_percent decimal(5,2) [not null, default: 0]
+  score decimal(6,2)
+  status varchar(30) [not null, default: 'in_progress']
+  note text
+  created_at timestamp
+  updated_at timestamp
+
+  Indexes {
+    (student_id, course_id) [name: 'progress_student_course_idx']
+    (course_id, progress_date) [name: 'progress_course_date_idx']
+  }
+}
+
+Table certificates {
+  certificate_id bigint [pk, increment]
+  student_id bigint [not null]
+  course_id bigint
+  certificate_no varchar(50) [not null, unique]
+  issued_date date
+  status varchar(30) [not null, default: 'issued']
+  note text
+  created_at timestamp
+  updated_at timestamp
+
+  Indexes {
+    (student_id, issued_date) [name: 'certificates_student_issued_idx']
+    (course_id, issued_date) [name: 'certificates_course_issued_idx']
+  }
+}
+
+Table course_assignments {
+  course_assignment_id bigint [pk, increment]
+  teacher_id bigint [not null]
+  course_id bigint [not null]
+  class_room_id bigint
+  academic_year_id bigint
+  assigned_date date
+  status varchar(30) [not null, default: 'active']
+  note text
+  created_at timestamp
+  updated_at timestamp
+
+  Indexes {
+    (course_id, teacher_id) [name: 'course_assignments_course_teacher_idx']
+    (teacher_id, course_id) [name: 'course_assignments_teacher_course_idx']
+  }
+}
+
+Table teacher_schedules {
+  teacher_schedule_id bigint [pk, increment]
+  teacher_id bigint [not null]
+  course_id bigint
+  class_room_id bigint
+  day_of_week varchar(20) [not null]
+  start_time time [not null]
+  end_time time [not null]
+  room varchar(100)
+  status varchar(30) [not null, default: 'active']
+  note text
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table teacher_performances {
+  teacher_performance_id bigint [pk, increment]
+  teacher_id bigint [not null]
+  course_id bigint
+  evaluation_date date [not null]
+  teaching_score tinyint [not null, default: 0]
+  attendance_score tinyint [not null, default: 0]
+  student_feedback_score tinyint [not null, default: 0]
+  rating varchar(30) [not null, default: 'good']
+  comment text
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table content_lessons {
+  content_lesson_id bigint [pk, increment]
+  course_id bigint [not null]
+  module_number int [not null, default: 1]
+  module_title varchar(255)
+  title varchar(255) [not null]
+  slug varchar(255) [not null, unique]
+  content_type varchar(30) [not null, default: 'lesson']
+  summary text
+  body longtext
+  external_url varchar(255)
+  file_path varchar(255)
+  video_url varchar(255)
+  duration_minutes int
+  position int [not null, default: 1]
+  available_from datetime
+  available_until datetime
+  completion_required boolean [not null, default: false]
+  visibility varchar(20) [not null, default: 'visible']
+  max_score decimal(8,2)
+  passing_score decimal(8,2)
+  allow_comments boolean [not null, default: false]
+  metadata json
+  is_published boolean [not null, default: true]
+  created_at timestamp
+  updated_at timestamp
+  deleted_at timestamp
+
+  Indexes {
+    (course_id, module_number, position)
+    (content_type, visibility, is_published)
+    (course_id, is_published, visibility, module_number, position) [name: 'lessons_course_visible_order_idx']
+    (course_id, is_published, available_from, available_until) [name: 'lessons_course_schedule_idx']
+  }
+}
+
+Table content_chapters {
+  content_chapter_id bigint [pk, increment]
+  content_lesson_id bigint [not null]
+  title varchar(180) [not null]
+  summary text
+  content longtext
+  sort_order int [not null, default: 0]
+  is_published boolean [not null, default: false]
+  created_at timestamp
+  updated_at timestamp
+
+  Indexes {
+    (content_lesson_id, is_published, sort_order) [name: 'chapters_lesson_published_order_idx']
+  }
+}
+
+Table content_videos {
+  content_video_id bigint [pk, increment]
+  content_lesson_id bigint [not null]
+  content_chapter_id bigint
+  title varchar(180) [not null]
+  description text
+  video_path varchar(255)
+  video_url varchar(255)
+  duration_seconds int
+  sort_order int [not null, default: 0]
+  is_published boolean [not null, default: false]
+  created_at timestamp
+  updated_at timestamp
+
+  Indexes {
+    (content_lesson_id, is_published, sort_order) [name: 'videos_lesson_published_order_idx']
+    (content_chapter_id, is_published, sort_order) [name: 'videos_chapter_published_order_idx']
+  }
+}
+
+Table content_documents {
+  content_document_id bigint [pk, increment]
+  content_lesson_id bigint [not null]
+  content_chapter_id bigint
+  title varchar(180) [not null]
+  description text
+  file_path varchar(255) [not null]
+  sort_order int [not null, default: 0]
+  is_published boolean [not null, default: false]
+  created_at timestamp
+  updated_at timestamp
+
+  Indexes {
+    (content_lesson_id, is_published, sort_order) [name: 'documents_lesson_published_order_idx']
+    (content_chapter_id, is_published, sort_order) [name: 'documents_chapter_published_order_idx']
+  }
+}
+
+Table content_assignments {
+  content_assignment_id bigint [pk, increment]
+  content_lesson_id bigint [not null]
+  content_chapter_id bigint
+  title varchar(180) [not null]
+  instructions longtext
+  attachment_path varchar(255)
+  due_at datetime
+  max_score int [not null, default: 100]
+  allow_late_submission boolean [not null, default: false]
+  is_published boolean [not null, default: false]
+  created_at timestamp
+  updated_at timestamp
+
+  Indexes {
+    (content_lesson_id, is_published, due_at) [name: 'assignments_lesson_published_due_idx']
+    (content_chapter_id, is_published, due_at) [name: 'assignments_chapter_published_due_idx']
+  }
+}
+
+Table content_resources {
+  content_resource_id bigint [pk, increment]
+  content_lesson_id bigint [not null]
+  content_chapter_id bigint
+  title varchar(180) [not null]
+  description text
+  file_path varchar(255)
+  external_url varchar(255)
+  sort_order int [not null, default: 0]
+  is_published boolean [not null, default: false]
+  created_at timestamp
+  updated_at timestamp
+
+  Indexes {
+    (content_lesson_id, is_published, sort_order) [name: 'resources_lesson_published_order_idx']
+    (content_chapter_id, is_published, sort_order) [name: 'resources_chapter_published_order_idx']
+  }
+}
+
+Table quizzes {
+  quiz_id bigint [pk, increment]
+  content_lesson_id bigint
+  title varchar(180) [not null]
+  instructions longtext
+  available_from datetime
+  available_until datetime
+  time_limit_minutes smallint
+  max_attempts smallint [not null, default: 1]
+  passing_score decimal(6,2) [not null, default: 50]
+  is_published boolean [not null, default: false]
+  created_at timestamp
+  updated_at timestamp
+
+  Indexes {
+    (content_lesson_id, is_published, available_from) [name: 'quizzes_lesson_published_from_idx']
+  }
+}
+
+Table question_banks {
+  question_bank_id bigint [pk, increment]
+  course_id bigint
+  subject_id bigint
+  title varchar(180) [not null]
+  description text
+  is_active boolean [not null, default: true]
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table assessment_questions {
+  assessment_question_id bigint [pk, increment]
+  question_bank_id bigint
+  content_lesson_id bigint
+  question_text longtext [not null]
+  question_type varchar(40) [not null, default: 'multiple_choice']
+  points decimal(6,2) [not null, default: 1]
+  correct_answer longtext
+  explanation longtext
+  is_active boolean [not null, default: true]
+  created_at timestamp
+  updated_at timestamp
+
+  Indexes {
+    (content_lesson_id, is_active) [name: 'questions_lesson_active_idx']
+    (question_bank_id, is_active) [name: 'questions_bank_active_idx']
+  }
+}
+
+Table question_options {
+  question_option_id bigint [pk, increment]
+  assessment_question_id bigint [not null]
+  option_text varchar(500) [not null]
+  is_correct boolean [not null, default: false]
+  sort_order smallint [not null, default: 0]
+  created_at timestamp
+  updated_at timestamp
+
+  Indexes {
+    (assessment_question_id, sort_order) [name: 'options_question_order_idx']
+  }
+}
+
+Table exams {
+  exam_id bigint [pk, increment]
+  course_id bigint
+  subject_id bigint
+  title varchar(180) [not null]
+  description text
+  exam_date date
+  start_time time
+  end_time time
+  duration_minutes smallint
+  total_score decimal(6,2) [not null, default: 100]
+  passing_score decimal(6,2) [not null, default: 50]
+  status varchar(30) [not null, default: 'draft']
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table exam_candidates {
+  exam_candidate_id bigint [pk, increment]
+  exam_id bigint [not null]
+  student_id bigint [not null]
+  seat_number varchar(50)
+  status varchar(30) [not null, default: 'registered']
+  created_at timestamp
+  updated_at timestamp
+
+  Indexes {
+    (exam_id, student_id) [unique]
+  }
+}
+
+Table exam_submissions {
+  exam_submission_id bigint [pk, increment]
+  exam_id bigint [not null]
+  student_id bigint [not null]
+  submitted_at datetime
+  attempt_no smallint [not null, default: 1]
+  answers json
+  score decimal(6,2)
+  status varchar(30) [not null, default: 'submitted']
+  feedback longtext
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table assessment_grades {
+  assessment_grade_id bigint [pk, increment]
+  student_id bigint [not null]
+  exam_id bigint
+  quiz_id bigint
+  content_assignment_id bigint
+  graded_by bigint
+  score decimal(6,2) [not null, default: 0]
+  max_score decimal(6,2) [not null, default: 100]
+  grade varchar(20)
+  graded_at datetime
+  remarks text
+  created_at timestamp
+  updated_at timestamp
+
+  Indexes {
+    (student_id, graded_at) [name: 'grades_student_graded_idx']
+    (student_id, exam_id) [name: 'grades_student_exam_idx']
+    (student_id, quiz_id) [name: 'grades_student_quiz_idx']
+    (student_id, content_assignment_id) [name: 'grades_student_assignment_idx']
+  }
+}
+
+Table assessment_results {
+  assessment_result_id bigint [pk, increment]
+  student_id bigint [not null]
+  exam_id bigint
+  quiz_id bigint
+  assessment_type varchar(30) [not null, default: 'exam']
+  total_score decimal(6,2) [not null, default: 0]
+  passed boolean [not null, default: false]
+  rank int
+  published_at datetime
+  remarks text
+  created_at timestamp
+  updated_at timestamp
+
+  Indexes {
+    (student_id, quiz_id) [name: 'results_student_quiz_idx']
+    (student_id, published_at) [name: 'results_student_published_idx']
+  }
+}
+
+Table assignment_submissions {
+  assignment_submission_id bigint [pk, increment]
+  content_assignment_id bigint [not null]
+  student_id bigint [not null]
+  response longtext
+  attachment_url varchar(1000)
+  submitted_at datetime
+  status varchar(30) [not null, default: 'submitted']
+  score decimal(6,2)
+  feedback longtext
+  created_at timestamp
+  updated_at timestamp
+
+  Indexes {
+    (student_id, content_assignment_id) [name: 'submissions_student_assignment_idx']
+    (student_id, submitted_at) [name: 'submissions_student_submitted_idx']
+  }
+}
+
+Table student_promotions {
+  id bigint [pk, increment]
+  student_id bigint [not null]
+  from_department_id bigint
+  from_year_id bigint
+  from_semester_id bigint
+  to_year_id bigint [not null]
+  to_semester_id bigint [not null]
+  promoted_at timestamp [not null]
+  note text
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table permissions {
+  id bigint [pk, increment]
+  name varchar(255) [not null]
+  guard_name varchar(255) [not null]
+  created_at timestamp
+  updated_at timestamp
+
+  Indexes {
+    (name, guard_name) [unique]
+  }
+}
+
+Table roles {
+  id bigint [pk, increment]
+  name varchar(255) [not null]
+  guard_name varchar(255) [not null]
+  created_at timestamp
+  updated_at timestamp
+
+  Indexes {
+    (name, guard_name) [unique]
+  }
+}
+
+Table model_has_permissions {
+  permission_id bigint [not null]
+  model_type varchar(255) [not null]
+  model_id bigint [not null]
+
+  Indexes {
+    (permission_id, model_id, model_type) [pk, name: 'model_has_permissions_permission_model_type_primary']
+    (model_id, model_type) [name: 'model_has_permissions_model_id_model_type_index']
+  }
+}
+
+Table model_has_roles {
+  role_id bigint [not null]
+  model_type varchar(255) [not null]
+  model_id bigint [not null]
+
+  Indexes {
+    (role_id, model_id, model_type) [pk, name: 'model_has_roles_role_model_type_primary']
+    (model_id, model_type) [name: 'model_has_roles_model_id_model_type_index']
+  }
+}
+
+Table role_has_permissions {
+  permission_id bigint [not null]
+  role_id bigint [not null]
+
+  Indexes {
+    (permission_id, role_id) [pk, name: 'role_has_permissions_permission_id_role_id_primary']
+  }
+}
+
+Ref: departments.faculty_id > faculties.faculty_id
+Ref: semesters.academic_year_id > academic_years.academic_year_id
+Ref: courses.course_category_id > course_categories.course_category_id
+Ref: courses.department_id > departments.department_id
+Ref: courses.academic_year_id > academic_years.academic_year_id
+Ref: courses.semester_id > semesters.semester_id
+Ref: subjects.course_id > courses.course_id
+Ref: class_rooms.course_id > courses.course_id
+Ref: class_rooms.academic_year_id > academic_years.academic_year_id
+Ref: students.user_id - users.id
+Ref: students.department_id > departments.department_id
+Ref: students.academic_year_id > academic_years.academic_year_id
+Ref: students.semester_id > semesters.semester_id
+Ref: teachers.user_id - users.id
+Ref: teachers.department_id > departments.department_id
+Ref: enrollments.student_id > students.student_id
+Ref: enrollments.course_id > courses.course_id
+Ref: enrollments.class_room_id > class_rooms.class_room_id
+Ref: enrollments.academic_year_id > academic_years.academic_year_id
+Ref: enrollments.semester_id > semesters.semester_id
+Ref: attendances.student_id > students.student_id
+Ref: attendances.class_room_id > class_rooms.class_room_id
+Ref: student_progresses.student_id > students.student_id
+Ref: student_progresses.course_id > courses.course_id
+Ref: student_progresses.class_room_id > class_rooms.class_room_id
+Ref: certificates.student_id > students.student_id
+Ref: certificates.course_id > courses.course_id
+Ref: course_assignments.teacher_id > teachers.teacher_id
+Ref: course_assignments.course_id > courses.course_id
+Ref: course_assignments.class_room_id > class_rooms.class_room_id
+Ref: course_assignments.academic_year_id > academic_years.academic_year_id
+Ref: teacher_schedules.teacher_id > teachers.teacher_id
+Ref: teacher_schedules.course_id > courses.course_id
+Ref: teacher_schedules.class_room_id > class_rooms.class_room_id
+Ref: teacher_performances.teacher_id > teachers.teacher_id
+Ref: teacher_performances.course_id > courses.course_id
+Ref: content_lessons.course_id > courses.course_id
+Ref: content_chapters.content_lesson_id > content_lessons.content_lesson_id
+Ref: content_videos.content_lesson_id > content_lessons.content_lesson_id
+Ref: content_videos.content_chapter_id > content_chapters.content_chapter_id
+Ref: content_documents.content_lesson_id > content_lessons.content_lesson_id
+Ref: content_documents.content_chapter_id > content_chapters.content_chapter_id
+Ref: content_assignments.content_lesson_id > content_lessons.content_lesson_id
+Ref: content_assignments.content_chapter_id > content_chapters.content_chapter_id
+Ref: content_resources.content_lesson_id > content_lessons.content_lesson_id
+Ref: content_resources.content_chapter_id > content_chapters.content_chapter_id
+Ref: quizzes.content_lesson_id > content_lessons.content_lesson_id
+Ref: question_banks.course_id > courses.course_id
+Ref: question_banks.subject_id > subjects.subject_id
+Ref: assessment_questions.question_bank_id > question_banks.question_bank_id
+Ref: assessment_questions.content_lesson_id > content_lessons.content_lesson_id
+Ref: question_options.assessment_question_id > assessment_questions.assessment_question_id
+Ref: exams.course_id > courses.course_id
+Ref: exams.subject_id > subjects.subject_id
+Ref: exam_candidates.exam_id > exams.exam_id
+Ref: exam_candidates.student_id > students.student_id
+Ref: exam_submissions.exam_id > exams.exam_id
+Ref: exam_submissions.student_id > students.student_id
+Ref: assessment_grades.student_id > students.student_id
+Ref: assessment_grades.exam_id > exams.exam_id
+Ref: assessment_grades.quiz_id > quizzes.quiz_id
+Ref: assessment_grades.content_assignment_id > content_assignments.content_assignment_id
+Ref: assessment_grades.graded_by > users.id
+Ref: assessment_results.student_id > students.student_id
+Ref: assessment_results.exam_id > exams.exam_id
+Ref: assessment_results.quiz_id > quizzes.quiz_id
+Ref: assignment_submissions.content_assignment_id > content_assignments.content_assignment_id
+Ref: assignment_submissions.student_id > students.student_id
+Ref: student_promotions.student_id > students.student_id
+Ref: student_promotions.from_department_id > departments.department_id
+Ref: student_promotions.from_year_id > academic_years.academic_year_id
+Ref: student_promotions.from_semester_id > semesters.semester_id
+Ref: student_promotions.to_year_id > academic_years.academic_year_id
+Ref: student_promotions.to_semester_id > semesters.semester_id
+Ref: model_has_permissions.permission_id > permissions.id
+Ref: model_has_permissions.model_id > users.id
+Ref: model_has_roles.role_id > roles.id
+Ref: model_has_roles.model_id > users.id
+Ref: role_has_permissions.permission_id > permissions.id
+Ref: role_has_permissions.role_id > roles.id

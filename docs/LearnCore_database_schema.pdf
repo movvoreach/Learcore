@@ -1,0 +1,1613 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [5 0 R 7 0 R 9 0 R 11 0 R 13 0 R 15 0 R 17 0 R 19 0 R 21 0 R 23 0 R] /Count 10 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Courier >>
+endobj
+4 0 obj
+<< /Length 3247 >>
+stream
+BT
+/F1 7.2 Tf
+1 0 0 1 36 805.89 Tm
+(LearnCore Database Schema DBML) Tj
+0 -16.92 Td
+(Table users {) Tj
+0 -9.4 Td
+(  id bigint [pk, increment]) Tj
+0 -9.4 Td
+(  name varchar\(255\) [not null]) Tj
+0 -9.4 Td
+(  email varchar\(255\) [not null, unique]) Tj
+0 -9.4 Td
+(  email_verified_at timestamp) Tj
+0 -9.4 Td
+(  email_otp_code varchar\(10\)) Tj
+0 -9.4 Td
+(  email_otp_sent_at timestamp) Tj
+0 -9.4 Td
+(  email_otp_expires_at timestamp) Tj
+0 -9.4 Td
+(  email_otp_verified_at timestamp) Tj
+0 -9.4 Td
+(  password varchar\(255\) [not null]) Tj
+0 -9.4 Td
+(  remember_token varchar\(100\)) Tj
+0 -9.4 Td
+(  created_at timestamp) Tj
+0 -9.4 Td
+(  updated_at timestamp) Tj
+0 -9.4 Td
+(}) Tj
+0 -9.4 Td
+() Tj
+0 -9.4 Td
+(Table faculties {) Tj
+0 -9.4 Td
+(  faculty_id bigint [pk, increment]) Tj
+0 -9.4 Td
+(  faculty_code varchar\(30\) [not null, unique]) Tj
+0 -9.4 Td
+(  faculty_name varchar\(150\) [not null]) Tj
+0 -9.4 Td
+(  created_at timestamp) Tj
+0 -9.4 Td
+(  updated_at timestamp) Tj
+0 -9.4 Td
+(}) Tj
+0 -9.4 Td
+() Tj
+0 -9.4 Td
+(Table departments {) Tj
+0 -9.4 Td
+(  department_id bigint [pk, increment]) Tj
+0 -9.4 Td
+(  faculty_id bigint [not null]) Tj
+0 -9.4 Td
+(  department_code varchar\(30\) [not null, unique]) Tj
+0 -9.4 Td
+(  department_name varchar\(150\) [not null]) Tj
+0 -9.4 Td
+(  deans varchar\(255\)) Tj
+0 -9.4 Td
+(  created_at timestamp) Tj
+0 -9.4 Td
+(  updated_at timestamp) Tj
+0 -9.4 Td
+(}) Tj
+0 -9.4 Td
+() Tj
+0 -9.4 Td
+(Table course_categories {) Tj
+0 -9.4 Td
+(  course_category_id bigint [pk, increment]) Tj
+0 -9.4 Td
+(  category_code varchar\(30\) [not null, unique]) Tj
+0 -9.4 Td
+(  category_name varchar\(150\) [not null]) Tj
+0 -9.4 Td
+(  description text) Tj
+0 -9.4 Td
+(  created_at timestamp) Tj
+0 -9.4 Td
+(  updated_at timestamp) Tj
+0 -9.4 Td
+(}) Tj
+0 -9.4 Td
+() Tj
+0 -9.4 Td
+(Table academic_years {) Tj
+0 -9.4 Td
+(  academic_year_id bigint [pk, increment]) Tj
+0 -9.4 Td
+(  year_name varchar\(50\) [not null, unique]) Tj
+0 -9.4 Td
+(  start_date date) Tj
+0 -9.4 Td
+(  end_date date) Tj
+0 -9.4 Td
+(  is_active boolean [not null, default: false]) Tj
+0 -9.4 Td
+(  created_at timestamp) Tj
+0 -9.4 Td
+(  updated_at timestamp) Tj
+0 -9.4 Td
+(}) Tj
+0 -9.4 Td
+() Tj
+0 -9.4 Td
+(Table semesters {) Tj
+0 -9.4 Td
+(  semester_id bigint [pk, increment]) Tj
+0 -9.4 Td
+(  academic_year_id bigint [not null]) Tj
+0 -9.4 Td
+(  semester_name varchar\(100\) [not null]) Tj
+0 -9.4 Td
+(  start_date date [not null]) Tj
+0 -9.4 Td
+(  end_date date [not null]) Tj
+0 -9.4 Td
+(  is_active boolean [not null, default: false]) Tj
+0 -9.4 Td
+(  created_at timestamp) Tj
+0 -9.4 Td
+(  updated_at timestamp) Tj
+0 -9.4 Td
+() Tj
+0 -9.4 Td
+(  Indexes {) Tj
+0 -9.4 Td
+(    \(academic_year_id, semester_name\) [unique]) Tj
+0 -9.4 Td
+(  }) Tj
+0 -9.4 Td
+(}) Tj
+0 -9.4 Td
+() Tj
+0 -9.4 Td
+(Table courses {) Tj
+0 -9.4 Td
+(  course_id bigint [pk, increment]) Tj
+0 -9.4 Td
+(  course_category_id bigint [not null]) Tj
+0 -9.4 Td
+(  department_id bigint) Tj
+0 -9.4 Td
+(  academic_year_id bigint) Tj
+0 -9.4 Td
+(  semester_id bigint) Tj
+0 -9.4 Td
+(  course_code varchar\(30\) [not null, unique]) Tj
+0 -9.4 Td
+(  course_name varchar\(150\) [not null]) Tj
+0 -9.4 Td
+(  description text) Tj
+0 -9.4 Td
+(  created_at timestamp) Tj
+0 -9.4 Td
+(  updated_at timestamp) Tj
+0 -9.4 Td
+() Tj
+0 -9.4 Td
+ET
+endstream
+endobj
+5 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R >> >> /Contents 4 0 R >>
+endobj
+6 0 obj
+<< /Length 3406 >>
+stream
+BT
+/F1 7.2 Tf
+1 0 0 1 36 805.89 Tm
+(LearnCore Database Schema DBML) Tj
+0 -16.92 Td
+(  Indexes {) Tj
+0 -9.4 Td
+(    \(department_id, academic_year_id, semester_id\) [name: 'courses_academic_scope_idx']) Tj
+0 -9.4 Td
+(    \(course_category_id, department_id\) [name: 'courses_category_department_idx']) Tj
+0 -9.4 Td
+(  }) Tj
+0 -9.4 Td
+(}) Tj
+0 -9.4 Td
+() Tj
+0 -9.4 Td
+(Table subjects {) Tj
+0 -9.4 Td
+(  subject_id bigint [pk, increment]) Tj
+0 -9.4 Td
+(  course_id bigint [not null]) Tj
+0 -9.4 Td
+(  subject_code varchar\(30\) [not null, unique]) Tj
+0 -9.4 Td
+(  subject_name varchar\(150\) [not null]) Tj
+0 -9.4 Td
+(  credit smallint [not null, default: 0]) Tj
+0 -9.4 Td
+(  description text) Tj
+0 -9.4 Td
+(  created_at timestamp) Tj
+0 -9.4 Td
+(  updated_at timestamp) Tj
+0 -9.4 Td
+(}) Tj
+0 -9.4 Td
+() Tj
+0 -9.4 Td
+(Table class_rooms {) Tj
+0 -9.4 Td
+(  class_room_id bigint [pk, increment]) Tj
+0 -9.4 Td
+(  course_id bigint [not null]) Tj
+0 -9.4 Td
+(  academic_year_id bigint) Tj
+0 -9.4 Td
+(  class_code varchar\(30\) [not null, unique]) Tj
+0 -9.4 Td
+(  class_name varchar\(150\) [not null]) Tj
+0 -9.4 Td
+(  room varchar\(100\)) Tj
+0 -9.4 Td
+(  created_at timestamp) Tj
+0 -9.4 Td
+(  updated_at timestamp) Tj
+0 -9.4 Td
+(}) Tj
+0 -9.4 Td
+() Tj
+0 -9.4 Td
+(Table students {) Tj
+0 -9.4 Td
+(  student_id bigint [pk, increment]) Tj
+0 -9.4 Td
+(  user_id bigint [unique]) Tj
+0 -9.4 Td
+(  student_code varchar\(30\) [not null, unique]) Tj
+0 -9.4 Td
+(  department_id bigint) Tj
+0 -9.4 Td
+(  academic_year_id bigint) Tj
+0 -9.4 Td
+(  semester_id bigint) Tj
+0 -9.4 Td
+(  first_name varchar\(100\) [not null]) Tj
+0 -9.4 Td
+(  last_name varchar\(100\)) Tj
+0 -9.4 Td
+(  gender varchar\(20\)) Tj
+0 -9.4 Td
+(  date_of_birth date) Tj
+0 -9.4 Td
+(  phone varchar\(30\)) Tj
+0 -9.4 Td
+(  email varchar\(150\) [unique]) Tj
+0 -9.4 Td
+(  address text) Tj
+0 -9.4 Td
+(  status varchar\(30\) [not null, default: 'active']) Tj
+0 -9.4 Td
+(  created_at timestamp) Tj
+0 -9.4 Td
+(  updated_at timestamp) Tj
+0 -9.4 Td
+() Tj
+0 -9.4 Td
+(  Indexes {) Tj
+0 -9.4 Td
+(    \(department_id, academic_year_id, semester_id, status\) [name: 'students_academic_status_idx']) Tj
+0 -9.4 Td
+(    \(first_name, last_name\) [name: 'students_name_idx']) Tj
+0 -9.4 Td
+(  }) Tj
+0 -9.4 Td
+(}) Tj
+0 -9.4 Td
+() Tj
+0 -9.4 Td
+(Table teachers {) Tj
+0 -9.4 Td
+(  teacher_id bigint [pk, increment]) Tj
+0 -9.4 Td
+(  user_id bigint [unique]) Tj
+0 -9.4 Td
+(  department_id bigint) Tj
+0 -9.4 Td
+(  employment_type varchar\(30\) [not null, default: 'full_time']) Tj
+0 -9.4 Td
+(  teacher_code varchar\(30\) [not null, unique]) Tj
+0 -9.4 Td
+(  first_name varchar\(100\) [not null]) Tj
+0 -9.4 Td
+(  last_name varchar\(100\)) Tj
+0 -9.4 Td
+(  gender varchar\(20\)) Tj
+0 -9.4 Td
+(  phone varchar\(30\)) Tj
+0 -9.4 Td
+(  email varchar\(150\) [unique]) Tj
+0 -9.4 Td
+(  specialization varchar\(150\)) Tj
+0 -9.4 Td
+(  hire_date date) Tj
+0 -9.4 Td
+(  status varchar\(30\) [not null, default: 'active']) Tj
+0 -9.4 Td
+(  address text) Tj
+0 -9.4 Td
+(  created_at timestamp) Tj
+0 -9.4 Td
+(  updated_at timestamp) Tj
+0 -9.4 Td
+(}) Tj
+0 -9.4 Td
+() Tj
+0 -9.4 Td
+(Table enrollments {) Tj
+0 -9.4 Td
+(  enrollment_id bigint [pk, increment]) Tj
+0 -9.4 Td
+(  student_id bigint [not null]) Tj
+0 -9.4 Td
+(  course_id bigint [not null]) Tj
+0 -9.4 Td
+(  class_room_id bigint) Tj
+0 -9.4 Td
+(  academic_year_id bigint) Tj
+0 -9.4 Td
+(  semester_id bigint) Tj
+0 -9.4 Td
+(  enrollment_date date) Tj
+0 -9.4 Td
+ET
+endstream
+endobj
+7 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R >> >> /Contents 6 0 R >>
+endobj
+8 0 obj
+<< /Length 3486 >>
+stream
+BT
+/F1 7.2 Tf
+1 0 0 1 36 805.89 Tm
+(LearnCore Database Schema DBML) Tj
+0 -16.92 Td
+(  status varchar\(30\) [not null, default: 'studying']) Tj
+0 -9.4 Td
+(  note text) Tj
+0 -9.4 Td
+(  created_at timestamp) Tj
+0 -9.4 Td
+(  updated_at timestamp) Tj
+0 -9.4 Td
+() Tj
+0 -9.4 Td
+(  Indexes {) Tj
+0 -9.4 Td
+(    \(student_id, course_id, semester_id\) [name: 'enrollments_student_course_semester_idx']) Tj
+0 -9.4 Td
+(    \(course_id, academic_year_id, semester_id, status\) [name: 'enrollments_course_period_status_idx']) Tj
+0 -9.4 Td
+(  }) Tj
+0 -9.4 Td
+(}) Tj
+0 -9.4 Td
+() Tj
+0 -9.4 Td
+(Table attendances {) Tj
+0 -9.4 Td
+(  attendance_id bigint [pk, increment]) Tj
+0 -9.4 Td
+(  student_id bigint [not null]) Tj
+0 -9.4 Td
+(  class_room_id bigint) Tj
+0 -9.4 Td
+(  attendance_date date [not null]) Tj
+0 -9.4 Td
+(  status varchar\(30\) [not null, default: 'present']) Tj
+0 -9.4 Td
+(  note text) Tj
+0 -9.4 Td
+(  created_at timestamp) Tj
+0 -9.4 Td
+(  updated_at timestamp) Tj
+0 -9.4 Td
+() Tj
+0 -9.4 Td
+(  Indexes {) Tj
+0 -9.4 Td
+(    \(student_id, attendance_date\) [name: 'attendances_student_date_idx']) Tj
+0 -9.4 Td
+(    \(class_room_id, attendance_date\) [name: 'attendances_class_date_idx']) Tj
+0 -9.4 Td
+(  }) Tj
+0 -9.4 Td
+(}) Tj
+0 -9.4 Td
+() Tj
+0 -9.4 Td
+(Table student_progresses {) Tj
+0 -9.4 Td
+(  progress_id bigint [pk, increment]) Tj
+0 -9.4 Td
+(  student_id bigint [not null]) Tj
+0 -9.4 Td
+(  course_id bigint) Tj
+0 -9.4 Td
+(  class_room_id bigint) Tj
+0 -9.4 Td
+(  progress_date date) Tj
+0 -9.4 Td
+(  progress_percent decimal\(5,2\) [not null, default: 0]) Tj
+0 -9.4 Td
+(  score decimal\(6,2\)) Tj
+0 -9.4 Td
+(  status varchar\(30\) [not null, default: 'in_progress']) Tj
+0 -9.4 Td
+(  note text) Tj
+0 -9.4 Td
+(  created_at timestamp) Tj
+0 -9.4 Td
+(  updated_at timestamp) Tj
+0 -9.4 Td
+() Tj
+0 -9.4 Td
+(  Indexes {) Tj
+0 -9.4 Td
+(    \(student_id, course_id\) [name: 'progress_student_course_idx']) Tj
+0 -9.4 Td
+(    \(course_id, progress_date\) [name: 'progress_course_date_idx']) Tj
+0 -9.4 Td
+(  }) Tj
+0 -9.4 Td
+(}) Tj
+0 -9.4 Td
+() Tj
+0 -9.4 Td
+(Table certificates {) Tj
+0 -9.4 Td
+(  certificate_id bigint [pk, increment]) Tj
+0 -9.4 Td
+(  student_id bigint [not null]) Tj
+0 -9.4 Td
+(  course_id bigint) Tj
+0 -9.4 Td
+(  certificate_no varchar\(50\) [not null, unique]) Tj
+0 -9.4 Td
+(  issued_date date) Tj
+0 -9.4 Td
+(  status varchar\(30\) [not null, default: 'issued']) Tj
+0 -9.4 Td
+(  note text) Tj
+0 -9.4 Td
+(  created_at timestamp) Tj
+0 -9.4 Td
+(  updated_at timestamp) Tj
+0 -9.4 Td
+() Tj
+0 -9.4 Td
+(  Indexes {) Tj
+0 -9.4 Td
+(    \(student_id, issued_date\) [name: 'certificates_student_issued_idx']) Tj
+0 -9.4 Td
+(    \(course_id, issued_date\) [name: 'certificates_course_issued_idx']) Tj
+0 -9.4 Td
+(  }) Tj
+0 -9.4 Td
+(}) Tj
+0 -9.4 Td
+() Tj
+0 -9.4 Td
+(Table course_assignments {) Tj
+0 -9.4 Td
+(  course_assignment_id bigint [pk, increment]) Tj
+0 -9.4 Td
+(  teacher_id bigint [not null]) Tj
+0 -9.4 Td
+(  course_id bigint [not null]) Tj
+0 -9.4 Td
+(  class_room_id bigint) Tj
+0 -9.4 Td
+(  academic_year_id bigint) Tj
+0 -9.4 Td
+(  assigned_date date) Tj
+0 -9.4 Td
+(  status varchar\(30\) [not null, default: 'active']) Tj
+0 -9.4 Td
+(  note text) Tj
+0 -9.4 Td
+(  created_at timestamp) Tj
+0 -9.4 Td
+(  updated_at timestamp) Tj
+0 -9.4 Td
+() Tj
+0 -9.4 Td
+(  Indexes {) Tj
+0 -9.4 Td
+(    \(course_id, teacher_id\) [name: 'course_assignments_course_teacher_idx']) Tj
+0 -9.4 Td
+(    \(teacher_id, course_id\) [name: 'course_assignments_teacher_course_idx']) Tj
+0 -9.4 Td
+(  }) Tj
+0 -9.4 Td
+ET
+endstream
+endobj
+9 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R >> >> /Contents 8 0 R >>
+endobj
+10 0 obj
+<< /Length 3620 >>
+stream
+BT
+/F1 7.2 Tf
+1 0 0 1 36 805.89 Tm
+(LearnCore Database Schema DBML) Tj
+0 -16.92 Td
+(}) Tj
+0 -9.4 Td
+() Tj
+0 -9.4 Td
+(Table teacher_schedules {) Tj
+0 -9.4 Td
+(  teacher_schedule_id bigint [pk, increment]) Tj
+0 -9.4 Td
+(  teacher_id bigint [not null]) Tj
+0 -9.4 Td
+(  course_id bigint) Tj
+0 -9.4 Td
+(  class_room_id bigint) Tj
+0 -9.4 Td
+(  day_of_week varchar\(20\) [not null]) Tj
+0 -9.4 Td
+(  start_time time [not null]) Tj
+0 -9.4 Td
+(  end_time time [not null]) Tj
+0 -9.4 Td
+(  room varchar\(100\)) Tj
+0 -9.4 Td
+(  status varchar\(30\) [not null, default: 'active']) Tj
+0 -9.4 Td
+(  note text) Tj
+0 -9.4 Td
+(  created_at timestamp) Tj
+0 -9.4 Td
+(  updated_at timestamp) Tj
+0 -9.4 Td
+(}) Tj
+0 -9.4 Td
+() Tj
+0 -9.4 Td
+(Table teacher_performances {) Tj
+0 -9.4 Td
+(  teacher_performance_id bigint [pk, increment]) Tj
+0 -9.4 Td
+(  teacher_id bigint [not null]) Tj
+0 -9.4 Td
+(  course_id bigint) Tj
+0 -9.4 Td
+(  evaluation_date date [not null]) Tj
+0 -9.4 Td
+(  teaching_score tinyint [not null, default: 0]) Tj
+0 -9.4 Td
+(  attendance_score tinyint [not null, default: 0]) Tj
+0 -9.4 Td
+(  student_feedback_score tinyint [not null, default: 0]) Tj
+0 -9.4 Td
+(  rating varchar\(30\) [not null, default: 'good']) Tj
+0 -9.4 Td
+(  comment text) Tj
+0 -9.4 Td
+(  created_at timestamp) Tj
+0 -9.4 Td
+(  updated_at timestamp) Tj
+0 -9.4 Td
+(}) Tj
+0 -9.4 Td
+() Tj
+0 -9.4 Td
+(Table content_lessons {) Tj
+0 -9.4 Td
+(  content_lesson_id bigint [pk, increment]) Tj
+0 -9.4 Td
+(  course_id bigint [not null]) Tj
+0 -9.4 Td
+(  module_number int [not null, default: 1]) Tj
+0 -9.4 Td
+(  module_title varchar\(255\)) Tj
+0 -9.4 Td
+(  title varchar\(255\) [not null]) Tj
+0 -9.4 Td
+(  slug varchar\(255\) [not null, unique]) Tj
+0 -9.4 Td
+(  content_type varchar\(30\) [not null, default: 'lesson']) Tj
+0 -9.4 Td
+(  summary text) Tj
+0 -9.4 Td
+(  body longtext) Tj
+0 -9.4 Td
+(  external_url varchar\(255\)) Tj
+0 -9.4 Td
+(  file_path varchar\(255\)) Tj
+0 -9.4 Td
+(  video_url varchar\(255\)) Tj
+0 -9.4 Td
+(  duration_minutes int) Tj
+0 -9.4 Td
+(  position int [not null, default: 1]) Tj
+0 -9.4 Td
+(  available_from datetime) Tj
+0 -9.4 Td
+(  available_until datetime) Tj
+0 -9.4 Td
+(  completion_required boolean [not null, default: false]) Tj
+0 -9.4 Td
+(  visibility varchar\(20\) [not null, default: 'visible']) Tj
+0 -9.4 Td
+(  max_score decimal\(8,2\)) Tj
+0 -9.4 Td
+(  passing_score decimal\(8,2\)) Tj
+0 -9.4 Td
+(  allow_comments boolean [not null, default: false]) Tj
+0 -9.4 Td
+(  metadata json) Tj
+0 -9.4 Td
+(  is_published boolean [not null, default: true]) Tj
+0 -9.4 Td
+(  created_at timestamp) Tj
+0 -9.4 Td
+(  updated_at timestamp) Tj
+0 -9.4 Td
+(  deleted_at timestamp) Tj
+0 -9.4 Td
+() Tj
+0 -9.4 Td
+(  Indexes {) Tj
+0 -9.4 Td
+(    \(course_id, module_number, position\)) Tj
+0 -9.4 Td
+(    \(content_type, visibility, is_published\)) Tj
+0 -9.4 Td
+(    \(course_id, is_published, visibility, module_number, position\) [name: 'lessons_course_visible_order_idx']) Tj
+0 -9.4 Td
+(    \(course_id, is_published, available_from, available_until\) [name: 'lessons_course_schedule_idx']) Tj
+0 -9.4 Td
+(  }) Tj
+0 -9.4 Td
+(}) Tj
+0 -9.4 Td
+() Tj
+0 -9.4 Td
+(Table content_chapters {) Tj
+0 -9.4 Td
+(  content_chapter_id bigint [pk, increment]) Tj
+0 -9.4 Td
+(  content_lesson_id bigint [not null]) Tj
+0 -9.4 Td
+(  title varchar\(180\) [not null]) Tj
+0 -9.4 Td
+(  summary text) Tj
+0 -9.4 Td
+(  content longtext) Tj
+0 -9.4 Td
+(  sort_order int [not null, default: 0]) Tj
+0 -9.4 Td
+(  is_published boolean [not null, default: false]) Tj
+0 -9.4 Td
+(  created_at timestamp) Tj
+0 -9.4 Td
+(  updated_at timestamp) Tj
+0 -9.4 Td
+() Tj
+0 -9.4 Td
+(  Indexes {) Tj
+0 -9.4 Td
+ET
+endstream
+endobj
+11 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R >> >> /Contents 10 0 R >>
+endobj
+12 0 obj
+<< /Length 3830 >>
+stream
+BT
+/F1 7.2 Tf
+1 0 0 1 36 805.89 Tm
+(LearnCore Database Schema DBML) Tj
+0 -16.92 Td
+(    \(content_lesson_id, is_published, sort_order\) [name: 'chapters_lesson_published_order_idx']) Tj
+0 -9.4 Td
+(  }) Tj
+0 -9.4 Td
+(}) Tj
+0 -9.4 Td
+() Tj
+0 -9.4 Td
+(Table content_videos {) Tj
+0 -9.4 Td
+(  content_video_id bigint [pk, increment]) Tj
+0 -9.4 Td
+(  content_lesson_id bigint [not null]) Tj
+0 -9.4 Td
+(  content_chapter_id bigint) Tj
+0 -9.4 Td
+(  title varchar\(180\) [not null]) Tj
+0 -9.4 Td
+(  description text) Tj
+0 -9.4 Td
+(  video_path varchar\(255\)) Tj
+0 -9.4 Td
+(  video_url varchar\(255\)) Tj
+0 -9.4 Td
+(  duration_seconds int) Tj
+0 -9.4 Td
+(  sort_order int [not null, default: 0]) Tj
+0 -9.4 Td
+(  is_published boolean [not null, default: false]) Tj
+0 -9.4 Td
+(  created_at timestamp) Tj
+0 -9.4 Td
+(  updated_at timestamp) Tj
+0 -9.4 Td
+() Tj
+0 -9.4 Td
+(  Indexes {) Tj
+0 -9.4 Td
+(    \(content_lesson_id, is_published, sort_order\) [name: 'videos_lesson_published_order_idx']) Tj
+0 -9.4 Td
+(    \(content_chapter_id, is_published, sort_order\) [name: 'videos_chapter_published_order_idx']) Tj
+0 -9.4 Td
+(  }) Tj
+0 -9.4 Td
+(}) Tj
+0 -9.4 Td
+() Tj
+0 -9.4 Td
+(Table content_documents {) Tj
+0 -9.4 Td
+(  content_document_id bigint [pk, increment]) Tj
+0 -9.4 Td
+(  content_lesson_id bigint [not null]) Tj
+0 -9.4 Td
+(  content_chapter_id bigint) Tj
+0 -9.4 Td
+(  title varchar\(180\) [not null]) Tj
+0 -9.4 Td
+(  description text) Tj
+0 -9.4 Td
+(  file_path varchar\(255\) [not null]) Tj
+0 -9.4 Td
+(  sort_order int [not null, default: 0]) Tj
+0 -9.4 Td
+(  is_published boolean [not null, default: false]) Tj
+0 -9.4 Td
+(  created_at timestamp) Tj
+0 -9.4 Td
+(  updated_at timestamp) Tj
+0 -9.4 Td
+() Tj
+0 -9.4 Td
+(  Indexes {) Tj
+0 -9.4 Td
+(    \(content_lesson_id, is_published, sort_order\) [name: 'documents_lesson_published_order_idx']) Tj
+0 -9.4 Td
+(    \(content_chapter_id, is_published, sort_order\) [name: 'documents_chapter_published_order_idx']) Tj
+0 -9.4 Td
+(  }) Tj
+0 -9.4 Td
+(}) Tj
+0 -9.4 Td
+() Tj
+0 -9.4 Td
+(Table content_assignments {) Tj
+0 -9.4 Td
+(  content_assignment_id bigint [pk, increment]) Tj
+0 -9.4 Td
+(  content_lesson_id bigint [not null]) Tj
+0 -9.4 Td
+(  content_chapter_id bigint) Tj
+0 -9.4 Td
+(  title varchar\(180\) [not null]) Tj
+0 -9.4 Td
+(  instructions longtext) Tj
+0 -9.4 Td
+(  attachment_path varchar\(255\)) Tj
+0 -9.4 Td
+(  due_at datetime) Tj
+0 -9.4 Td
+(  max_score int [not null, default: 100]) Tj
+0 -9.4 Td
+(  allow_late_submission boolean [not null, default: false]) Tj
+0 -9.4 Td
+(  is_published boolean [not null, default: false]) Tj
+0 -9.4 Td
+(  created_at timestamp) Tj
+0 -9.4 Td
+(  updated_at timestamp) Tj
+0 -9.4 Td
+() Tj
+0 -9.4 Td
+(  Indexes {) Tj
+0 -9.4 Td
+(    \(content_lesson_id, is_published, due_at\) [name: 'assignments_lesson_published_due_idx']) Tj
+0 -9.4 Td
+(    \(content_chapter_id, is_published, due_at\) [name: 'assignments_chapter_published_due_idx']) Tj
+0 -9.4 Td
+(  }) Tj
+0 -9.4 Td
+(}) Tj
+0 -9.4 Td
+() Tj
+0 -9.4 Td
+(Table content_resources {) Tj
+0 -9.4 Td
+(  content_resource_id bigint [pk, increment]) Tj
+0 -9.4 Td
+(  content_lesson_id bigint [not null]) Tj
+0 -9.4 Td
+(  content_chapter_id bigint) Tj
+0 -9.4 Td
+(  title varchar\(180\) [not null]) Tj
+0 -9.4 Td
+(  description text) Tj
+0 -9.4 Td
+(  file_path varchar\(255\)) Tj
+0 -9.4 Td
+(  external_url varchar\(255\)) Tj
+0 -9.4 Td
+(  sort_order int [not null, default: 0]) Tj
+0 -9.4 Td
+(  is_published boolean [not null, default: false]) Tj
+0 -9.4 Td
+(  created_at timestamp) Tj
+0 -9.4 Td
+(  updated_at timestamp) Tj
+0 -9.4 Td
+() Tj
+0 -9.4 Td
+(  Indexes {) Tj
+0 -9.4 Td
+(    \(content_lesson_id, is_published, sort_order\) [name: 'resources_lesson_published_order_idx']) Tj
+0 -9.4 Td
+(    \(content_chapter_id, is_published, sort_order\) [name: 'resources_chapter_published_order_idx']) Tj
+0 -9.4 Td
+(  }) Tj
+0 -9.4 Td
+ET
+endstream
+endobj
+13 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R >> >> /Contents 12 0 R >>
+endobj
+14 0 obj
+<< /Length 3444 >>
+stream
+BT
+/F1 7.2 Tf
+1 0 0 1 36 805.89 Tm
+(LearnCore Database Schema DBML) Tj
+0 -16.92 Td
+(}) Tj
+0 -9.4 Td
+() Tj
+0 -9.4 Td
+(Table quizzes {) Tj
+0 -9.4 Td
+(  quiz_id bigint [pk, increment]) Tj
+0 -9.4 Td
+(  content_lesson_id bigint) Tj
+0 -9.4 Td
+(  title varchar\(180\) [not null]) Tj
+0 -9.4 Td
+(  instructions longtext) Tj
+0 -9.4 Td
+(  available_from datetime) Tj
+0 -9.4 Td
+(  available_until datetime) Tj
+0 -9.4 Td
+(  time_limit_minutes smallint) Tj
+0 -9.4 Td
+(  max_attempts smallint [not null, default: 1]) Tj
+0 -9.4 Td
+(  passing_score decimal\(6,2\) [not null, default: 50]) Tj
+0 -9.4 Td
+(  is_published boolean [not null, default: false]) Tj
+0 -9.4 Td
+(  created_at timestamp) Tj
+0 -9.4 Td
+(  updated_at timestamp) Tj
+0 -9.4 Td
+() Tj
+0 -9.4 Td
+(  Indexes {) Tj
+0 -9.4 Td
+(    \(content_lesson_id, is_published, available_from\) [name: 'quizzes_lesson_published_from_idx']) Tj
+0 -9.4 Td
+(  }) Tj
+0 -9.4 Td
+(}) Tj
+0 -9.4 Td
+() Tj
+0 -9.4 Td
+(Table question_banks {) Tj
+0 -9.4 Td
+(  question_bank_id bigint [pk, increment]) Tj
+0 -9.4 Td
+(  course_id bigint) Tj
+0 -9.4 Td
+(  subject_id bigint) Tj
+0 -9.4 Td
+(  title varchar\(180\) [not null]) Tj
+0 -9.4 Td
+(  description text) Tj
+0 -9.4 Td
+(  is_active boolean [not null, default: true]) Tj
+0 -9.4 Td
+(  created_at timestamp) Tj
+0 -9.4 Td
+(  updated_at timestamp) Tj
+0 -9.4 Td
+(}) Tj
+0 -9.4 Td
+() Tj
+0 -9.4 Td
+(Table assessment_questions {) Tj
+0 -9.4 Td
+(  assessment_question_id bigint [pk, increment]) Tj
+0 -9.4 Td
+(  question_bank_id bigint) Tj
+0 -9.4 Td
+(  content_lesson_id bigint) Tj
+0 -9.4 Td
+(  question_text longtext [not null]) Tj
+0 -9.4 Td
+(  question_type varchar\(40\) [not null, default: 'multiple_choice']) Tj
+0 -9.4 Td
+(  points decimal\(6,2\) [not null, default: 1]) Tj
+0 -9.4 Td
+(  correct_answer longtext) Tj
+0 -9.4 Td
+(  explanation longtext) Tj
+0 -9.4 Td
+(  is_active boolean [not null, default: true]) Tj
+0 -9.4 Td
+(  created_at timestamp) Tj
+0 -9.4 Td
+(  updated_at timestamp) Tj
+0 -9.4 Td
+() Tj
+0 -9.4 Td
+(  Indexes {) Tj
+0 -9.4 Td
+(    \(content_lesson_id, is_active\) [name: 'questions_lesson_active_idx']) Tj
+0 -9.4 Td
+(    \(question_bank_id, is_active\) [name: 'questions_bank_active_idx']) Tj
+0 -9.4 Td
+(  }) Tj
+0 -9.4 Td
+(}) Tj
+0 -9.4 Td
+() Tj
+0 -9.4 Td
+(Table question_options {) Tj
+0 -9.4 Td
+(  question_option_id bigint [pk, increment]) Tj
+0 -9.4 Td
+(  assessment_question_id bigint [not null]) Tj
+0 -9.4 Td
+(  option_text varchar\(500\) [not null]) Tj
+0 -9.4 Td
+(  is_correct boolean [not null, default: false]) Tj
+0 -9.4 Td
+(  sort_order smallint [not null, default: 0]) Tj
+0 -9.4 Td
+(  created_at timestamp) Tj
+0 -9.4 Td
+(  updated_at timestamp) Tj
+0 -9.4 Td
+() Tj
+0 -9.4 Td
+(  Indexes {) Tj
+0 -9.4 Td
+(    \(assessment_question_id, sort_order\) [name: 'options_question_order_idx']) Tj
+0 -9.4 Td
+(  }) Tj
+0 -9.4 Td
+(}) Tj
+0 -9.4 Td
+() Tj
+0 -9.4 Td
+(Table exams {) Tj
+0 -9.4 Td
+(  exam_id bigint [pk, increment]) Tj
+0 -9.4 Td
+(  course_id bigint) Tj
+0 -9.4 Td
+(  subject_id bigint) Tj
+0 -9.4 Td
+(  title varchar\(180\) [not null]) Tj
+0 -9.4 Td
+(  description text) Tj
+0 -9.4 Td
+(  exam_date date) Tj
+0 -9.4 Td
+(  start_time time) Tj
+0 -9.4 Td
+(  end_time time) Tj
+0 -9.4 Td
+(  duration_minutes smallint) Tj
+0 -9.4 Td
+(  total_score decimal\(6,2\) [not null, default: 100]) Tj
+0 -9.4 Td
+(  passing_score decimal\(6,2\) [not null, default: 50]) Tj
+0 -9.4 Td
+(  status varchar\(30\) [not null, default: 'draft']) Tj
+0 -9.4 Td
+(  created_at timestamp) Tj
+0 -9.4 Td
+ET
+endstream
+endobj
+15 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R >> >> /Contents 14 0 R >>
+endobj
+16 0 obj
+<< /Length 3371 >>
+stream
+BT
+/F1 7.2 Tf
+1 0 0 1 36 805.89 Tm
+(LearnCore Database Schema DBML) Tj
+0 -16.92 Td
+(  updated_at timestamp) Tj
+0 -9.4 Td
+(}) Tj
+0 -9.4 Td
+() Tj
+0 -9.4 Td
+(Table exam_candidates {) Tj
+0 -9.4 Td
+(  exam_candidate_id bigint [pk, increment]) Tj
+0 -9.4 Td
+(  exam_id bigint [not null]) Tj
+0 -9.4 Td
+(  student_id bigint [not null]) Tj
+0 -9.4 Td
+(  seat_number varchar\(50\)) Tj
+0 -9.4 Td
+(  status varchar\(30\) [not null, default: 'registered']) Tj
+0 -9.4 Td
+(  created_at timestamp) Tj
+0 -9.4 Td
+(  updated_at timestamp) Tj
+0 -9.4 Td
+() Tj
+0 -9.4 Td
+(  Indexes {) Tj
+0 -9.4 Td
+(    \(exam_id, student_id\) [unique]) Tj
+0 -9.4 Td
+(  }) Tj
+0 -9.4 Td
+(}) Tj
+0 -9.4 Td
+() Tj
+0 -9.4 Td
+(Table exam_submissions {) Tj
+0 -9.4 Td
+(  exam_submission_id bigint [pk, increment]) Tj
+0 -9.4 Td
+(  exam_id bigint [not null]) Tj
+0 -9.4 Td
+(  student_id bigint [not null]) Tj
+0 -9.4 Td
+(  submitted_at datetime) Tj
+0 -9.4 Td
+(  attempt_no smallint [not null, default: 1]) Tj
+0 -9.4 Td
+(  answers json) Tj
+0 -9.4 Td
+(  score decimal\(6,2\)) Tj
+0 -9.4 Td
+(  status varchar\(30\) [not null, default: 'submitted']) Tj
+0 -9.4 Td
+(  feedback longtext) Tj
+0 -9.4 Td
+(  created_at timestamp) Tj
+0 -9.4 Td
+(  updated_at timestamp) Tj
+0 -9.4 Td
+(}) Tj
+0 -9.4 Td
+() Tj
+0 -9.4 Td
+(Table assessment_grades {) Tj
+0 -9.4 Td
+(  assessment_grade_id bigint [pk, increment]) Tj
+0 -9.4 Td
+(  student_id bigint [not null]) Tj
+0 -9.4 Td
+(  exam_id bigint) Tj
+0 -9.4 Td
+(  quiz_id bigint) Tj
+0 -9.4 Td
+(  content_assignment_id bigint) Tj
+0 -9.4 Td
+(  graded_by bigint) Tj
+0 -9.4 Td
+(  score decimal\(6,2\) [not null, default: 0]) Tj
+0 -9.4 Td
+(  max_score decimal\(6,2\) [not null, default: 100]) Tj
+0 -9.4 Td
+(  grade varchar\(20\)) Tj
+0 -9.4 Td
+(  graded_at datetime) Tj
+0 -9.4 Td
+(  remarks text) Tj
+0 -9.4 Td
+(  created_at timestamp) Tj
+0 -9.4 Td
+(  updated_at timestamp) Tj
+0 -9.4 Td
+() Tj
+0 -9.4 Td
+(  Indexes {) Tj
+0 -9.4 Td
+(    \(student_id, graded_at\) [name: 'grades_student_graded_idx']) Tj
+0 -9.4 Td
+(    \(student_id, exam_id\) [name: 'grades_student_exam_idx']) Tj
+0 -9.4 Td
+(    \(student_id, quiz_id\) [name: 'grades_student_quiz_idx']) Tj
+0 -9.4 Td
+(    \(student_id, content_assignment_id\) [name: 'grades_student_assignment_idx']) Tj
+0 -9.4 Td
+(  }) Tj
+0 -9.4 Td
+(}) Tj
+0 -9.4 Td
+() Tj
+0 -9.4 Td
+(Table assessment_results {) Tj
+0 -9.4 Td
+(  assessment_result_id bigint [pk, increment]) Tj
+0 -9.4 Td
+(  student_id bigint [not null]) Tj
+0 -9.4 Td
+(  exam_id bigint) Tj
+0 -9.4 Td
+(  quiz_id bigint) Tj
+0 -9.4 Td
+(  assessment_type varchar\(30\) [not null, default: 'exam']) Tj
+0 -9.4 Td
+(  total_score decimal\(6,2\) [not null, default: 0]) Tj
+0 -9.4 Td
+(  passed boolean [not null, default: false]) Tj
+0 -9.4 Td
+(  rank int) Tj
+0 -9.4 Td
+(  published_at datetime) Tj
+0 -9.4 Td
+(  remarks text) Tj
+0 -9.4 Td
+(  created_at timestamp) Tj
+0 -9.4 Td
+(  updated_at timestamp) Tj
+0 -9.4 Td
+() Tj
+0 -9.4 Td
+(  Indexes {) Tj
+0 -9.4 Td
+(    \(student_id, quiz_id\) [name: 'results_student_quiz_idx']) Tj
+0 -9.4 Td
+(    \(student_id, published_at\) [name: 'results_student_published_idx']) Tj
+0 -9.4 Td
+(  }) Tj
+0 -9.4 Td
+(}) Tj
+0 -9.4 Td
+() Tj
+0 -9.4 Td
+(Table assignment_submissions {) Tj
+0 -9.4 Td
+(  assignment_submission_id bigint [pk, increment]) Tj
+0 -9.4 Td
+(  content_assignment_id bigint [not null]) Tj
+0 -9.4 Td
+(  student_id bigint [not null]) Tj
+0 -9.4 Td
+(  response longtext) Tj
+0 -9.4 Td
+ET
+endstream
+endobj
+17 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R >> >> /Contents 16 0 R >>
+endobj
+18 0 obj
+<< /Length 3181 >>
+stream
+BT
+/F1 7.2 Tf
+1 0 0 1 36 805.89 Tm
+(LearnCore Database Schema DBML) Tj
+0 -16.92 Td
+(  attachment_url varchar\(1000\)) Tj
+0 -9.4 Td
+(  submitted_at datetime) Tj
+0 -9.4 Td
+(  status varchar\(30\) [not null, default: 'submitted']) Tj
+0 -9.4 Td
+(  score decimal\(6,2\)) Tj
+0 -9.4 Td
+(  feedback longtext) Tj
+0 -9.4 Td
+(  created_at timestamp) Tj
+0 -9.4 Td
+(  updated_at timestamp) Tj
+0 -9.4 Td
+() Tj
+0 -9.4 Td
+(  Indexes {) Tj
+0 -9.4 Td
+(    \(student_id, content_assignment_id\) [name: 'submissions_student_assignment_idx']) Tj
+0 -9.4 Td
+(    \(student_id, submitted_at\) [name: 'submissions_student_submitted_idx']) Tj
+0 -9.4 Td
+(  }) Tj
+0 -9.4 Td
+(}) Tj
+0 -9.4 Td
+() Tj
+0 -9.4 Td
+(Table student_promotions {) Tj
+0 -9.4 Td
+(  id bigint [pk, increment]) Tj
+0 -9.4 Td
+(  student_id bigint [not null]) Tj
+0 -9.4 Td
+(  from_department_id bigint) Tj
+0 -9.4 Td
+(  from_year_id bigint) Tj
+0 -9.4 Td
+(  from_semester_id bigint) Tj
+0 -9.4 Td
+(  to_year_id bigint [not null]) Tj
+0 -9.4 Td
+(  to_semester_id bigint [not null]) Tj
+0 -9.4 Td
+(  promoted_at timestamp [not null]) Tj
+0 -9.4 Td
+(  note text) Tj
+0 -9.4 Td
+(  created_at timestamp) Tj
+0 -9.4 Td
+(  updated_at timestamp) Tj
+0 -9.4 Td
+(}) Tj
+0 -9.4 Td
+() Tj
+0 -9.4 Td
+(Table permissions {) Tj
+0 -9.4 Td
+(  id bigint [pk, increment]) Tj
+0 -9.4 Td
+(  name varchar\(255\) [not null]) Tj
+0 -9.4 Td
+(  guard_name varchar\(255\) [not null]) Tj
+0 -9.4 Td
+(  created_at timestamp) Tj
+0 -9.4 Td
+(  updated_at timestamp) Tj
+0 -9.4 Td
+() Tj
+0 -9.4 Td
+(  Indexes {) Tj
+0 -9.4 Td
+(    \(name, guard_name\) [unique]) Tj
+0 -9.4 Td
+(  }) Tj
+0 -9.4 Td
+(}) Tj
+0 -9.4 Td
+() Tj
+0 -9.4 Td
+(Table roles {) Tj
+0 -9.4 Td
+(  id bigint [pk, increment]) Tj
+0 -9.4 Td
+(  name varchar\(255\) [not null]) Tj
+0 -9.4 Td
+(  guard_name varchar\(255\) [not null]) Tj
+0 -9.4 Td
+(  created_at timestamp) Tj
+0 -9.4 Td
+(  updated_at timestamp) Tj
+0 -9.4 Td
+() Tj
+0 -9.4 Td
+(  Indexes {) Tj
+0 -9.4 Td
+(    \(name, guard_name\) [unique]) Tj
+0 -9.4 Td
+(  }) Tj
+0 -9.4 Td
+(}) Tj
+0 -9.4 Td
+() Tj
+0 -9.4 Td
+(Table model_has_permissions {) Tj
+0 -9.4 Td
+(  permission_id bigint [not null]) Tj
+0 -9.4 Td
+(  model_type varchar\(255\) [not null]) Tj
+0 -9.4 Td
+(  model_id bigint [not null]) Tj
+0 -9.4 Td
+() Tj
+0 -9.4 Td
+(  Indexes {) Tj
+0 -9.4 Td
+(    \(permission_id, model_id, model_type\) [pk, name: 'model_has_permissions_permission_model_type_primary']) Tj
+0 -9.4 Td
+(    \(model_id, model_type\) [name: 'model_has_permissions_model_id_model_type_index']) Tj
+0 -9.4 Td
+(  }) Tj
+0 -9.4 Td
+(}) Tj
+0 -9.4 Td
+() Tj
+0 -9.4 Td
+(Table model_has_roles {) Tj
+0 -9.4 Td
+(  role_id bigint [not null]) Tj
+0 -9.4 Td
+(  model_type varchar\(255\) [not null]) Tj
+0 -9.4 Td
+(  model_id bigint [not null]) Tj
+0 -9.4 Td
+() Tj
+0 -9.4 Td
+(  Indexes {) Tj
+0 -9.4 Td
+(    \(role_id, model_id, model_type\) [pk, name: 'model_has_roles_role_model_type_primary']) Tj
+0 -9.4 Td
+(    \(model_id, model_type\) [name: 'model_has_roles_model_id_model_type_index']) Tj
+0 -9.4 Td
+(  }) Tj
+0 -9.4 Td
+(}) Tj
+0 -9.4 Td
+() Tj
+0 -9.4 Td
+(Table role_has_permissions {) Tj
+0 -9.4 Td
+(  permission_id bigint [not null]) Tj
+0 -9.4 Td
+(  role_id bigint [not null]) Tj
+0 -9.4 Td
+() Tj
+0 -9.4 Td
+(  Indexes {) Tj
+0 -9.4 Td
+ET
+endstream
+endobj
+19 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R >> >> /Contents 18 0 R >>
+endobj
+20 0 obj
+<< /Length 5890 >>
+stream
+BT
+/F1 7.2 Tf
+1 0 0 1 36 805.89 Tm
+(LearnCore Database Schema DBML) Tj
+0 -16.92 Td
+(    \(permission_id, role_id\) [pk, name: 'role_has_permissions_permission_id_role_id_primary']) Tj
+0 -9.4 Td
+(  }) Tj
+0 -9.4 Td
+(}) Tj
+0 -9.4 Td
+() Tj
+0 -9.4 Td
+(Ref: departments.faculty_id > faculties.faculty_id) Tj
+0 -9.4 Td
+(Ref: semesters.academic_year_id > academic_years.academic_year_id) Tj
+0 -9.4 Td
+(Ref: courses.course_category_id > course_categories.course_category_id) Tj
+0 -9.4 Td
+(Ref: courses.department_id > departments.department_id) Tj
+0 -9.4 Td
+(Ref: courses.academic_year_id > academic_years.academic_year_id) Tj
+0 -9.4 Td
+(Ref: courses.semester_id > semesters.semester_id) Tj
+0 -9.4 Td
+(Ref: subjects.course_id > courses.course_id) Tj
+0 -9.4 Td
+(Ref: class_rooms.course_id > courses.course_id) Tj
+0 -9.4 Td
+(Ref: class_rooms.academic_year_id > academic_years.academic_year_id) Tj
+0 -9.4 Td
+(Ref: students.user_id - users.id) Tj
+0 -9.4 Td
+(Ref: students.department_id > departments.department_id) Tj
+0 -9.4 Td
+(Ref: students.academic_year_id > academic_years.academic_year_id) Tj
+0 -9.4 Td
+(Ref: students.semester_id > semesters.semester_id) Tj
+0 -9.4 Td
+(Ref: teachers.user_id - users.id) Tj
+0 -9.4 Td
+(Ref: teachers.department_id > departments.department_id) Tj
+0 -9.4 Td
+(Ref: enrollments.student_id > students.student_id) Tj
+0 -9.4 Td
+(Ref: enrollments.course_id > courses.course_id) Tj
+0 -9.4 Td
+(Ref: enrollments.class_room_id > class_rooms.class_room_id) Tj
+0 -9.4 Td
+(Ref: enrollments.academic_year_id > academic_years.academic_year_id) Tj
+0 -9.4 Td
+(Ref: enrollments.semester_id > semesters.semester_id) Tj
+0 -9.4 Td
+(Ref: attendances.student_id > students.student_id) Tj
+0 -9.4 Td
+(Ref: attendances.class_room_id > class_rooms.class_room_id) Tj
+0 -9.4 Td
+(Ref: student_progresses.student_id > students.student_id) Tj
+0 -9.4 Td
+(Ref: student_progresses.course_id > courses.course_id) Tj
+0 -9.4 Td
+(Ref: student_progresses.class_room_id > class_rooms.class_room_id) Tj
+0 -9.4 Td
+(Ref: certificates.student_id > students.student_id) Tj
+0 -9.4 Td
+(Ref: certificates.course_id > courses.course_id) Tj
+0 -9.4 Td
+(Ref: course_assignments.teacher_id > teachers.teacher_id) Tj
+0 -9.4 Td
+(Ref: course_assignments.course_id > courses.course_id) Tj
+0 -9.4 Td
+(Ref: course_assignments.class_room_id > class_rooms.class_room_id) Tj
+0 -9.4 Td
+(Ref: course_assignments.academic_year_id > academic_years.academic_year_id) Tj
+0 -9.4 Td
+(Ref: teacher_schedules.teacher_id > teachers.teacher_id) Tj
+0 -9.4 Td
+(Ref: teacher_schedules.course_id > courses.course_id) Tj
+0 -9.4 Td
+(Ref: teacher_schedules.class_room_id > class_rooms.class_room_id) Tj
+0 -9.4 Td
+(Ref: teacher_performances.teacher_id > teachers.teacher_id) Tj
+0 -9.4 Td
+(Ref: teacher_performances.course_id > courses.course_id) Tj
+0 -9.4 Td
+(Ref: content_lessons.course_id > courses.course_id) Tj
+0 -9.4 Td
+(Ref: content_chapters.content_lesson_id > content_lessons.content_lesson_id) Tj
+0 -9.4 Td
+(Ref: content_videos.content_lesson_id > content_lessons.content_lesson_id) Tj
+0 -9.4 Td
+(Ref: content_videos.content_chapter_id > content_chapters.content_chapter_id) Tj
+0 -9.4 Td
+(Ref: content_documents.content_lesson_id > content_lessons.content_lesson_id) Tj
+0 -9.4 Td
+(Ref: content_documents.content_chapter_id > content_chapters.content_chapter_id) Tj
+0 -9.4 Td
+(Ref: content_assignments.content_lesson_id > content_lessons.content_lesson_id) Tj
+0 -9.4 Td
+(Ref: content_assignments.content_chapter_id > content_chapters.content_chapter_id) Tj
+0 -9.4 Td
+(Ref: content_resources.content_lesson_id > content_lessons.content_lesson_id) Tj
+0 -9.4 Td
+(Ref: content_resources.content_chapter_id > content_chapters.content_chapter_id) Tj
+0 -9.4 Td
+(Ref: quizzes.content_lesson_id > content_lessons.content_lesson_id) Tj
+0 -9.4 Td
+(Ref: question_banks.course_id > courses.course_id) Tj
+0 -9.4 Td
+(Ref: question_banks.subject_id > subjects.subject_id) Tj
+0 -9.4 Td
+(Ref: assessment_questions.question_bank_id > question_banks.question_bank_id) Tj
+0 -9.4 Td
+(Ref: assessment_questions.content_lesson_id > content_lessons.content_lesson_id) Tj
+0 -9.4 Td
+(Ref: question_options.assessment_question_id > assessment_questions.assessment_question_id) Tj
+0 -9.4 Td
+(Ref: exams.course_id > courses.course_id) Tj
+0 -9.4 Td
+(Ref: exams.subject_id > subjects.subject_id) Tj
+0 -9.4 Td
+(Ref: exam_candidates.exam_id > exams.exam_id) Tj
+0 -9.4 Td
+(Ref: exam_candidates.student_id > students.student_id) Tj
+0 -9.4 Td
+(Ref: exam_submissions.exam_id > exams.exam_id) Tj
+0 -9.4 Td
+(Ref: exam_submissions.student_id > students.student_id) Tj
+0 -9.4 Td
+(Ref: assessment_grades.student_id > students.student_id) Tj
+0 -9.4 Td
+(Ref: assessment_grades.exam_id > exams.exam_id) Tj
+0 -9.4 Td
+(Ref: assessment_grades.quiz_id > quizzes.quiz_id) Tj
+0 -9.4 Td
+(Ref: assessment_grades.content_assignment_id > content_assignments.content_assignment_id) Tj
+0 -9.4 Td
+(Ref: assessment_grades.graded_by > users.id) Tj
+0 -9.4 Td
+(Ref: assessment_results.student_id > students.student_id) Tj
+0 -9.4 Td
+(Ref: assessment_results.exam_id > exams.exam_id) Tj
+0 -9.4 Td
+(Ref: assessment_results.quiz_id > quizzes.quiz_id) Tj
+0 -9.4 Td
+(Ref: assignment_submissions.content_assignment_id > content_assignments.content_assignment_id) Tj
+0 -9.4 Td
+(Ref: assignment_submissions.student_id > students.student_id) Tj
+0 -9.4 Td
+(Ref: student_promotions.student_id > students.student_id) Tj
+0 -9.4 Td
+(Ref: student_promotions.from_department_id > departments.department_id) Tj
+0 -9.4 Td
+(Ref: student_promotions.from_year_id > academic_years.academic_year_id) Tj
+0 -9.4 Td
+(Ref: student_promotions.from_semester_id > semesters.semester_id) Tj
+0 -9.4 Td
+(Ref: student_promotions.to_year_id > academic_years.academic_year_id) Tj
+0 -9.4 Td
+(Ref: student_promotions.to_semester_id > semesters.semester_id) Tj
+0 -9.4 Td
+(Ref: model_has_permissions.permission_id > permissions.id) Tj
+0 -9.4 Td
+ET
+endstream
+endobj
+21 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R >> >> /Contents 20 0 R >>
+endobj
+22 0 obj
+<< /Length 391 >>
+stream
+BT
+/F1 7.2 Tf
+1 0 0 1 36 805.89 Tm
+(LearnCore Database Schema DBML) Tj
+0 -16.92 Td
+(Ref: model_has_permissions.model_id > users.id) Tj
+0 -9.4 Td
+(Ref: model_has_roles.role_id > roles.id) Tj
+0 -9.4 Td
+(Ref: model_has_roles.model_id > users.id) Tj
+0 -9.4 Td
+(Ref: role_has_permissions.permission_id > permissions.id) Tj
+0 -9.4 Td
+(Ref: role_has_permissions.role_id > roles.id) Tj
+0 -9.4 Td
+ET
+endstream
+endobj
+23 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R >> >> /Contents 22 0 R >>
+endobj
+xref
+0 24
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000177 00000 n 
+0000000245 00000 n 
+0000003543 00000 n 
+0000003675 00000 n 
+0000007132 00000 n 
+0000007264 00000 n 
+0000010801 00000 n 
+0000010933 00000 n 
+0000014605 00000 n 
+0000014739 00000 n 
+0000018621 00000 n 
+0000018755 00000 n 
+0000022251 00000 n 
+0000022385 00000 n 
+0000025808 00000 n 
+0000025942 00000 n 
+0000029175 00000 n 
+0000029309 00000 n 
+0000035251 00000 n 
+0000035385 00000 n 
+0000035827 00000 n 
+trailer
+<< /Size 24 /Root 1 0 R >>
+startxref
+35961
+%%EOF

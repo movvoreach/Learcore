@@ -1,0 +1,48 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+
+@theme {
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+/* =========================
+   GLOBAL STYLE
+========================= */
+html,
+body {
+    font-size: 18px;
+    font-weight: 700;
+}
+
+/* =========================
+   LEFT BORDER CUSTOM UI
+========================= */
+
+/* Sidebar left border */
+.fi-sidebar {
+    border-left: 4px solid #f59e0b; /* amber */
+}
+
+/* Active navigation item */
+.fi-sidebar-item-active {
+    border-left: 4px solid #f59e0b;
+    padding-left: 8px;
+}
+
+/* Main content left border (optional UI style) */
+.fi-main {
+    border-left: 3px solid #fbbf24;
+    padding-left: 12px;
+}
+
+/* Card / Section style (optional global look) */
+.fi-section,
+.fi-card {
+    border-left: 4px solid #f59e0b;
+    padding-left: 12px;
+}

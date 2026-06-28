@@ -1,0 +1,41 @@
+<?php
+
+namespace App\Models;
+
+use App\Models\Concerns\GeneratesCodes;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
+class Department extends Model
+{
+    use GeneratesCodes;
+
+    protected $primaryKey = 'department_id';
+
+    protected $fillable = [
+        'faculty_id',
+        'department_code',
+        'department_name',
+        'deans',
+    ];
+
+    protected static function booted(): void
+    {
+        static::creating(function (Department $department): void {
+            if (blank($department->department_code)) {
+                $department->department_code = static::nextCode('department_code', 'DEP');
+            }
+        });
+    }
+
+    public function faculty(): BelongsTo
+    {
+        return $this->belongsTo(Faculty::class, 'faculty_id', 'faculty_id');
+    }
+
+    public function students(): HasMany
+    {
+        return $this->hasMany(Student::class, 'department_id', 'department_id');
+    }
+}

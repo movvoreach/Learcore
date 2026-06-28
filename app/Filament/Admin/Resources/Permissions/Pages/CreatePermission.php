@@ -1,0 +1,49 @@
+<?php
+
+namespace App\Filament\Admin\Resources\Permissions\Pages;
+
+use App\Filament\Admin\Resources\Permissions\PermissionResource;
+use Filament\Actions\Action;
+use Filament\Resources\Pages\CreateRecord;
+
+class CreatePermission extends CreateRecord
+{
+    protected static string $resource = PermissionResource::class;
+
+    protected static ?string $title = 'បញ្ចូលសិទ្ធិ';
+
+    protected static ?string $breadcrumb = 'បញ្ចូល';
+
+    public function getMaxContentWidth(): ?string
+    {
+        return 'full';
+    }
+
+    protected function getCreatedNotificationTitle(): ?string
+    {
+        return 'សិទ្ធិត្រូវបានបង្កើតដោយជោគជ័យ!';
+    }
+
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
+
+    protected function getCreateFormAction(): Action
+    {
+        return parent::getCreateFormAction()
+            ->label('បញ្ចូល');
+    }
+
+    protected function getCreateAnotherFormAction(): Action
+    {
+        return parent::getCreateAnotherFormAction()
+            ->label('បញ្ចូលឡើងវិញ');
+    }
+
+    protected function getCancelFormAction(): Action
+    {
+        return parent::getCancelFormAction()
+            ->label('បោះបង់');
+    }
+}

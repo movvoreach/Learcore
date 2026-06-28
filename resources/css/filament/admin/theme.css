@@ -1,0 +1,894 @@
+@import '../../../../vendor/filament/filament/resources/css/theme.css';
+
+@source '../../../../app/Filament';
+@source '../../../../resources/views/filament';
+@source '../../../../vendor/filament/filament/resources/views';
+
+/*
+   Filament admin sidebar active state.
+   The .fi-active class is rendered by Filament from the current route, so the
+   selected item stays highlighted after normal navigation and page refreshes.
+*/
+.fi-main-sidebar .fi-sidebar-nav {
+    padding: 0.5rem 0 0.75rem;
+}
+
+/* Sidebar background matches the topbar (navbar) exactly */
+.fi-main-sidebar {
+    border-right: 1px solid #e2e8f0 !important;
+    background-color: #ffffff !important;  /* Same as Filament topbar bg-white */
+}
+
+.dark .fi-main-sidebar {
+    border-right: 1px solid #1e293b !important;
+    background-color: #111827 !important;  /* Same as Filament topbar dark:bg-gray-900 */
+}
+
+
+
+/* Remove all other unwanted sidebar borders */
+.fi-sidebar {
+    border-left: none !important;
+    border-top: none !important;
+}
+
+.dark .fi-sidebar {
+    border-left: none !important;
+}
+
+/* Topbar: add the same vertical border on its right edge to align with the sidebar border */
+.fi-topbar {
+    border-bottom: none !important;
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.06) !important;
+}
+
+/* Topbar-start MUST match the exact sidebar width so borders align perfectly */
+.fi-topbar-start {
+    width: var(--sidebar-width) !important;
+    min-width: var(--sidebar-width) !important;
+    max-width: var(--sidebar-width) !important;
+    flex-shrink: 0 !important;
+    margin-inline-end: 0 !important;
+    border-right: none !important;
+    position: relative !important; /* Allow toggle button to be placed after border */
+    overflow: visible !important;
+}
+
+.dark .fi-topbar-start {
+    border-right: none !important;
+}
+
+.fi-topbar-start>a {
+    order: 1;
+    min-width: 0;
+}
+
+.fi-topbar-start .fi-logo {
+    max-width: min(15rem, 52vw);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Toggle button sits AFTER (right of) the sidebar border */
+.fi-topbar-collapse-sidebar-btn-ctn {
+    position: absolute !important;
+    left: calc(100% + 0.85rem) !important;
+    right: auto !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    margin-inline-start: 0 !important;
+    order: 5;
+    z-index: 10;
+}
+
+.fi-topbar-open-collapse-sidebar-btn,
+.fi-topbar-close-collapse-sidebar-btn {
+    transition:
+        background-color 160ms ease,
+        color 160ms ease,
+        transform 160ms ease;
+}
+
+.fi-topbar-open-collapse-sidebar-btn:hover,
+.fi-topbar-close-collapse-sidebar-btn:hover {
+    background: color-mix(in srgb, var(--primary-500) 10%, transparent);
+    color: var(--primary-700);
+}
+
+.lc-sidebar-is-collapsed .fi-topbar-open-collapse-sidebar-btn,
+.lc-sidebar-is-open .fi-topbar-close-collapse-sidebar-btn {
+    color: var(--primary-700);
+}
+
+.lc-sidebar-is-collapsed .fi-topbar-open-collapse-sidebar-btn svg,
+.lc-sidebar-is-open .fi-topbar-close-collapse-sidebar-btn svg {
+    transform: scale(1.05);
+}
+
+.dark .fi-topbar-open-collapse-sidebar-btn:hover,
+.dark .fi-topbar-close-collapse-sidebar-btn:hover,
+.dark.lc-sidebar-is-collapsed .fi-topbar-open-collapse-sidebar-btn,
+.dark.lc-sidebar-is-open .fi-topbar-close-collapse-sidebar-btn {
+    color: var(--primary-300);
+}
+
+.fi-topbar-open-sidebar-btn svg,
+.fi-topbar-close-sidebar-btn svg,
+.fi-topbar-open-collapse-sidebar-btn svg,
+.fi-topbar-close-collapse-sidebar-btn svg,
+.fi-sidebar-open-collapse-sidebar-btn svg,
+.fi-sidebar-close-collapse-sidebar-btn svg {
+    display: none;
+}
+
+.fi-topbar-open-sidebar-btn::before,
+.fi-topbar-close-sidebar-btn::before,
+.fi-topbar-open-collapse-sidebar-btn::before,
+.fi-topbar-close-collapse-sidebar-btn::before,
+.fi-sidebar-open-collapse-sidebar-btn::before,
+.fi-sidebar-close-collapse-sidebar-btn::before {
+    content: "";
+    width: 1.35rem;
+    height: 1.35rem;
+    background: url("/Icons/toggle-icon.png") center / contain no-repeat;
+    display: block;
+    transition: transform 250ms cubic-bezier(0.4, 0, 0.2, 1); /* Smooth rotation */
+}
+
+/* When sidebar is COLLAPSED → rotate icon 180° to point LEFT (←) */
+.lc-sidebar-is-collapsed .fi-topbar-open-collapse-sidebar-btn::before,
+.lc-sidebar-is-collapsed .fi-sidebar-open-collapse-sidebar-btn::before {
+    transform: rotate(180deg);
+}
+
+/* When sidebar is OPEN → keep icon normal (0°) */
+.lc-sidebar-is-open .fi-topbar-close-collapse-sidebar-btn::before,
+.lc-sidebar-is-open .fi-sidebar-close-collapse-sidebar-btn::before {
+    transform: rotate(0deg);
+}
+
+.lc-topbar-session {
+    display: none;
+    align-items: center;
+    gap: 0.85rem;
+    min-width: 0;
+    padding-inline: 0.25rem;
+    color: var(--gray-700);
+}
+
+.lc-topbar-session-time,
+.lc-topbar-session-user {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    min-width: 0;
+    white-space: nowrap;
+    font-size: 0.8125rem;
+    line-height: 1.25;
+}
+
+.lc-topbar-date,
+.lc-topbar-time,
+.lc-topbar-session-user strong {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.lc-topbar-time {
+    color: var(--primary-700);
+    font-weight: 800;
+}
+
+.lc-topbar-session-user {
+    color: var(--gray-500);
+}
+
+.lc-topbar-session-user strong {
+    max-width: 15rem;
+    color: var(--gray-900);
+    font-weight: 800;
+}
+
+.dark .lc-topbar-session {
+    color: var(--gray-200);
+}
+
+.dark .lc-topbar-time {
+    color: var(--primary-300);
+}
+
+.dark .lc-topbar-session-user {
+    color: var(--gray-400);
+}
+
+.dark .lc-topbar-session-user strong {
+    color: var(--gray-100);
+}
+
+@media (min-width: 768px) {
+    .lc-topbar-session {
+        display: flex;
+    }
+}
+
+@media (min-width: 1280px) {
+    .lc-topbar-session {
+        gap: 1rem;
+    }
+
+    .lc-topbar-session-time,
+    .lc-topbar-session-user {
+        font-size: 0.875rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    /* Smooth sidebar collapse/expand transition */
+    .fi-body-has-sidebar-collapsible-on-desktop:not(.fi-body-has-top-navigation) .fi-main-sidebar {
+        overflow-x: hidden;
+        transition:
+            width 220ms cubic-bezier(0.4, 0, 0.2, 1),
+            box-shadow 220ms ease,
+            background-color 180ms ease;
+        will-change: width, box-shadow;
+    }
+
+    /* ── HOVER OPEN: sidebar floats cleanly over content, same bg as topbar ── */
+    .fi-body-has-sidebar-collapsible-on-desktop.fi-sidebar-hover-open .fi-main-sidebar {
+        z-index: 50 !important;
+        position: fixed !important;
+        top: 4rem !important;
+        left: 0 !important;
+        height: calc(100dvh - 4rem) !important;
+        background-color: #ffffff !important;  /* Match topbar bg-white */
+        box-shadow:
+            4px 0 8px -2px rgb(0 0 0 / 0.08),
+            12px 0 32px -4px rgb(0 0 0 / 0.12) !important;
+        border-right: 1px solid #e2e8f0 !important;
+    }
+
+    /* Proper backdrop overlay: ::after covers ONLY the content area (right of sidebar) */
+    .fi-body-has-sidebar-collapsible-on-desktop.fi-sidebar-hover-open .fi-main-sidebar::after {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: var(--sidebar-width);  /* Start right after the sidebar */
+        right: 0;
+        bottom: 0;
+        background: rgba(15, 23, 42, 0.2);
+        backdrop-filter: blur(1px);
+        -webkit-backdrop-filter: blur(1px);
+        z-index: -1;                /* Behind sidebar content, above page content */
+        pointer-events: none;
+        transition: opacity 220ms ease;
+    }
+
+    .dark .fi-body-has-sidebar-collapsible-on-desktop.fi-sidebar-hover-open .fi-main-sidebar {
+        background-color: #111827 !important;  /* Match topbar dark:bg-gray-900 */
+        box-shadow:
+            4px 0 8px -2px rgb(0 0 0 / 0.3),
+            12px 0 40px -4px rgb(0 0 0 / 0.5) !important;
+        border-right: 1px solid #1e293b !important;
+    }
+
+    .dark .fi-body-has-sidebar-collapsible-on-desktop.fi-sidebar-hover-open .fi-main-sidebar::after {
+        background: rgba(0, 0, 0, 0.4);
+    }
+}
+
+.fi-main-sidebar .fi-sidebar-header {
+    padding-inline: 1rem;
+}
+
+.fi-main-sidebar .fi-sidebar-group {
+    margin-block: 0 !important;
+    padding-block: 0.25rem !important;
+    border-top: 1px solid #f3f4f6;
+}
+
+.fi-main-sidebar .fi-sidebar-group:first-of-type {
+    border-top: none;
+}
+
+.dark .fi-main-sidebar .fi-sidebar-group {
+    border-top: 1px solid #1f2937;
+}
+
+.fi-main-sidebar .fi-sidebar-group-label {
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0;
+    padding-block: 0.35rem 0.15rem;
+    padding-inline: 0.9rem;
+    color: color-mix(in srgb, var(--gray-600) 86%, var(--primary-600));
+}
+
+
+.fi-main-sidebar .fi-sidebar-group-items {
+    row-gap: 0 !important;
+    /* Remove gaps between individual items */
+}
+
+.fi-main-sidebar .fi-sidebar-item {
+    position: relative;
+}
+
+.fi-main-sidebar .fi-sidebar-item>.fi-sidebar-item-btn {
+    gap: 0.75rem;
+    border-radius: 0px !important;
+    border-left: 4px solid transparent !important;
+    padding-inline: 0.8rem;
+    min-height: 2.875rem;
+    transition:
+        background-color 160ms ease,
+        border-color 160ms ease,
+        color 160ms ease;
+}
+
+.fi-main-sidebar .fi-sidebar-item-label {
+    font-size: 1rem;
+    font-weight: 650;
+    line-height: 1.45;
+    color: var(--gray-700);
+}
+
+.fi-main-sidebar .fi-sidebar-item-icon {
+    width: 1.45rem;
+    height: 1.45rem;
+    color: var(--gray-500);
+}
+
+.fi-main-sidebar img.fi-sidebar-item-icon {
+    width: 1.65rem;
+    height: 1.65rem;
+    border-radius: 0px !important;
+    object-fit: contain;
+}
+
+.fi-main-sidebar .fi-sidebar-item.fi-sidebar-item-has-url>.fi-sidebar-item-btn:hover {
+    background: #f3f4f6 !important;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+.fi-main-sidebar .fi-sidebar-item.fi-sidebar-item-has-url>.fi-sidebar-item-btn:hover>.fi-sidebar-item-icon,
+.fi-main-sidebar .fi-sidebar-item.fi-sidebar-item-has-url>.fi-sidebar-item-btn:hover>.fi-sidebar-item-label {
+    color: var(--primary-700);
+}
+
+.fi-main-sidebar .fi-sidebar-item.fi-active>.fi-sidebar-item-btn {
+    background: #fef3c7 !important;
+    /* Soft amber/gold background */
+    border-left: 4px solid #d97706 !important;
+    /* Solid amber left border */
+    box-shadow: none !important;
+}
+
+.fi-main-sidebar .fi-sidebar-item.fi-active>.fi-sidebar-item-btn::before {
+    display: none !important;
+    /* Hide floating vertical dot indicator */
+}
+
+.fi-main-sidebar .fi-sidebar-item.fi-active>.fi-sidebar-item-btn>.fi-sidebar-item-icon,
+.fi-main-sidebar .fi-sidebar-item.fi-active>.fi-sidebar-item-btn>.fi-sidebar-item-label {
+    color: #b45309 !important;
+    /* Amber-800 active text */
+    font-weight: 800;
+}
+
+.fi-main-sidebar .fi-sidebar-item.fi-active>.fi-sidebar-item-btn>img.fi-sidebar-item-icon {
+    background: transparent !important;
+    box-shadow: none !important;
+    padding: 0px !important;
+}
+
+.dark .fi-main-sidebar .fi-sidebar-group-label {
+    color: color-mix(in srgb, var(--gray-300) 82%, var(--primary-300));
+}
+
+.dark .fi-main-sidebar .fi-sidebar-item-label {
+    color: var(--gray-200);
+}
+
+.dark .fi-main-sidebar .fi-sidebar-item-icon {
+    color: var(--gray-400);
+}
+
+.dark .fi-main-sidebar .fi-sidebar-item.fi-sidebar-item-has-url>.fi-sidebar-item-btn:hover {
+    background: #374151 !important;
+}
+
+.dark .fi-main-sidebar .fi-sidebar-item.fi-sidebar-item-has-url>.fi-sidebar-item-btn:hover>.fi-sidebar-item-icon,
+.dark .fi-main-sidebar .fi-sidebar-item.fi-sidebar-item-has-url>.fi-sidebar-item-btn:hover>.fi-sidebar-item-label {
+    color: var(--primary-300);
+}
+
+.dark .fi-main-sidebar .fi-sidebar-item.fi-active>.fi-sidebar-item-btn {
+    background: #33230a !important;
+    /* Dark amber background for active item in dark mode */
+    border-left: 4px solid #f59e0b !important;
+    box-shadow: none !important;
+}
+
+.dark .fi-main-sidebar .fi-sidebar-item.fi-active>.fi-sidebar-item-btn>.fi-sidebar-item-icon,
+.dark .fi-main-sidebar .fi-sidebar-item.fi-active>.fi-sidebar-item-btn>.fi-sidebar-item-label {
+    color: #f59e0b !important;
+}
+
+.dark .fi-main-sidebar .fi-sidebar-item.fi-active>.fi-sidebar-item-btn>img.fi-sidebar-item-icon {
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+.fi-ta.fi-loading .fi-ta-table-loading-ctn {
+    height: auto;
+    min-height: 21rem;
+    align-items: stretch;
+    justify-content: stretch;
+    padding: 1rem;
+}
+
+.fi-ta.fi-loading .fi-ta-table-loading-ctn>.fi-loading-indicator {
+    display: none;
+}
+
+.fi-ta.fi-loading .fi-ta-table-loading-ctn::before {
+    content: "";
+    display: block;
+    width: 100%;
+    min-height: 18.5rem;
+    border: 1px solid color-mix(in srgb, var(--gray-950) 10%, transparent);
+    border-radius: 0.5rem;
+    background:
+        linear-gradient(color-mix(in srgb, var(--gray-300) 70%, transparent) 0 0) 1rem 1.35rem / 4.5rem 0.625rem no-repeat,
+        linear-gradient(color-mix(in srgb, var(--gray-300) 70%, transparent) 0 0) 22% 1.35rem / 7rem 0.625rem no-repeat,
+        linear-gradient(color-mix(in srgb, var(--gray-300) 70%, transparent) 0 0) 47% 1.35rem / 6rem 0.625rem no-repeat,
+        linear-gradient(color-mix(in srgb, var(--gray-300) 70%, transparent) 0 0) 69% 1.35rem / 5rem 0.625rem no-repeat,
+        linear-gradient(color-mix(in srgb, var(--gray-300) 70%, transparent) 0 0) calc(100% - 5rem) 1.35rem / 4rem 0.625rem no-repeat,
+        linear-gradient(color-mix(in srgb, var(--gray-400) 35%, transparent) 0 0) 1rem 5.65rem / 6rem 0.625rem no-repeat,
+        linear-gradient(color-mix(in srgb, var(--gray-400) 35%, transparent) 0 0) 22% 5.65rem / 9rem 0.625rem no-repeat,
+        linear-gradient(color-mix(in srgb, var(--gray-400) 35%, transparent) 0 0) 47% 5.65rem / 7rem 0.625rem no-repeat,
+        linear-gradient(color-mix(in srgb, var(--gray-400) 35%, transparent) 0 0) 69% 5.65rem / 6rem 0.625rem no-repeat,
+        linear-gradient(color-mix(in srgb, var(--gray-300) 70%, transparent) 0 0) calc(100% - 4.5rem) 5.65rem / 3.5rem 0.625rem no-repeat,
+        linear-gradient(color-mix(in srgb, var(--gray-400) 35%, transparent) 0 0) 1rem 9.75rem / 5rem 0.625rem no-repeat,
+        linear-gradient(color-mix(in srgb, var(--gray-400) 35%, transparent) 0 0) 22% 9.75rem / 10rem 0.625rem no-repeat,
+        linear-gradient(color-mix(in srgb, var(--gray-400) 35%, transparent) 0 0) 47% 9.75rem / 6rem 0.625rem no-repeat,
+        linear-gradient(color-mix(in srgb, var(--gray-400) 35%, transparent) 0 0) 69% 9.75rem / 7rem 0.625rem no-repeat,
+        linear-gradient(color-mix(in srgb, var(--gray-300) 70%, transparent) 0 0) calc(100% - 4.5rem) 9.75rem / 3.5rem 0.625rem no-repeat,
+        linear-gradient(color-mix(in srgb, var(--gray-400) 35%, transparent) 0 0) 1rem 13.85rem / 7rem 0.625rem no-repeat,
+        linear-gradient(color-mix(in srgb, var(--gray-400) 35%, transparent) 0 0) 22% 13.85rem / 8rem 0.625rem no-repeat,
+        linear-gradient(color-mix(in srgb, var(--gray-400) 35%, transparent) 0 0) 47% 13.85rem / 7rem 0.625rem no-repeat,
+        linear-gradient(color-mix(in srgb, var(--gray-400) 35%, transparent) 0 0) 69% 13.85rem / 5.5rem 0.625rem no-repeat,
+        linear-gradient(color-mix(in srgb, var(--gray-300) 70%, transparent) 0 0) calc(100% - 4.5rem) 13.85rem / 3.5rem 0.625rem no-repeat,
+        linear-gradient(color-mix(in srgb, var(--gray-200) 70%, transparent) 0 0) 0 4.2rem / 100% 1px no-repeat,
+        linear-gradient(color-mix(in srgb, var(--gray-200) 70%, transparent) 0 0) 0 8.3rem / 100% 1px no-repeat,
+        linear-gradient(color-mix(in srgb, var(--gray-200) 70%, transparent) 0 0) 0 12.4rem / 100% 1px no-repeat,
+        linear-gradient(color-mix(in srgb, var(--gray-200) 70%, transparent) 0 0) 0 16.5rem / 100% 1px no-repeat;
+    box-shadow: 0 1px 2px rgb(15 23 42 / 0.05);
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.dark .fi-ta.fi-loading .fi-ta-table-loading-ctn::before {
+    border-color: color-mix(in srgb, white 10%, transparent);
+    background:
+        linear-gradient(color-mix(in srgb, white 10%, transparent) 0 0) 1rem 1.35rem / 4.5rem 0.625rem no-repeat,
+        linear-gradient(color-mix(in srgb, white 10%, transparent) 0 0) 22% 1.35rem / 7rem 0.625rem no-repeat,
+        linear-gradient(color-mix(in srgb, white 10%, transparent) 0 0) 47% 1.35rem / 6rem 0.625rem no-repeat,
+        linear-gradient(color-mix(in srgb, white 10%, transparent) 0 0) 69% 1.35rem / 5rem 0.625rem no-repeat,
+        linear-gradient(color-mix(in srgb, white 10%, transparent) 0 0) calc(100% - 5rem) 1.35rem / 4rem 0.625rem no-repeat,
+        linear-gradient(color-mix(in srgb, white 16%, transparent) 0 0) 1rem 5.65rem / 6rem 0.625rem no-repeat,
+        linear-gradient(color-mix(in srgb, white 16%, transparent) 0 0) 22% 5.65rem / 9rem 0.625rem no-repeat,
+        linear-gradient(color-mix(in srgb, white 16%, transparent) 0 0) 47% 5.65rem / 7rem 0.625rem no-repeat,
+        linear-gradient(color-mix(in srgb, white 16%, transparent) 0 0) 69% 5.65rem / 6rem 0.625rem no-repeat,
+        linear-gradient(color-mix(in srgb, white 10%, transparent) 0 0) calc(100% - 4.5rem) 5.65rem / 3.5rem 0.625rem no-repeat,
+        linear-gradient(color-mix(in srgb, white 16%, transparent) 0 0) 1rem 9.75rem / 5rem 0.625rem no-repeat,
+        linear-gradient(color-mix(in srgb, white 16%, transparent) 0 0) 22% 9.75rem / 10rem 0.625rem no-repeat,
+        linear-gradient(color-mix(in srgb, white 16%, transparent) 0 0) 47% 9.75rem / 6rem 0.625rem no-repeat,
+        linear-gradient(color-mix(in srgb, white 16%, transparent) 0 0) 69% 9.75rem / 7rem 0.625rem no-repeat,
+        linear-gradient(color-mix(in srgb, white 10%, transparent) 0 0) calc(100% - 4.5rem) 9.75rem / 3.5rem 0.625rem no-repeat,
+        linear-gradient(color-mix(in srgb, white 16%, transparent) 0 0) 1rem 13.85rem / 7rem 0.625rem no-repeat,
+        linear-gradient(color-mix(in srgb, white 16%, transparent) 0 0) 22% 13.85rem / 8rem 0.625rem no-repeat,
+        linear-gradient(color-mix(in srgb, white 16%, transparent) 0 0) 47% 13.85rem / 7rem 0.625rem no-repeat,
+        linear-gradient(color-mix(in srgb, white 16%, transparent) 0 0) 69% 13.85rem / 5.5rem 0.625rem no-repeat,
+        linear-gradient(color-mix(in srgb, white 10%, transparent) 0 0) calc(100% - 4.5rem) 13.85rem / 3.5rem 0.625rem no-repeat,
+        linear-gradient(color-mix(in srgb, white 10%, transparent) 0 0) 0 4.2rem / 100% 1px no-repeat,
+        linear-gradient(color-mix(in srgb, white 10%, transparent) 0 0) 0 8.3rem / 100% 1px no-repeat,
+        linear-gradient(color-mix(in srgb, white 10%, transparent) 0 0) 0 12.4rem / 100% 1px no-repeat,
+        linear-gradient(color-mix(in srgb, white 10%, transparent) 0 0) 0 16.5rem / 100% 1px no-repeat;
+}
+
+/* Custom Global Primary Button Styles */
+.fi-btn.fi-color-primary:not(.fi-outlined) {
+    background-color: var(--custom-primary-btn-bg, #2563eb) !important;
+    /* Default: Tailwind Blue 600 */
+    color: var(--custom-primary-btn-text, #ffffff) !important;
+}
+
+.fi-btn.fi-color-primary:not(.fi-outlined):hover {
+    background-color: var(--custom-primary-btn-bg-hover, #1d4ed8) !important;
+    /* Default: Tailwind Blue 700 */
+    color: var(--custom-primary-btn-text, #ffffff) !important;
+}
+
+/* Dark Mode */
+.dark .fi-btn.fi-color-primary:not(.fi-outlined) {
+    background-color: var(--custom-primary-btn-bg-dark, #3b82f6) !important;
+    /* Default: Tailwind Blue 500 */
+    color: var(--custom-primary-btn-text-dark, #ffffff) !important;
+}
+
+.dark .fi-btn.fi-color-primary:not(.fi-outlined):hover {
+    background-color: var(--custom-primary-btn-bg-hover-dark, #2563eb) !important;
+    /* Default: Tailwind Blue 600 */
+    color: var(--custom-primary-btn-text-dark, #ffffff) !important;
+}
+
+/* Custom Login Page Styling to match the requested design exactly */
+.fi-simple-layout {
+    background-color: #eeeeee !important;
+}
+
+.fi-simple-main {
+    background-color: #ffffff !important;
+    border-radius: 0px !important;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1) !important;
+    padding: 3rem 2.5rem !important;
+    border: none !important;
+}
+
+/* Global Form Inputs Custom Styling: Square Input Style with Active Focus */
+input,
+select,
+textarea,
+.fi-input-wrp,
+.fi-select-wrp,
+.fi-select-input-wrp,
+.fi-fo-field-wrp,
+.fi-ta-filter-wrp,
+.fi-ta-search-input-wrp,
+.fi-checkbox-input,
+.fi-radio-input {
+    border-radius: 0px !important;
+}
+
+.fi-input-wrp {
+    box-shadow: none !important;
+    border: 1px solid #d1d5db !important;
+    background-color: #ffffff !important;
+    transition: border-color 150ms ease, box-shadow 150ms ease !important;
+}
+
+/* Active Focus Highlight styling */
+input:focus,
+select:focus,
+textarea:focus,
+.fi-input-wrp:focus-within,
+.fi-select-wrp:focus-within,
+.fi-checkbox-input:focus,
+.fi-radio-input:focus {
+    outline: none !important;
+    border-color: #f59e0b !important;
+    /* Amber theme highlight */
+    box-shadow: 0 0 0 1px #f59e0b !important;
+    /* Primary focus ring */
+}
+
+/* Dark Mode support for inputs */
+.dark .fi-input-wrp {
+    border-color: #4b5563 !important;
+    background-color: #1f2937 !important;
+}
+
+.dark input:focus,
+.dark select:focus,
+.dark textarea:focus,
+.dark .fi-input-wrp:focus-within,
+.dark .fi-select-wrp:focus-within,
+.dark .fi-checkbox-input:focus,
+.dark .fi-radio-input:focus {
+    border-color: #fbbf24 !important;
+    box-shadow: 0 0 0 1px #fbbf24 !important;
+}
+
+/* Ensure inputs, select, and textarea are square and clear inside wrappers */
+.fi-input-wrp input,
+.fi-input-wrp select,
+.fi-input-wrp textarea {
+    border-radius: 0px !important;
+    border: none !important;
+    box-shadow: none !important;
+    background-color: transparent !important;
+}
+
+.fi-input-wrp input:focus,
+.fi-input-wrp select:focus,
+.fi-input-wrp textarea:focus {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+/* Labels */
+.fi-simple-layout label {
+    font-size: 0.85rem !important;
+    color: #4b5563 !important;
+    font-weight: 600 !important;
+}
+
+/* Green Submit Button */
+.fi-simple-layout button[type="submit"],
+.fi-simple-layout .fi-btn.fi-color-primary {
+    background-color: #22c55e !important;
+    color: #ffffff !important;
+    border-radius: 0px !important;
+    height: 2.75rem !important;
+    font-size: 1.15rem !important;
+    font-weight: bold !important;
+    border: none !important;
+    box-shadow: none !important;
+    transition: background-color 150ms ease !important;
+}
+
+.fi-simple-layout button[type="submit"]:hover,
+.fi-simple-layout .fi-btn.fi-color-primary:hover {
+    background-color: #16a34a !important;
+}
+
+/* Custom Khmer heading style */
+.fi-simple-header-heading {
+    font-size: 1.25rem !important;
+    font-weight: bold !important;
+    color: #1e3a8a !important;
+    margin-top: 1rem !important;
+    text-align: center !important;
+    letter-spacing: normal !important;
+}
+
+/* Card and Section styles: square like the login card */
+.fi-section,
+.fi-ta-ctn,
+.fi-modal-window {
+    border-radius: 0px !important;
+    border: none !important;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1) !important;
+}
+
+.fi-section-content-ctn,
+.fi-section-content-ctn,
+.fi-ta-content-ctn,
+.fi-modal-content {
+    border-radius: 0px !important;
+}
+
+/* Make all buttons square globally */
+.fi-btn {
+    border-radius: 0px !important;
+}
+
+/* Custom Form Footer Actions - Merged inside the Section Card */
+
+/* Remove the bottom shadow from the last section card so it merges with the actions bar */
+.fi-resource-create-record-page .fi-section:last-of-type,
+.fi-resource-edit-record-page .fi-section:last-of-type {
+    box-shadow: 0 0 0 0 transparent !important;
+    /* remove card shadow, actions bar will have it */
+    margin-bottom: 0 !important;
+}
+
+/* Add bottom padding to last section content to give room to the buttons */
+.fi-resource-create-record-page .fi-section:last-of-type .fi-section-content,
+.fi-resource-edit-record-page .fi-section:last-of-type .fi-section-content {
+    padding-bottom: 0.5rem !important;
+}
+
+/* Snap the actions bar tight to the card above it */
+.fi-resource-create-record-page .fi-sc-actions,
+.fi-resource-edit-record-page .fi-sc-actions {
+    background-color: #ffffff !important;
+    border-top: 2px solid #f3f4f6 !important;
+    margin-top: 0 !important;
+    padding: 1.25rem 1.5rem !important;
+    border-radius: 0px !important;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1) !important;
+}
+
+/* Spacing around individual action buttons */
+.fi-resource-create-record-page .fi-sc-actions .fi-btn,
+.fi-resource-edit-record-page .fi-sc-actions .fi-btn {
+    margin-right: 0.75rem !important;
+    padding: 0.65rem 1.5rem !important;
+    font-size: 0.95rem !important;
+}
+
+.dark .fi-resource-create-record-page .fi-sc-actions,
+.dark .fi-resource-edit-record-page .fi-sc-actions {
+    background-color: #1f2937 !important;
+    border-top: 2px solid #374151 !important;
+}
+
+/* Custom Topbar/Navbar Styling */
+
+/* 1. Global Search input wrapper */
+.fi-global-search-field .fi-input-wrp {
+    border-radius: 8px !important;
+    border: 1px solid #cbd5e1 !important;
+    background-color: #f8fafc !important;
+    box-shadow: none !important;
+    width: 320px !important;
+    height: 38px !important;
+    padding-right: 48px !important; /* Make room for the shortcut capsule */
+    position: relative !important;
+    transition: all 0.2s ease;
+}
+
+.dark .fi-global-search-field .fi-input-wrp {
+    border-color: #334155 !important;
+    background-color: #0f172a !important;
+}
+
+.fi-global-search-field .fi-input-wrp:focus-within {
+    border-color: #3b82f6 !important;
+    background-color: #ffffff !important;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1) !important;
+}
+
+/* Custom shortcut badge inside input */
+.fi-global-search-field .fi-input-wrp::after {
+    content: "⌘ /" !important;
+    position: absolute !important;
+    right: 8px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    background-color: #e2e8f0 !important;
+    color: #475569 !important;
+    font-size: 11px !important;
+    font-weight: 800 !important;
+    padding: 2px 6px !important;
+    border-radius: 6px !important;
+    font-family: inherit !important;
+    pointer-events: none !important;
+}
+
+.dark .fi-global-search-field .fi-input-wrp::after {
+    background-color: #334155 !important;
+    color: #cbd5e1 !important;
+}
+
+/* 2. Topbar Action widgets layout */
+.lc-navbar-widgets {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-right: 16px;
+}
+
+.lc-nav-item {
+    position: relative;
+    cursor: pointer;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    transition: background 0.2s, color 0.2s;
+}
+
+.lc-nav-item:hover {
+    background-color: #f1f5f9;
+    color: #1e3a8a;
+}
+
+.dark .lc-nav-item {
+    color: #cbd5e1;
+}
+.dark .lc-nav-item:hover {
+    background-color: #334155;
+    color: #ffffff;
+}
+
+.lc-nav-item svg {
+    width: 20px;
+    height: 20px;
+}
+
+.lc-nav-item .lc-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    background-color: #ef4444;
+    color: #ffffff;
+    font-size: 9px;
+    font-weight: 900;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1.5px solid #ffffff;
+}
+.dark .lc-nav-item .lc-badge {
+    border-color: #1e293b;
+}
+
+/* Lang Dropdown Item */
+.lc-nav-lang {
+    width: auto !important;
+    height: auto !important;
+    padding: 6px 10px !important;
+    gap: 6px !important;
+}
+
+.lc-lang-text {
+    font-size: 13px;
+    font-weight: 750;
+}
+
+.lc-chevron {
+    width: 10px !important;
+    height: 10px !important;
+}
+
+/* 3. User Menu Trigger customizations */
+.fi-user-menu-trigger {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    padding: 6px 12px !important;
+    border-radius: 8px !important;
+    background: transparent !important;
+    transition: background 0.2s !important;
+    border: 1px solid transparent !important;
+}
+
+.fi-user-menu-trigger:hover {
+    background: #f1f5f9 !important;
+    border-color: #e2e8f0 !important;
+}
+
+.dark .fi-user-menu-trigger:hover {
+    background: #334155 !important;
+    border-color: #475569 !important;
+}
+
+.lc-user-info-wrapper {
+    display: flex !important;
+    flex-direction: column !important;
+    text-align: left !important;
+    min-width: 0 !important;
+}
+
+.lc-user-name {
+    font-size: 13px !important;
+    font-weight: 750 !important;
+    color: #0f172a !important;
+    line-height: 1.2 !important;
+    white-space: nowrap !important;
+}
+
+.dark .lc-user-name {
+    color: #ffffff !important;
+}
+
+.lc-user-role {
+    font-size: 11px !important;
+    color: #64748b !important;
+    line-height: 1.1 !important;
+}
+
+.dark .lc-user-role {
+    color: #94a3b8 !important;
+}
+
+.lc-user-chevron {
+    color: #64748b !important;
+    margin-left: 4px !important;
+    display: flex !important;
+    align-items: center !important;
+}
+
+.dark .lc-user-chevron {
+    color: #cbd5e1 !important;
+}
