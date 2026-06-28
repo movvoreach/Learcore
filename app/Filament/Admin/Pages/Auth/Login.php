@@ -27,7 +27,7 @@ class Login extends BaseLogin
 
     public function getHeading(): string | Htmlable | null
     {
-        return "សូមបញ្ចូលព័ត៌មានអ្នកប្រើប្រាស់របស់អ្នក!!!";
+        return 'សូមបញ្ចូលព័ត៌មានគណនីរបស់អ្នក';
     }
 
     protected function getEmailFormComponent(): Component

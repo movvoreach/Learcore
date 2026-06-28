@@ -44,6 +44,39 @@ class AppServiceProvider extends ServiceProvider
 
         if (config('app.env') === 'production') {
             \Illuminate\Support\Facades\URL::forceScheme('https');
+
+            // ── Security Headers ────────────────────────────────────────────
+            // Injected on every response to harden the HTTP layer against
+            // clickjacking, MIME-sniffing, and information leakage attacks.
+            \Illuminate\Support\Facades\Event::listen(
+                \Illuminate\Foundation\Http\Events\RequestHandled::class,
+                function (\Illuminate\Foundation\Http\Events\RequestHandled $event): void {
+                    $response = $event->response;
+
+                    if (! method_exists($response, 'header')) {
+                        return;
+                    }
+
+                    // Prevent clickjacking — deny embedding in iframes
+                    $response->header('X-Frame-Options', 'SAMEORIGIN');
+
+                    // Prevent MIME-type sniffing
+                    $response->header('X-Content-Type-Options', 'nosniff');
+
+                    // Prevent sending referrer outside origin
+                    $response->header('Referrer-Policy', 'strict-origin-when-cross-origin');
+
+                    // Disable browser features not used by this app
+                    $response->header('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+
+                    // Legacy XSS protection (for older browsers)
+                    $response->header('X-XSS-Protection', '1; mode=block');
+
+                    // Remove server fingerprinting headers
+                    $response->headers->remove('X-Powered-By');
+                    $response->headers->remove('Server');
+                }
+            );
         }
 
         Gate::before(function ($user): ?bool {

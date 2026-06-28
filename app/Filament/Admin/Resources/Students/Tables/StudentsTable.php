@@ -18,7 +18,7 @@ class StudentsTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn (Builder $query): Builder => $query->with(['department']))
+            ->modifyQueryUsing(fn (Builder $query): Builder => $query->with(['department', 'academicYear', 'semester']))
             ->columns([
                 TextColumn::make('student_code')
                     ->label('និស្សិត')
