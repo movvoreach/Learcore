@@ -8,6 +8,9 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\Layout\Split;
+use Filament\Tables\Columns\Layout\Panel;
+use Filament\Tables\Columns\Layout\Stack;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
@@ -20,74 +23,57 @@ class StudentsTable
         return $table
             ->modifyQueryUsing(fn (Builder $query): Builder => $query->with(['department']))
             ->columns([
-                TextColumn::make('student_code')
-                    ->label('និស្សិត')
-                    ->getStateUsing(fn (Student $record): string => trim($record->first_name.' '.$record->last_name) ?: $record->student_code)
-                    ->description(fn (Student $record): string => $record->student_code.' · '.($record->email ?: 'គ្មានអ៊ីមែល'))
-                    ->searchable(['student_code', 'first_name', 'last_name', 'email'])
-                    ->sortable()
-                    ->weight('bold')
-                    ->copyable(),
+                Split::make([
+                    TextColumn::make('student_code')
+                        ->label('និស្សិត')
+                        ->getStateUsing(fn (Student $record): string => trim($record->first_name.' '.$record->last_name) ?: $record->student_code)
+                        ->description(fn (Student $record): string => $record->student_code)
+                        ->searchable(['student_code', 'first_name', 'last_name', 'email'])
+                        ->sortable()
+                        ->weight('bold')
+                        ->copyable(),
 
-                TextColumn::make('department.department_name')
-                    ->label('ការសិក្សា')
-                    ->description(fn (Student $record): string => collect([
-                        $record->academicYear?->year_name,
-                        $record->semester?->semester_name,
-                    ])->filter()->join(' · ') ?: 'មិនទាន់កំណត់')
-                    ->searchable()
-                    ->sortable()
-                    ->wrap(),
+                    TextColumn::make('status')
+                        ->label('ស្ថានភាព')
+                        ->badge()
+                        ->formatStateUsing(fn (string $state): string => match ($state) {
+                            'active' => 'សកម្ម',
+                            'inactive' => 'អសកម្ម',
+                            'graduated' => 'បានបញ្ចប់ការសិក្សា',
+                            default => $state,
+                        })
+                        ->color(fn (string $state): string => match ($state) {
+                            'active' => 'success',
+                            'inactive' => 'warning',
+                            'graduated' => 'info',
+                            default => 'gray',
+                        })
+                        ->sortable(),
+                ]),
 
-                TextColumn::make('phone')
-                    ->label('ទំនាក់ទំនង')
-                    ->description(fn (Student $record): string => $record->email ?: 'គ្មានអ៊ីមែល')
-                    ->placeholder('គ្មានលេខទូរស័ព្ទ')
-                    ->searchable()
-                    ->copyable(),
+                Panel::make([
+                    Stack::make([
+                        TextColumn::make('department.department_name')
+                            ->getStateUsing(fn (Student $record): string => 'ដេប៉ាតឺម៉ង់: ' . ($record->department?->department_name ?: 'មិនទាន់កំណត់') . ' (' . collect([
+                                $record->academicYear?->year_name,
+                                $record->semester?->semester_name,
+                            ])->filter()->join(' · ') . ')'),
 
-                TextColumn::make('enrollments_count')
-                    ->label('វគ្គសិក្សា')
-                    ->badge()
-                    ->sortable()
-                    ->alignCenter(),
+                        TextColumn::make('phone')
+                            ->getStateUsing(fn (Student $record): string => 'លេខទូរស័ព្ទ: ' . ($record->phone ?: 'គ្មាន') . ' · អ៊ីមែល: ' . ($record->email ?: 'គ្មាន')),
 
-                TextColumn::make('progresses_count')
-                    ->label('វឌ្ឍនភាព')
-                    ->badge()
-                    ->color('info')
-                    ->sortable()
-                    ->alignCenter(),
+                        TextColumn::make('enrollments_count')
+                            ->getStateUsing(fn (Student $record): string => 'ចំនួនវគ្គសិក្សា: ' . ($record->enrollments_count ?? 0)),
 
-                TextColumn::make('certificates_count')
-                    ->label('វិញ្ញាបនបត្រ')
-                    ->badge()
-                    ->color('success')
-                    ->sortable()
-                    ->alignCenter(),
+                        TextColumn::make('progresses_count')
+                            ->getStateUsing(fn (Student $record): string => 'ចំនួនវឌ្ឍនភាព: ' . ($record->progresses_count ?? 0)),
 
-                TextColumn::make('status')
-                    ->label('ស្ថានភាព')
-                    ->badge()
-                    ->formatStateUsing(fn (string $state): string => match ($state) {
-                        'active' => 'សកម្ម',
-                        'inactive' => 'អសកម្ម',
-                        'graduated' => 'បានបញ្ចប់ការសិក្សា',
-                        default => $state,
-                    })
-                    ->color(fn (string $state): string => match ($state) {
-                        'active' => 'success',
-                        'inactive' => 'warning',
-                        'graduated' => 'info',
-                        default => 'gray',
-                    })
-                    ->sortable(),
-
-                TextColumn::make('created_at')
-                    ->label('បានបង្កើត')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                        TextColumn::make('certificates_count')
+                            ->getStateUsing(fn (Student $record): string => 'ចំនួនវិញ្ញាបនបត្រ: ' . ($record->certificates_count ?? 0)),
+                    ])->space(3),
+                ])
+                ->collapsible()
+                ->collapsed(true),
             ])
             ->filters([
                 SelectFilter::make('department_id')
