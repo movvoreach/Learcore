@@ -45,6 +45,9 @@ WORKDIR /var/www
 # Copy all files for asset compilation (Vite needs views and config to compile Tailwind/Vite assets)
 COPY . .
 
+# Copy vendor dependencies from Composer stage (Vite / Tailwind needs vendor/filament/filament/... to compile theme)
+COPY --from=composer-stage /var/www/vendor ./vendor
+
 # Install dependencies and build assets
 RUN npm install --include=dev
 RUN npm run build
