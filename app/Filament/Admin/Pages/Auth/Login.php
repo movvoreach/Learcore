@@ -7,9 +7,24 @@ use Filament\Schemas\Components\Component;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
 use Illuminate\Contracts\Support\Htmlable;
+use DanHarrin\LivewireRateLimiting\Exceptions\TooManyRequestsException;
+use Filament\Http\Responses\Auth\Contracts\LoginResponse;
 
 class Login extends BaseLogin
 {
+    public function authenticate(): ?LoginResponse
+    {
+        try {
+            $this->rateLimit(5, 60); // Max 5 attempts per 60 seconds
+        } catch (TooManyRequestsException $exception) {
+            $this->getRateLimitedNotification($exception)?->send();
+
+            return null;
+        }
+
+        return parent::authenticate();
+    }
+
     public function getHeading(): string | Htmlable | null
     {
         return "សូមបញ្ចូលព័ត៌មានអ្នកប្រើប្រាស់របស់អ្នក!!!";
