@@ -16,11 +16,14 @@ trait GeneratesCodes
     {
         $prefix = Str::upper($prefix);
 
+        $driver = DB::connection()->getDriverName();
+        $castType = $driver === 'pgsql' || $driver === 'sqlite' ? 'INTEGER' : 'UNSIGNED';
+
         // Use DB MAX() to find the highest existing number — avoids loading
         // all codes into PHP memory (critical for large tables).
         $maxCode = static::query()
             ->where($column, 'like', "{$prefix}-%")
-            ->max(DB::raw("CAST(SUBSTRING({$column}, " . (strlen($prefix) + 2) . ") AS UNSIGNED)"));
+            ->max(DB::raw("CAST(SUBSTRING({$column}, " . (strlen($prefix) + 2) . ") AS {$castType})"));
 
         $nextNumber = ((int) $maxCode) + 1;
 

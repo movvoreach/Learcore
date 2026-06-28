@@ -92,6 +92,7 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login(\App\Filament\Admin\Pages\Auth\Login::class)
+            ->profile()
             ->brandName('ប្រព័ន្ធគ្រប់គ្រងការសិក្សា')
             ->brandLogo(asset('backend/dist/img/logo.png'))
             ->brandLogoHeight('3.8rem')
@@ -131,6 +132,10 @@ class AdminPanelProvider extends PanelProvider
             ])
 
             ->userMenuItems([
+                'profile' => MenuItem::make()
+                    ->label('មើលប្រវត្តិរូប')
+                    ->icon('heroicon-o-user-circle')
+                    ->url(fn (): string => url('/admin/my-profile')),
                 'notifications' => MenuItem::make()
                     ->label('ការជូនដំណឹង')
                     ->icon('heroicon-o-bell')
@@ -279,6 +284,31 @@ class AdminPanelProvider extends PanelProvider
                     </script>
 HTML
                     );
+                }
+            )
+
+            ->renderHook(
+                PanelsRenderHook::FOOTER,
+                function (): HtmlString {
+                    $year = date('Y');
+                    return new HtmlString(<<<HTML
+                    <div style="
+                        text-align: center;
+                        padding: 14px 24px;
+                        font-size: 12px;
+                        color: #94a3b8;
+                        border-top: 1px solid #e2e8f0;
+                        background: #ffffff;
+                        font-family: 'Battambang', 'Noto Sans Khmer', ui-sans-serif, sans-serif;
+                        letter-spacing: 0.01em;
+                        position: sticky;
+                        bottom: 0;
+                        z-index: 40;
+                        box-shadow: 0 -1px 8px rgba(0,0,0,0.06);
+                    ">
+                        &copy; {$year} <strong style="color:#64748b;">Learning Management System (LMS). All Rights Reserved.</strong>
+                    </div>
+HTML);
                 }
             )
 
