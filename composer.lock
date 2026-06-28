@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "108a2bcf95ba0b794c07e8ef712a7623",
+    "content-hash": "26bf048588c16a2119f4038e01afbca8",
     "packages": [
         {
             "name": "blade-ui-kit/blade-heroicons",
@@ -2023,6 +2023,68 @@
                 "source": "https://github.com/kirschbaum-development/eloquent-power-joins/tree/4.3.2"
             },
             "time": "2026-05-28T20:35:55+00:00"
+        },
+        {
+            "name": "ktith/laravel-exception-notifier",
+            "version": "v1.0.8",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ktith/laravel-exception-notifier.git",
+                "reference": "3ecc28eaab39ecee18e26b32dcb878e0727cd3fd"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ktith/laravel-exception-notifier/zipball/3ecc28eaab39ecee18e26b32dcb878e0727cd3fd",
+                "reference": "3ecc28eaab39ecee18e26b32dcb878e0727cd3fd",
+                "shasum": ""
+            },
+            "require": {
+                "guzzlehttp/guzzle": "^7.0.1",
+                "php": "^8.0"
+            },
+            "require-dev": {
+                "laravel/framework": "9.*|10.*"
+            },
+            "type": "package",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Ktith\\Laravelexceptionnotifier\\Providers\\LaravelExceptionNotifierProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Ktith\\Laravelexceptionnotifier\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Tith Khem",
+                    "email": "titkhem167@gmail.com"
+                }
+            ],
+            "keywords": [
+                "Laravel-Exceptions",
+                "exception",
+                "exception-handler",
+                "exception-messages",
+                "exception-telegram",
+                "laravel",
+                "notification",
+                "telegram",
+                "telegram-notification",
+                "telegram-notifications"
+            ],
+            "support": {
+                "issues": "https://github.com/ktith/laravel-exception-notifier/issues",
+                "source": "https://github.com/ktith/laravel-exception-notifier/tree/v1.0.8"
+            },
+            "time": "2025-04-05T08:21:48+00:00"
         },
         {
             "name": "laravel/framework",

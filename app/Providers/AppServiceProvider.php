@@ -8,6 +8,9 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Queue;
+use Illuminate\Queue\Events\JobFailed;
+use Ktith\Laravelexceptionnotifier\Events\ExceptionNotifier;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -60,6 +63,12 @@ class AppServiceProvider extends ServiceProvider
                 }
                 return 'ជ្រើសរើស' . str_replace('*', '', $label);
             });
+        });
+
+        Queue::failing(function (JobFailed $event) {
+            if (config('exception-notifier.exception_notify_enabled')) {
+                event(new ExceptionNotifier($event->exception));
+            }
         });
     }
 }

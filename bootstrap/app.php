@@ -14,5 +14,9 @@ return Application::configure(basePath: dirname(__DIR__))
         //
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        $exceptions->report(function (\Throwable $e) {
+            if (config('exception-notifier.exception_notify_enabled')) {
+                event(new \Ktith\Laravelexceptionnotifier\Events\ExceptionNotifier($e));
+            }
+        });
     })->create();
