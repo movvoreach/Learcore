@@ -30,37 +30,38 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     gd \
     opcache
 
-# Copy Composer files first
-COPY composer.json composer.lock ./
+# ===============================
+# FIX: copy FULL project BEFORE install
+# ===============================
+COPY . .
 
-# Install PHP packages
+# Install PHP dependencies
 RUN composer install \
     --no-dev \
     --prefer-dist \
     --optimize-autoloader \
     --no-interaction
 
-# Copy application
-COPY . .
 
 # ==========================================
-# Stage 2: Node Build
+# Stage 2: Node Build (Vite / Tailwind)
 # ==========================================
 FROM node:20-alpine AS node
 
 WORKDIR /var/www
 
-# Copy application
+# Copy full project
 COPY . .
 
-# Copy vendor from Composer stage
+# Copy vendor from composer stage
 COPY --from=composer /var/www/vendor ./vendor
 
-# Install Node packages
+# Install dependencies
 RUN npm install
 
 # Build assets
 RUN npm run build
+
 
 # ==========================================
 # Stage 3: Production
@@ -69,7 +70,7 @@ FROM php:8.2-fpm-alpine
 
 WORKDIR /var/www
 
-# Install packages
+# Install runtime packages
 RUN apk add --no-cache \
     nginx \
     supervisor \
@@ -81,7 +82,7 @@ RUN apk add --no-cache \
     postgresql-libs \
     postgresql-client
 
-# Build dependencies
+# Install PHP extensions
 RUN apk add --no-cache --virtual .build-deps \
     icu-dev \
     libzip-dev \
@@ -110,7 +111,7 @@ RUN chmod +x /usr/local/bin/entrypoint.sh
 # Copy application
 COPY --chown=www-data:www-data . .
 
-# Copy vendor
+# Copy vendor from composer stage
 COPY --from=composer --chown=www-data:www-data /var/www/vendor ./vendor
 
 # Copy built assets
