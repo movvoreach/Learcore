@@ -36,7 +36,8 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
 COPY . .
 
 # Install PHP dependencies
-RUN composer install \
+RUN composer config --global process-timeout 2000 \
+    && composer install \
     --no-dev \
     --no-scripts \
     --prefer-dist \
