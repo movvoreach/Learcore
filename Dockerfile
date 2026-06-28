@@ -46,7 +46,7 @@ WORKDIR /var/www
 COPY . .
 
 # Install dependencies and build assets
-RUN npm install
+RUN npm install --include=dev
 RUN npm run build
 
 # ==========================================
