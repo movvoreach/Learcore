@@ -1,54 +1,54 @@
-# 📚 LearnCore LMS — Project Summary
+# 📚 LearnCore LMS — សេចក្តីសង្ខេបគម្រោង
 
-LearnCore is a comprehensive, production-ready Learning Management System (LMS) designed for academic institutions. It provides a secure, role-based platform for managing academic structures, course content, student progress, assessments, and certifications.
+LearnCore គឺជាប្រព័ន្ធគ្រប់គ្រងការសិក្សា (LMS) ដ៏ទូលំទូលាយ និងរួចរាល់សម្រាប់ដំណើរការផលិតកម្ម ដែលត្រូវបានរចនាឡើងសម្រាប់គ្រឹះស្ថានសិក្សា។ វាផ្តល់នូវវេទិកាដែលមានសុវត្ថិភាព និងបែងចែកសិទ្ធិតាមតួនាទីច្បាស់លាស់ (Role-based) សម្រាប់គ្រប់គ្រងរចនាសម្ព័ន្ធសិក្សា ខ្លឹមសារមេរៀន វឌ្ឍនភាពសិស្ស ការវាយតម្លៃពិន្ទុ និងការចេញវិញ្ញាបនបត្រ។
 
 ---
 
-## 🛠️ Technology Stack
+## 🛠️ បច្ចេកវិទ្យាប្រើប្រាស់ (Technology Stack)
 
-| Layer | Technologies |
+| ផ្នែក | បច្ចេកវិទ្យា (Technologies) |
 | :--- | :--- |
-| **Frontend** | HTML5, Blade, Tailwind CSS, Alpine.js, Vite |
-| **Backend** | PHP 8.2+, Laravel 12, Livewire v3, Filament PHP v3 |
-| **Database** | PostgreSQL v17 (hosted on Supabase with PgBouncer connection pooling) |
-| **Infrastructure** | Docker, Nginx, PHP-FPM, Supervisord, Render Cloud, GitHub |
-| **Monitoring** | Spatie RBAC, Telegram Exception Notification Bot |
+| **ផ្នែកខាងមុខ (Frontend)** | HTML5, Blade, Tailwind CSS, Alpine.js, Vite |
+| **ផ្នែកខាងក្រោយ (Backend)** | PHP 8.2+, Laravel 12, Livewire v3, Filament PHP v3 |
+| **មូលដ្ឋានទិន្នន័យ (Database)** | PostgreSQL v17 (រក្សាទុកនៅលើ Supabase ជាមួយ PgBouncer connection pooling) |
+| **ហេដ្ឋារចនាសម្ព័ន្ធ (Infrastructure)** | Docker, Nginx, PHP-FPM, Supervisord, Render Cloud, GitHub |
+| **การត្រួតពិនិត្យ (Monitoring)** | Spatie RBAC, ប្រព័ន្ធផ្ញើសារជូនដំណឹងកំហុសស្វ័យប្រវត្តិតាម Telegram |
 
 ---
 
-## 🧩 Core Modules & Features
+## 🧩 ម៉ូឌុល និងមុខងារស្នូល
 
-### 1. User & Access Control (RBAC)
-* Spatie Laravel Permission implementation.
-* 4 defined roles:
-  * **Super Admin / Admin:** Complete control over setting configurations, users, and resources.
-  * **Teacher:** Manage assigned course content, quizzes, exams, and grade submissions.
-  * **Student:** Access dashboard, complete lessons, view progress, and download certificates.
+### ១. ការគ្រប់គ្រងអ្នកប្រើប្រាស់ និងសិទ្ធិចូលប្រើប្រាស់ (RBAC)
+* ប្រើប្រាស់កញ្ចប់ Spatie Laravel Permission។
+* មានតួនាទីចំនួន ៤ យ៉ាងច្បាស់លាស់៖
+  * **Super Admin / Admin:** គ្រប់គ្រងការកំណត់ទូទៅ គណនីអ្នកប្រើប្រាស់ និងធនធានទាំងអស់ក្នុងប្រព័ន្ធ។
+  * **Teacher (គ្រូបង្រៀន):** គ្រប់គ្រងខ្លឹមសារវគ្គសិក្សាដែលបានចាត់តាំង បង្កើតកម្រងសំណួរ ការប្រឡង និងការដាក់ពិន្ទុសិស្ស។
+  * **Student (សិស្ស):** ចូលមើលផ្ទាំងព័ត៌មានផ្ទាល់ខ្លួន សិក្សាមេរៀន មើលវឌ្ឍនភាពសិក្សា និងទាញយកវិញ្ញាបនបត្រ។
 
-### 2. Academic Structure
-* Hierarchy-based organization: **Faculties ➔ Departments ➔ Classrooms**.
-* Semester and Academic Year mapping to classrooms.
-* Teacher schedule assignments for courses, classrooms, and sessions.
+### ២. រចនាសម្ព័ន្ធសិក្សា
+* ការរៀបចំតាមលំដាប់ថ្នាក់៖ **មហាវិទ្យាល័យ ➔ ដេប៉ាតឺម៉ង់ ➔ បន្ទប់សិក្សា**។
+* ការភ្ជាប់ឆ្នាំសិក្សា និងឆមាសទៅកាន់បន្ទប់សិក្សានីមួយៗ។
+* ការចាត់តាំងកាលវិភាគបង្រៀនរបស់គ្រូសម្រាប់មុខវិជ្ជា បន្ទប់សិក្សា និងម៉ោងបង្រៀន។
 
-### 3. Course & Content Delivery
-* Cataloging of **Course Categories** and **Courses**.
-* Course lessons structured by **Chapters ➔ Lessons**.
-* Multi-format content uploads: **Documents (PDF), Videos (MP4/Streams), Assignments, and Resources**.
-* Student progress tracking with visual progress bars.
+### ៣. វគ្គសិក្សា និងការបង្ហាញខ្លឹមសារមេរៀន
+* ការបែងចែកប្រភេទវគ្គសិក្សា និងវគ្គសិក្សាផ្សេងៗ។
+* រចនាសម្ព័ន្ធមេរៀន៖ **ជំពូក ➔ មេរៀន**។
+* គាំទ្រការបញ្ចូលឯកសារច្រើនទម្រង់៖ **ឯកសារ (PDF) វីដេអូ (MP4/Streams) កិច្ចការផ្ទះ (Assignments) និងធនធានសិក្សាផ្សេងៗ**។
+* ការតាមដានវឌ្ឍនភាពសិក្សារបស់សិស្សម្នាក់ៗជាមួយនឹងរបារបង្ហាញភាគរយច្បាស់លាស់។
 
-### 4. Assessments, Exams & Grading
-* Centralized **Question Bank** supporting various question types and options.
-* **Quizzes & Exams** created by teachers and assigned to Classrooms/Students.
-* Online **Assignment Submissions** and grading logs.
-* Custom **Certificates** generation upon successful completion of curriculum.
+### ៤. ការវាយតម្លៃ ការប្រឡង និងការដាក់ពិន្ទុ
+* **ធនាគារសំណួរ (Question Bank)** កណ្តាល សម្រាប់គ្រប់គ្រងកម្រងសំណួរផ្សេងៗ។
+* **កម្រងសំណួរ (Quizzes) និងការប្រឡង (Exams)** បង្កើតដោយគ្រូសម្រាប់ចាត់តាំងទៅតាមថ្នាក់/សិស្ស។
+* ការប្រគល់កិច្ចការផ្ទះតាមអនឡាញ និងការកត់ត្រាពិន្ទុ។
+* ការបង្កើត **វិញ្ញាបនបត្រ (Certificates)** ស្វ័យប្រវត្តិនៅពេលសិស្សបញ្ចប់វគ្គសិក្សាដោយជោគជ័យ។
 
-### 5. Automated Monitoring (Telegram)
-* Exception notification service that sends error logging and failed queue notifications directly to a Telegram group chat via API bot for real-time diagnostics.
+### ៥. ការជូនដំណឹងកំហុសស្វ័យប្រវត្តិតាម Telegram
+* ប្រព័ន្ធជូនដំណឹងកំហុស (Exception Notification) ដែលចាប់យកកំហុស ឬការងារដែលបរាជ័យក្នុងប្រព័ន្ធ រួចផ្ញើសារភ្លាមៗទៅកាន់ក្រុមពិភាក្សា Telegram របស់ក្រុមបច្ចេកទេស។
 
 ---
 
-## 🌐 Database Connection Configuration
-The system uses **Supabase** for database hosting, utilizing PgBouncer for transaction-mode and session-mode connection pooling over IPv4 networks.
+## 🌐 ការកំណត់ការភ្ជាប់មូលដ្ឋានទិន្នន័យ (Database Configuration)
+ប្រព័ន្ធប្រើប្រាស់ **Supabase** សម្រាប់ផ្ទុកមូលដ្ឋានទិន្នន័យ ដោយប្រើប្រាស់ PgBouncer សម្រាប់ភ្ជាប់ក្នុងទម្រង់ transaction-mode និង session-mode លើបណ្តាញ IPv4។
 
 ```env
 DB_CONNECTION=pgsql
@@ -62,8 +62,8 @@ DB_SSLMODE=require
 
 ---
 
-## 🔑 Default Test Accounts
-All seeded accounts use the default password: **`123`**
+## 🔑 គណនីសាកល្បងលំនាំដើម
+គណនីដែលបានបញ្ចូលរួចរាល់ទាំងអស់ប្រើប្រាស់លេខកូដសម្ងាត់ដូចគ្នាគឺ៖ **`123`**
 
 * **Super Admin:** `test@example.com`
 * **Teacher Example:** `alice.smith@example.com`
@@ -71,5 +71,5 @@ All seeded accounts use the default password: **`123`**
 
 ---
 
-## 🚀 Deployed URL
+## 🚀 តំណភ្ជាប់វេបសាយ (Deployed URL)
 * **Production Link:** [https://learcore.onrender.com](https://learcore.onrender.com)
