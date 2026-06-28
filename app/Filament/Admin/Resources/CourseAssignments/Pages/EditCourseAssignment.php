@@ -16,4 +16,9 @@ class EditCourseAssignment extends EditRecord
             DeleteAction::make(),
         ];
     }
+protected function getCancelFormAction(): \Filament\Actions\Action
+    {
+        return parent::getCancelFormAction()
+            ->label('ត្រឡប់');
+    }
 }

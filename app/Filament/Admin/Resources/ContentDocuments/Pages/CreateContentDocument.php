@@ -8,4 +8,9 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateContentDocument extends CreateRecord
 {
     protected static string $resource = ContentDocumentResource::class;
+protected function getCancelFormAction(): \Filament\Actions\Action
+    {
+        return parent::getCancelFormAction()
+            ->label('ត្រឡប់');
+    }
 }

@@ -8,4 +8,9 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateCertificate extends CreateRecord
 {
     protected static string $resource = CertificateResource::class;
+protected function getCancelFormAction(): \Filament\Actions\Action
+    {
+        return parent::getCancelFormAction()
+            ->label('ត្រឡប់');
+    }
 }

@@ -58,7 +58,7 @@ class CreateUser extends CreateRecord
     protected function getCancelFormAction(): Action
     {
         return parent::getCancelFormAction()
-            ->label('បោះបង់')
+            ->label('ត្រឡប់')
             ->iconPosition(IconPosition::Before)
             ->color('gray');
     }

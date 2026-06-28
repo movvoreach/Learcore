@@ -8,4 +8,9 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateQuiz extends CreateRecord
 {
     protected static string $resource = QuizResource::class;
+protected function getCancelFormAction(): \Filament\Actions\Action
+    {
+        return parent::getCancelFormAction()
+            ->label('ត្រឡប់');
+    }
 }

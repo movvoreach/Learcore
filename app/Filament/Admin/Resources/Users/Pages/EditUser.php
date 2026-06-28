@@ -43,6 +43,6 @@ class EditUser extends EditRecord
     protected function getCancelFormAction(): Action
     {
         return parent::getCancelFormAction()
-            ->label('បោះបង់');
+            ->label('ត្រឡប់');
     }
 }

@@ -33,4 +33,9 @@ class CreateTeacher extends CreateRecord
             return static::getModel()::create($data);
         });
     }
+protected function getCancelFormAction(): \Filament\Actions\Action
+    {
+        return parent::getCancelFormAction()
+            ->label('ត្រឡប់');
+    }
 }

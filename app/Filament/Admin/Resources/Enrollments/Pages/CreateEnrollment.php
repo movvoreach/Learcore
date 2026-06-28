@@ -15,4 +15,9 @@ class CreateEnrollment extends CreateRecord
             'openEnrollmentModal' => 1,
         ]));
     }
+protected function getCancelFormAction(): \Filament\Actions\Action
+    {
+        return parent::getCancelFormAction()
+            ->label('ត្រឡប់');
+    }
 }
