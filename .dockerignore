@@ -7,7 +7,6 @@ vendor
 .phpunit.result.cache
 DockerFile
 Dockerfile
-docker
 storage/framework/cache/data/*
 storage/framework/sessions/*
 storage/framework/views/*
