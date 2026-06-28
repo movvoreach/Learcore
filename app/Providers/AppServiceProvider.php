@@ -122,5 +122,27 @@ class AppServiceProvider extends ServiceProvider
                 event(new ExceptionNotifier($event->exception));
             }
         });
+
+        \Illuminate\Support\Facades\Event::listen(\Illuminate\Auth\Events\Login::class, function ($event) {
+            \App\Models\ActivityLog::create([
+                'action' => 'logged_in',
+                'model_type' => get_class($event->user),
+                'model_id' => $event->user->id ?? null,
+                'user_id' => $event->user->id ?? null,
+                'ip_address' => request()->ip(),
+            ]);
+        });
+
+        \Illuminate\Support\Facades\Event::listen(\Illuminate\Auth\Events\Logout::class, function ($event) {
+            if ($event->user) {
+                \App\Models\ActivityLog::create([
+                    'action' => 'logged_out',
+                    'model_type' => get_class($event->user),
+                    'model_id' => $event->user->id,
+                    'user_id' => $event->user->id,
+                    'ip_address' => request()->ip(),
+                ]);
+            }
+        });
     }
 }

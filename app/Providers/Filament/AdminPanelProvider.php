@@ -346,6 +346,7 @@ HTML);
             NavigationGroup::make(self::GROUP_CONTENT),
             NavigationGroup::make(self::GROUP_ASSESSMENT),
             NavigationGroup::make(self::GROUP_REPORTS)->collapsed(),
+            NavigationGroup::make(self::GROUP_SETTINGS),
         ];
     }
 

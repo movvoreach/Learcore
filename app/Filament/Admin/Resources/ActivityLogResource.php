@@ -19,7 +19,7 @@ class ActivityLogResource extends Resource
     protected static ?string $model = ActivityLog::class;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-document-magnifying-glass';
-    protected static string|\UnitEnum|null $navigationGroup = 'Settings';
+    protected static string|\UnitEnum|null $navigationGroup = 'ការកំណត់';
     protected static ?string $navigationLabel = 'សកម្មភាពអ្នកប្រើប្រាស់';
     protected static ?string $modelLabel = 'Activity Log';
     protected static ?string $pluralModelLabel = 'សកម្មភាពអ្នកប្រើប្រាស់';
@@ -70,6 +70,8 @@ class ActivityLogResource extends Resource
                         
                         if ($record->action === 'logged_in') {
                             return "{$name} logged in at {$time} from IP {$ip}.";
+                        } elseif ($record->action === 'logged_out') {
+                            return "{$name} logged out at {$time} from IP {$ip}.";
                         }
                         return "{$name} {$record->action} a {$model} at {$time} from IP {$ip}.";
                     }),
@@ -85,9 +87,11 @@ class ActivityLogResource extends Resource
                 Filter::make('created_at')
                     ->form([
                         Forms\Components\DatePicker::make('created_from')
-                            ->label('From Date'),
+                            ->label('From Date')
+                            ->native(true),
                         Forms\Components\DatePicker::make('created_until')
-                            ->label('To Date'),
+                            ->label('To Date')
+                            ->native(true),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query
@@ -102,11 +106,8 @@ class ActivityLogResource extends Resource
                     })
                     ->columns(2)
             ], layout: FiltersLayout::AboveContent)
-            ->actions([
-                Tables\Actions\ViewAction::make(),
-            ])
-            ->bulkActions([
-                // No bulk delete for audit logs
+            ->recordActions([
+                \Filament\Actions\ViewAction::make(),
             ])
             ->defaultSort('created_at', 'desc')
             ->description('Records from user_activity');
