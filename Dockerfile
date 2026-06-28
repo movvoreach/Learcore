@@ -23,11 +23,17 @@ RUN apk add --no-cache \
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) gd zip intl pdo_pgsql pgsql bcmath opcache
 
-# Copy project dependency files
+# Copy dependency files
 COPY composer.json composer.lock ./
 
-# Install dependencies
-RUN composer install --no-dev --no-scripts --no-interaction --prefer-dist --optimize-autoloader
+# Install dependencies without autoloader generation
+RUN composer install --no-dev --no-scripts --no-interaction --prefer-dist --no-autoloader
+
+# Copy the rest of the application code
+COPY . .
+
+# Generate optimized autoloader with all classes present
+RUN composer dump-autoload --no-dev --optimize
 
 # ==========================================
 # Stage 2: Node.js Asset Compilation
@@ -36,9 +42,8 @@ FROM node:20-alpine AS node-stage
 
 WORKDIR /var/www
 
-# Copy files needed for assets
-COPY package.json package-lock.json* vite.config.js ./
-COPY resources/ ./resources/
+# Copy all files for asset compilation (Vite needs views and config to compile Tailwind/Vite assets)
+COPY . .
 
 # Install dependencies and build assets
 RUN npm install
@@ -83,7 +88,7 @@ COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 # Make entrypoint executable
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
-# Copy application files
+# Copy application files (with correct ownership)
 COPY --chown=www-data:www-data . .
 
 # Copy vendor dependencies from Composer stage
