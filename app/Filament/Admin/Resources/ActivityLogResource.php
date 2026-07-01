@@ -64,7 +64,7 @@ class ActivityLogResource extends Resource
                     ->label('បរិយាយ')
                     ->state(function (ActivityLog $record): string {
                         $name = $record->user ? $record->user->name : 'System';
-                        $time = $record->created_at->format('Y-m-d h:i:sa');
+                        $time = $record->created_at->timezone('Asia/Phnom_Penh')->format('Y-m-d h:i:sa');
                         $ip = $record->ip_address ?? 'unknown IP';
                         $model = class_basename($record->model_type);
                         
@@ -77,7 +77,7 @@ class ActivityLogResource extends Resource
                     }),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('ពេលវេលា')
-                    ->dateTime('Y-m-d H:i:s')
+                    ->dateTime('Y-m-d H:i:s', 'Asia/Phnom_Penh')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('ip_address')
                     ->label('អាស័យដ្ឋាន')
