@@ -22,6 +22,8 @@ class ClassRoomResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'class_name';
 
+    protected static bool $shouldRegisterNavigation = false;
+
     public static function form(Schema $schema): Schema
     {
         return ClassRoomForm::configure($schema);
