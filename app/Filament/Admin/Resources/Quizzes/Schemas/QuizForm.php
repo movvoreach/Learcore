@@ -14,7 +14,7 @@ class QuizForm
     public static function configure(Schema $schema): Schema
     {
         return $schema->components([
-            Select::make('content_lesson_id')->label('មេរៀន')->relationship('lesson', 'title')->searchable()->preload(false)->default(fn (): ?int => request()->integer('content_lesson_id') ?: null),
+            Select::make('content_lesson_id')->label('មេរៀន')->relationship('lesson', 'title')->searchable()->preload()->default(fn (): ?int => request()->integer('content_lesson_id') ?: null),
             TextInput::make('title')->label('ចំណងជើង')->required()->maxLength(180),
             Textarea::make('instructions')->label('សេចក្តីណែនាំ')->rows(5)->columnSpanFull(),
             DateTimePicker::make('available_from')->label('ចាប់ផ្តើម'),

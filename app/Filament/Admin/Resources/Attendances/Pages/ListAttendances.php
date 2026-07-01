@@ -34,7 +34,7 @@ class ListAttendances extends ListRecords
                             ->pluck('class_name', 'class_room_id')
                             ->all())
                         ->searchable()
-                        ->preload(false)
+                        ->preload()
                         ->required(),
                     DatePicker::make('attendance_date')
                         ->label('កាលបរិច្ឆេទ')

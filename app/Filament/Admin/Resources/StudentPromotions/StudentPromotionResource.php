@@ -57,7 +57,7 @@ class StudentPromotionResource extends Resource
                                 ])
                                 ->all())
                             ->searchable()
-                            ->preload(false)
+                            ->preload()
                             ->live()
                             ->afterStateUpdated(function (Set $set, ?int $state): void {
                                 $student = $state ? Student::query()->find($state) : null;
@@ -97,7 +97,7 @@ class StudentPromotionResource extends Resource
                             ->label('ឆ្នាំសិក្សាថ្មី')
                             ->options(fn (): array => self::academicYearOptions())
                             ->searchable()
-                            ->preload(false)
+                            ->preload()
                             ->live()
                             ->afterStateUpdated(function (Set $set): void {
                                 $set('to_semester_id', null);
@@ -108,7 +108,7 @@ class StudentPromotionResource extends Resource
                             ->options(fn (Get $get): array => self::semesterOptions($get('to_year_id')))
                             ->disabled(fn (Get $get): bool => blank($get('to_year_id')))
                             ->searchable()
-                            ->preload(false)
+                            ->preload()
                             ->required(),
                         Textarea::make('note')
                             ->label('កំណត់សម្គាល់')

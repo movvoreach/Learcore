@@ -53,7 +53,7 @@ class DepartmentsTable
                     ->label('មហាវិទ្យាល័យ')
                     ->relationship('faculty', 'faculty_name')
                     ->searchable()
-                    ->preload(false),
+                    ->preload(),
 
                 TernaryFilter::make('has_dean')
                     ->label('ស្ថានភាពប្រធានដេប៉ាតឺម៉ង់')

@@ -15,8 +15,8 @@ class ExamForm
     {
         return $schema->components([
             TextInput::make('title')->label('ចំណងជើង')->required()->maxLength(180),
-            Select::make('course_id')->label('វគ្គសិក្សា')->relationship('course', 'course_name')->searchable()->preload(false),
-            Select::make('subject_id')->label('មុខវិជ្ជា')->relationship('subject', 'subject_name')->searchable()->preload(false),
+            Select::make('course_id')->label('វគ្គសិក្សា')->relationship('course', 'course_name')->searchable()->preload(),
+            Select::make('subject_id')->label('មុខវិជ្ជា')->relationship('subject', 'subject_name')->searchable()->preload(),
             DatePicker::make('exam_date')->label('កាលបរិច្ឆេទ'),
             TimePicker::make('start_time')->label('ម៉ោងចាប់ផ្តើម')->seconds(false),
             TimePicker::make('end_time')->label('ម៉ោងបញ្ចប់')->seconds(false),

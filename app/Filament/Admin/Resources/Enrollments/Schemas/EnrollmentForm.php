@@ -20,19 +20,19 @@ class EnrollmentForm
                     ->label('និស្សិត')
                     ->relationship('student', 'first_name')
                     ->searchable(['student_code', 'first_name', 'last_name'])
-                    ->preload(false)
+                    ->preload()
                     ->required(),
                 Select::make('course_id')
                     ->label('វគ្គសិក្សា')
                     ->relationship('course', 'course_name')
                     ->searchable()
-                    ->preload(false)
+                    ->preload()
                     ->required(),
                 Select::make('academic_year_id')
                     ->label('ឆ្នាំសិក្សា')
                     ->relationship('academicYear', 'year_name')
                     ->searchable()
-                    ->preload(false)
+                    ->preload()
                     ->live()
                     ->afterStateUpdated(function (Set $set): void {
                         $set('semester_id', null);
@@ -49,7 +49,7 @@ class EnrollmentForm
                     ->disabled(fn (Get $get): bool => blank($get('academic_year_id')))
                     ->required(fn (Get $get): bool => filled($get('academic_year_id')))
                     ->searchable()
-                    ->preload(false),
+                    ->preload(),
                 DatePicker::make('enrollment_date')
                     ->label('ថ្ងៃចុះឈ្មោះ'),
                 Select::make('status')

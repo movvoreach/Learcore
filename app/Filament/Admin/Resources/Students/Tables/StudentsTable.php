@@ -94,19 +94,19 @@ class StudentsTable
                     ->label('ដេប៉ាតឺម៉ង់')
                     ->relationship('department', 'department_name')
                     ->searchable()
-                    ->preload(false),
+                    ->preload(),
 
                 SelectFilter::make('academic_year_id')
                     ->label('ឆ្នាំសិក្សា')
                     ->relationship('academicYear', 'year_name')
                     ->searchable()
-                    ->preload(false),
+                    ->preload(),
 
                 SelectFilter::make('semester_id')
                     ->label('ឆមាស')
                     ->relationship('semester', 'semester_name')
                     ->searchable()
-                    ->preload(false),
+                    ->preload(),
 
                 SelectFilter::make('status')
                     ->label('ស្ថានភាព')
@@ -114,7 +114,8 @@ class StudentsTable
                         'active' => 'សកម្ម',
                         'inactive' => 'អសកម្ម',
                         'graduated' => 'បានបញ្ចប់ការសិក្សា',
-                    ]),
+                    ])
+                    ->searchable(),
             ], layout: FiltersLayout::AboveContent)
             ->recordActions([
                 EditAction::make()

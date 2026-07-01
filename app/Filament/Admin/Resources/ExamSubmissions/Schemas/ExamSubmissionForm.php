@@ -13,8 +13,8 @@ class ExamSubmissionForm
     public static function configure(Schema $schema): Schema
     {
         return $schema->components([
-            Select::make('exam_id')->label('ការប្រឡង')->relationship('exam', 'title')->searchable()->preload(false)->required(),
-            Select::make('student_id')->label('និស្សិត')->relationship('student', 'student_code')->searchable()->preload(false)->required(),
+            Select::make('exam_id')->label('ការប្រឡង')->relationship('exam', 'title')->searchable()->preload()->required(),
+            Select::make('student_id')->label('និស្សិត')->relationship('student', 'student_code')->searchable()->preload()->required(),
             DateTimePicker::make('submitted_at')->label('ថ្ងៃដាក់ស្នើ'),
             TextInput::make('attempt_no')->label('លើកទី')->numeric()->default(1)->required(),
             TextInput::make('score')->label('ពិន្ទុ')->numeric(),

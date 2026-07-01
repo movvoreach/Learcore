@@ -32,7 +32,6 @@ use App\Filament\Admin\Resources\Permissions\PermissionResource;
 use App\Filament\Admin\Resources\Roles\RoleResource;
 use App\Filament\Admin\Resources\StudentProgresses\StudentProgressResource;
 use App\Filament\Admin\Resources\Teachers\TeacherResource;
-use App\Filament\Admin\Resources\TeacherSchedules\TeacherScheduleResource;
 use App\Filament\Admin\Resources\Schedules\ScheduleResource;
 use App\Http\Middleware\EnsureStudentFilamentAccess;
 use BackedEnum;
@@ -361,7 +360,6 @@ HTML);
 
             $this->resourceNavItem('គ្រូបង្រៀន', self::GROUP_TEACHERS, 10, asset('Icons/teacher.png'), TeacherResource::class),
             $this->resourceNavItem('ចាត់តាំងវគ្គសិក្សា', self::GROUP_TEACHERS, 20, asset('Icons/teacherasign.png'), CourseAssignmentResource::class),
-            $this->resourceNavItem('កាលវិភាគ', self::GROUP_TEACHERS, 30, asset('Icons/schedule.png'), TeacherScheduleResource::class),
             $this->resourceNavItem('កាលវិភាគសិក្សា', self::GROUP_TEACHERS, 35, asset('Icons/schedule.png'), ScheduleResource::class),
 
             $this->resourceNavItem('ប្រភេទវគ្គសិក្សា', self::GROUP_CONTENT, 10, asset('Icons/course.png'), CourseCategoryResource::class),

@@ -16,8 +16,8 @@ class ContentAssignmentForm
     {
         return $schema
             ->components([
-                Select::make('content_lesson_id')->label('មេរៀន')->relationship('lesson', 'title')->searchable()->preload(false)->default(fn (): ?int => request()->integer('content_lesson_id') ?: null)->required(),
-                Select::make('content_chapter_id')->label('ជំពូក')->relationship('chapter', 'title')->searchable()->preload(false),
+                Select::make('content_lesson_id')->label('មេរៀន')->relationship('lesson', 'title')->searchable()->preload()->default(fn (): ?int => request()->integer('content_lesson_id') ?: null)->required(),
+                Select::make('content_chapter_id')->label('ជំពូក')->relationship('chapter', 'title')->searchable()->preload(),
                 TextInput::make('title')->label('ចំណងជើងកិច្ចការ')->required()->maxLength(180),
                 Textarea::make('instructions')->label('សេចក្តីណែនាំ')->rows(8)->columnSpanFull(),
                 FileUpload::make('attachment_path')

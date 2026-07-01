@@ -19,7 +19,7 @@ class TeacherForm
             ->components([
                 TextInput::make('teacher_code')
                     ->label('លេខកូដគ្រូ')
-                    ->placeholder('បង្កើតដោយស្វ័យប្រវត្តិ')
+                    ->placeholder('TC001')
                     ->disabled()
                     ->dehydrated(false)
                     ->maxLength(30),
@@ -36,6 +36,7 @@ class TeacherForm
                         'part_time' => 'ក្រៅម៉ោង',
                     ])
                     ->default('full_time')
+                    ->searchable()
                     ->required(),
                 TextInput::make('first_name')
                     ->label('នាមខ្លួន')

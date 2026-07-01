@@ -27,7 +27,7 @@ class CertificatesTable
                 TextColumn::make('status')->label('ស្ថានភាព')->badge(),
             ])
             ->filters([
-                SelectFilter::make('course_id')->label('វគ្គសិក្សា')->relationship('course', 'course_name')->searchable()->preload(false),
+                SelectFilter::make('course_id')->label('វគ្គសិក្សា')->relationship('course', 'course_name')->searchable()->preload(),
                 SelectFilter::make('status')
                     ->label('ស្ថានភាព')
                     ->options([

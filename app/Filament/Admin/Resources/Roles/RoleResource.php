@@ -58,7 +58,7 @@ class RoleResource extends Resource
                         ->relationship('permissions', 'name')
                         ->multiple()
                         ->options(fn (): array => Permission::query()->orderBy('name')->pluck('name', 'id')->all())
-                        ->preload(false)
+                        ->preload()
                         ->searchable()
                         ->columnSpanFull()
                         ->placeholder('ជ្រើសរើសជម្រើសណាមួយ'),

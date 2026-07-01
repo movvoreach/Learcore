@@ -57,17 +57,17 @@ class StudentPromotionsTable
                     ->label('ដេប៉ាតឺម៉ង់ដើម')
                     ->relationship('fromDepartment', 'department_name')
                     ->searchable()
-                    ->preload(false),
+                    ->preload(),
                 SelectFilter::make('from_year_id')
                     ->label('ឆ្នាំសិក្សាដើម')
                     ->relationship('fromYear', 'year_name')
                     ->searchable()
-                    ->preload(false),
+                    ->preload(),
                 SelectFilter::make('to_year_id')
                     ->label('ឆ្នាំសិក្សាថ្មី')
                     ->relationship('toYear', 'year_name')
                     ->searchable()
-                    ->preload(false),
+                    ->preload(),
             ], layout: FiltersLayout::AboveContent)
             ->defaultSort('promoted_at', 'desc');
     }

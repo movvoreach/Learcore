@@ -14,7 +14,7 @@ class AssessmentResultForm
     public static function configure(Schema $schema): Schema
     {
         return $schema->components([
-            Select::make('student_id')->label('និស្សិត')->relationship('student', 'student_code')->searchable()->preload(false)->required(),
+            Select::make('student_id')->label('និស្សិត')->relationship('student', 'student_code')->searchable()->preload()->required(),
             Select::make('assessment_type')
                 ->label('ប្រភេទ')
                 ->options([
@@ -24,8 +24,8 @@ class AssessmentResultForm
                 ])
                 ->default('exam')
                 ->required(),
-            Select::make('exam_id')->label('ការប្រឡង')->relationship('exam', 'title')->searchable()->preload(false),
-            Select::make('quiz_id')->label('តេស្តខ្លី')->relationship('quiz', 'title')->searchable()->preload(false),
+            Select::make('exam_id')->label('ការប្រឡង')->relationship('exam', 'title')->searchable()->preload(),
+            Select::make('quiz_id')->label('តេស្តខ្លី')->relationship('quiz', 'title')->searchable()->preload(),
             TextInput::make('total_score')->label('ពិន្ទុសរុប')->numeric()->default(0)->required(),
             TextInput::make('rank')->label('ចំណាត់ថ្នាក់')->numeric(),
             Toggle::make('passed')->label('ជាប់')->default(false),

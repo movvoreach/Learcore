@@ -17,7 +17,7 @@ class SubjectForm
                     ->label('វគ្គសិក្សា')
                     ->relationship('course', 'course_name')
                     ->searchable()
-                    ->preload(false)
+                    ->preload()
                     ->required(),
                 TextInput::make('subject_code')
                     ->label('លេខកូដមុខវិជ្ជា')

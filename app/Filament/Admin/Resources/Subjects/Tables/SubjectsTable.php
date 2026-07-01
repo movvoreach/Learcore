@@ -40,7 +40,7 @@ class SubjectsTable
                     ->label('វគ្គសិក្សា')
                     ->relationship('course', 'course_name')
                     ->searchable()
-                    ->preload(false),
+                    ->preload(),
             ], layout: FiltersLayout::AboveContent)
             ->recordActions([
                 EditAction::make(),

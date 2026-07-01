@@ -53,7 +53,7 @@ class ListSemesters extends ListRecords
                             ->pluck('year_name', 'academic_year_id')
                             ->all())
                         ->searchable()
-                        ->preload(false)
+                        ->preload()
                         ->required(),
                     Repeater::make('semesters')
                         ->label('បញ្ជីឆមាស')

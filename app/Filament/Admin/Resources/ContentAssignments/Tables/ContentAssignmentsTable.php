@@ -28,7 +28,7 @@ class ContentAssignmentsTable
                 IconColumn::make('is_published')->label('ផ្សាយ')->boolean(),
             ])
             ->filters([
-                SelectFilter::make('content_lesson_id')->label('មេរៀន')->relationship('lesson', 'title')->searchable()->preload(false),
+                SelectFilter::make('content_lesson_id')->label('មេរៀន')->relationship('lesson', 'title')->searchable()->preload(),
             ], layout: FiltersLayout::AboveContent)
             ->recordActions([EditAction::make(), DeleteAction::make()])
             ->toolbarActions([BulkActionGroup::make([DeleteBulkAction::make()])])

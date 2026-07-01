@@ -4,76 +4,44 @@
             overflow-x: auto;
             margin-top: 8px;
             background: #ffffff;
-            border-radius: 12px;
-            border: 1px solid #e2e8f0;
-            box-shadow: 0 1px 6px rgba(0,0,0,0.04);
-        }
-        .dark .timetable-wrapper {
-            background: #1e293b;
-            border-color: #334155;
+            border: 1px solid #000;
         }
         .timetable-grid {
             width: 100%;
             border-collapse: collapse;
-            font-size: 13px;
-            text-align: left;
+            font-size: 14px;
+            text-align: center;
             min-width: 800px;
         }
         .timetable-grid th, .timetable-grid td {
-            border-bottom: 1px solid #e2e8f0;
-            padding: 16px 12px;
-            vertical-align: top;
-        }
-        .dark .timetable-grid th, .dark .timetable-grid td {
-            border-bottom-color: #334155;
+            border: 1px solid #000;
+            padding: 12px;
+            vertical-align: middle;
         }
         .timetable-grid th {
-            font-weight: 600;
-            color: #1e293b;
-            background-color: #f8fafc;
-            border-top-left-radius: 12px;
-            border-top-right-radius: 12px;
-        }
-        .dark .timetable-grid th {
-            color: #e2e8f0;
-            background-color: #0f172a;
+            font-weight: bold;
+            color: #000;
+            background-color: #ff0000;
+            font-size: 16px;
         }
         .timetable-time {
-            font-weight: 600;
-            color: #475569;
+            font-weight: bold;
+            color: #000;
             white-space: nowrap;
             width: 120px;
         }
-        .dark .timetable-time {
-            color: #94a3b8;
-        }
-        .timetable-cell {
-            min-width: 150px;
-        }
         .tt-subject {
-            font-weight: 600;
-            color: #0f172a;
+            color: #0070c0;
             margin-bottom: 4px;
         }
-        .dark .tt-subject {
-            color: #f8fafc;
+        .tt-subject.afternoon {
+            color: #00b050;
         }
-        .tt-room {
-            color: #64748b;
-            font-size: 12px;
+        .break-row {
+            background-color: #00b0f0;
+            height: 24px;
         }
-        .dark .tt-room {
-            color: #94a3b8;
-        }
-        .tt-teacher {
-            color: #3b82f6;
-            font-size: 12px;
-            margin-top: 4px;
-        }
-        .dark .tt-teacher {
-            color: #60a5fa;
-        }
-
+        
         /* Filter Styles */
         .tt-filters {
             display: flex;
@@ -90,65 +58,127 @@
             color: #334155;
             background: #fff;
             min-width: 200px;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
         }
-        .dark .tt-select {
+        .dark .timetable-wrapper {
             background: #1e293b;
-            border-color: #475569;
-            color: #e2e8f0;
         }
+        .dark .timetable-grid th, .dark .timetable-grid td {
+            border-color: #334155;
+        }
+        .dark .tt-subject { color: #60a5fa; }
+        .dark .tt-time { color: #e2e8f0; }
+
+        .print-header, .print-footer { display: none; }
     </style>
 
     <div class="tt-filters">
+        @if(!$isTeacher)
+        <select wire:model.live="department_id" class="tt-select">
+            <option value="">ដេប៉ាតឺម៉ង់ (All Departments)</option>
+            @foreach($departments as $dept)
+                <option value="{{ $dept->department_id }}">{{ $dept->department_name }}</option>
+            @endforeach
+        </select>
+        
         <select wire:model.live="teacher_id" class="tt-select">
             <option value="">ទាំងអស់ (All Teachers)</option>
             @foreach($teachers as $teacher)
                 <option value="{{ $teacher->teacher_id }}">{{ $teacher->first_name }} {{ $teacher->last_name }}</option>
             @endforeach
         </select>
+        @endif
+
+        <select wire:model.live="academic_year_id" class="tt-select">
+            <option value="">ឆ្នាំសិក្សា (All Academic Years)</option>
+            @foreach($academicYears as $ay)
+                <option value="{{ $ay->academic_year_id }}">{{ $ay->year_name }}</option>
+            @endforeach
+        </select>
+
+        <select wire:model.live="semester_id" class="tt-select">
+            <option value="">ឆមាស (All Semesters)</option>
+            @foreach($semesters as $sem)
+                <option value="{{ $sem->semester_id }}">{{ $sem->semester_name }}</option>
+            @endforeach
+        </select>
         
-        <!-- Add more filters like Academic Year here when ready -->
+        <button onclick="printTimetable()" style="background-color: #0070c0; color: white; border: none; padding: 9px 15px; border-radius: 8px; cursor: pointer; font-weight: bold;">
+            🖨️ Print Schedule
+        </button>
     </div>
 
-    <div class="timetable-wrapper">
+    <div id="print-header-content" class="print-header" style="flex-direction: column; width: 100%; margin-bottom: 5px;">
+        <table style="width: 100%; border-collapse: collapse; text-align: center;">
+            <tr>
+                <td style="width: 150px; border: 1px solid #000; background-color: #00b0f0; color: white; font-weight: bold; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
+                    LMS LOGO
+                </td>
+                <td style="border: 1px solid #000; padding: 10px;">
+                    <h2 style="margin: 0; color: #0070c0; font-size: 20px;">
+                        @php
+                            $selectedDept = collect($departments)->firstWhere('department_id', $department_id);
+                            echo $selectedDept ? $selectedDept->department_name : 'Faculty of Information Technology';
+                        @endphp
+                    </h2>
+                    <h3 style="margin: 0; color: #0070c0; font-size: 16px;">
+                        Academic Year 
+                        @php
+                            $selectedYear = collect($academicYears)->firstWhere('academic_year_id', $academic_year_id);
+                            echo $selectedYear ? $selectedYear->year_name : '____-____';
+                        @endphp
+                    </h3>
+                    <h3 style="margin: 0; color: #0070c0; font-size: 16px;">
+                        @php
+                            $selectedSemester = collect($semesters)->firstWhere('semester_id', $semester_id);
+                            echo $selectedSemester ? $selectedSemester->semester_name : 'Semester __';
+                        @endphp
+                    </h3>
+                    <h2 style="margin: 0; color: #0070c0; font-size: 18px;">Time Table</h2>
+                </td>
+            </tr>
+        </table>
+        <div style="text-align: right; color: red; font-weight: bold; margin-top: 5px; font-size: 16px;">Room: ___</div>
+    </div>
+
+    <div id="print-table-content" class="timetable-wrapper">
         <table class="timetable-grid">
             <thead>
                 <tr>
                     <th>Time</th>
-                    <th>Monday</th>
-                    <th>Tuesday</th>
-                    <th>Wednesday</th>
-                    <th>Thursday</th>
-                    <th>Friday</th>
+                    <th>M</th>
+                    <th>T</th>
+                    <th>W</th>
+                    <th>TH</th>
+                    <th>F</th>
                 </tr>
             </thead>
             <tbody>
+                @php
+                    $hasShownBreak = false;
+                @endphp
                 @forelse($timeSlots as $timeKey => $slotData)
+                    @php
+                        $startCarbon = \Carbon\Carbon::parse($slotData['start_time']);
+                        $isAfternoon = $startCarbon->hour >= 12;
+                        
+                        if ($isAfternoon && !$hasShownBreak) {
+                            echo '<tr class="break-row"><td colspan="6" style="text-align: center; font-weight: bold; color: #fff; font-size: 16px;">ពេលរសៀល</td></tr>';
+                            $hasShownBreak = true;
+                        }
+                    @endphp
                     <tr>
                         <td class="timetable-time">
-                            {{ \Carbon\Carbon::parse($slotData['start_time'])->format('g:i A') }} - 
-                            {{ \Carbon\Carbon::parse($slotData['end_time'])->format('g:i A') }}
+                            {{ $startCarbon->format('g:i') }} - 
+                            {{ \Carbon\Carbon::parse($slotData['end_time'])->format('g:i') }}
                         </td>
-                        @foreach($days as $day)
-                            <td class="timetable-cell">
+                        @foreach(['monday', 'tuesday', 'wednesday', 'thursday', 'friday'] as $day)
+                            <td>
                                 @if(isset($slotData['days'][$day]))
                                     @foreach($slotData['days'][$day] as $schedule)
-                                        <div style="margin-bottom: 12px; padding: 8px; background: rgba(59, 130, 246, 0.05); border-radius: 6px; border-left: 3px solid #3b82f6; position: relative;">
-                                            <div class="tt-subject">
-                                                {{ $schedule->classRoom->class_name ?? 'N/A' }}
-                                            </div>
-                                            <div class="tt-room">
-                                                (Room {{ $schedule->classRoom->room_number ?? 'N/A' }})
-                                            </div>
-                                            <div class="tt-teacher">
-                                                {{ $schedule->teacher->first_name ?? '' }} {{ $schedule->teacher->last_name ?? '' }}
-                                            </div>
-                                            
-                                            <div style="position: absolute; top: 8px; right: 8px;">
-                                                <a href="{{ \App\Filament\Admin\Resources\Schedules\ScheduleResource::getUrl('edit', ['record' => $schedule]) }}" style="color: #64748b; margin-right: 4px;" title="Edit">
-                                                    ✏️
-                                                </a>
-                                            </div>
+                                        <div class="tt-subject {{ $isAfternoon ? 'afternoon' : '' }}">
+                                            <a href="{{ \App\Filament\Admin\Resources\Schedules\ScheduleResource::getUrl('edit', ['record' => $schedule]) }}" style="text-decoration: none; color: inherit;">
+                                                {{ $schedule->classRoom->class_name ?? 'Class' }} ({{ $schedule->teacher->first_name ?? '' }} {{ $schedule->teacher->last_name ?? '' }})
+                                            </a>
                                         </div>
                                     @endforeach
                                 @endif
@@ -157,7 +187,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" style="text-align: center; padding: 40px; color: #64748b;">
+                        <td colspan="6" style="text-align: center; padding: 40px;">
                             មិនមានទិន្នន័យកាលវិភាគទេ (No schedule data available)
                         </td>
                     </tr>
@@ -166,4 +196,57 @@
         </table>
     </div>
 
+    <div id="print-footer-content" class="print-footer" style="width: 100%; justify-content: space-between; margin-top: 30px; font-weight: bold; color: #0070c0; font-size: 14px;">
+        <div style="text-align: left;">
+            <p style="margin: 0;">Date: {{ date('F d, Y') }}</p>
+            <p style="margin: 0;">Vice-Director of Academic Affairs</p>
+            <br><br><br>
+            <p style="margin: 0;">__________________________</p>
+        </div>
+        <div style="text-align: right;">
+            <p style="margin: 0;">Date: {{ date('F d, Y') }}</p>
+            <p style="margin: 0;">Dean of The Faculty</p>
+            <br><br><br>
+            <p style="margin: 0;">__________________________</p>
+        </div>
+    </div>
+
+    <script>
+        window.printTimetable = function() {
+            var header = document.getElementById('print-header-content').outerHTML;
+            var table = document.getElementById('print-table-content').outerHTML;
+            var footer = document.getElementById('print-footer-content').outerHTML;
+            
+            var printWindow = window.open('', '_blank');
+            printWindow.document.write('<html><head><title>Print Timetable</title>');
+            printWindow.document.write('<style>');
+            printWindow.document.write('body { font-family: sans-serif; background: white; margin: 0; padding: 20px; }');
+            printWindow.document.write('a { text-decoration: none; color: inherit; }');
+            printWindow.document.write('.timetable-wrapper { margin-top: 20px; border: 1px solid #000; border-collapse: collapse; }');
+            printWindow.document.write('.timetable-grid { width: 100%; border-collapse: collapse; font-size: 14px; text-align: center; }');
+            printWindow.document.write('.timetable-grid th, .timetable-grid td { border: 1px solid #000; padding: 12px; }');
+            printWindow.document.write('.timetable-grid th { background-color: #ff0000 !important; color: #000; -webkit-print-color-adjust: exact; print-color-adjust: exact; font-size: 16px; font-weight: bold; }');
+            printWindow.document.write('.break-row td { background-color: #00b0f0 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; color: #fff !important; font-weight: bold; }');
+            printWindow.document.write('.tt-subject { color: #0070c0 !important; font-weight: bold; margin-bottom: 4px; }');
+            printWindow.document.write('.tt-subject.afternoon { color: #00b050 !important; }');
+            printWindow.document.write('.print-header, .print-footer { display: flex !important; width: 100%; }');
+            printWindow.document.write('.print-header { flex-direction: column; margin-bottom: 10px; }');
+            printWindow.document.write('.print-footer { flex-direction: row; justify-content: space-between; margin-top: 30px; font-weight: bold; color: #0070c0 !important; font-size: 14px; }');
+            printWindow.document.write('@media print { @page { size: landscape; margin: 1cm; } }');
+            printWindow.document.write('</style>');
+            printWindow.document.write('<\/head><body>');
+            printWindow.document.write(header);
+            printWindow.document.write(table);
+            printWindow.document.write(footer);
+            printWindow.document.write('<\/body><\/html>');
+            
+            printWindow.document.close();
+            printWindow.focus();
+            
+            setTimeout(function() {
+                printWindow.print();
+                printWindow.close();
+            }, 500);
+        }
+    </script>
 </x-filament-panels::page>

@@ -13,8 +13,8 @@ class AssessmentQuestionForm
     public static function configure(Schema $schema): Schema
     {
         return $schema->components([
-            Select::make('question_bank_id')->label('ធនាគារសំណួរ')->relationship('bank', 'title')->searchable()->preload(false),
-            Select::make('content_lesson_id')->label('មេរៀន')->relationship('lesson', 'title')->searchable()->preload(false),
+            Select::make('question_bank_id')->label('ធនាគារសំណួរ')->relationship('bank', 'title')->searchable()->preload(),
+            Select::make('content_lesson_id')->label('មេរៀន')->relationship('lesson', 'title')->searchable()->preload(),
             Select::make('question_type')
                 ->label('ប្រភេទសំណួរ')
                 ->options([

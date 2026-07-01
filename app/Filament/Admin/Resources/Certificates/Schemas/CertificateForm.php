@@ -23,13 +23,13 @@ class CertificateForm
                     ->label('និស្សិត')
                     ->relationship('student', 'first_name')
                     ->searchable(['student_code', 'first_name', 'last_name'])
-                    ->preload(false)
+                    ->preload()
                     ->required(),
                 Select::make('course_id')
                     ->label('វគ្គសិក្សា')
                     ->relationship('course', 'course_name')
                     ->searchable()
-                    ->preload(false),
+                    ->preload(),
                 DatePicker::make('issued_date')
                     ->label('ថ្ងៃចេញវិញ្ញាបនបត្រ'),
                 Select::make('status')

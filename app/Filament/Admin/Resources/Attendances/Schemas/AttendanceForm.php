@@ -17,13 +17,13 @@ class AttendanceForm
                     ->label('និស្សិត')
                     ->relationship('student', 'first_name')
                     ->searchable(['student_code', 'first_name', 'last_name'])
-                    ->preload(false)
+                    ->preload()
                     ->required(),
                 Select::make('class_room_id')
                     ->label('ថ្នាក់រៀន')
                     ->relationship('classRoom', 'class_name')
                     ->searchable()
-                    ->preload(false),
+                    ->preload(),
                 DatePicker::make('attendance_date')
                     ->label('កាលបរិច្ឆេទ')
                     ->required(),

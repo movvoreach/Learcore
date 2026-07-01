@@ -22,7 +22,7 @@ class SemesterForm
                             ->label('ឆ្នាំសិក្សា')
                             ->relationship('academicYear', 'year_name')
                             ->searchable()
-                            ->preload(false)
+                            ->preload()
                             ->required()
                             ->placeholder('ជ្រើសរើសជម្រើសណាមួយ'),
                         TextInput::make('semester_name')

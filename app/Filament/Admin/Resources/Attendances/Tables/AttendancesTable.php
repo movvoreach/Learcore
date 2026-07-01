@@ -41,7 +41,7 @@ class AttendancesTable
                     ->label('កំណត់សម្គាល់'),
             ])
             ->filters([
-                SelectFilter::make('class_room_id')->label('ថ្នាក់រៀន')->relationship('classRoom', 'class_name')->searchable()->preload(false),
+                SelectFilter::make('class_room_id')->label('ថ្នាក់រៀន')->relationship('classRoom', 'class_name')->searchable()->preload(),
                 SelectFilter::make('status')
                     ->label('ស្ថានភាព')
                     ->options([

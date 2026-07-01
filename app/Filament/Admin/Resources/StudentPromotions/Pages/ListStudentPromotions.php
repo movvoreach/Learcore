@@ -54,7 +54,7 @@ class ListStudentPromotions extends ListRecords
                                     ])
                                     ->all())
                                 ->searchable()
-                                ->preload(false)
+                                ->preload()
                                 ->live()
                                 ->afterStateUpdated(function (Set $set, ?int $state): void {
                                     $student = $state ? Student::query()->find($state) : null;
@@ -94,7 +94,7 @@ class ListStudentPromotions extends ListRecords
                                 ->label('ឆ្នាំសិក្សាថ្មី')
                                 ->options(fn (): array => StudentPromotionResource::academicYearOptions())
                                 ->searchable()
-                                ->preload(false)
+                                ->preload()
                                 ->live()
                                 ->afterStateUpdated(function (Set $set): void {
                                     $set('to_semester_id', null);
@@ -105,7 +105,7 @@ class ListStudentPromotions extends ListRecords
                                 ->options(fn (Get $get): array => StudentPromotionResource::semesterOptions($get('to_year_id')))
                                 ->disabled(fn (Get $get): bool => blank($get('to_year_id')))
                                 ->searchable()
-                                ->preload(false)
+                                ->preload()
                                 ->required(),
                             Textarea::make('note')
                                 ->label('កំណត់សម្គាល់')
@@ -139,13 +139,13 @@ class ListStudentPromotions extends ListRecords
                                     ->pluck('department_name', 'department_id')
                                     ->all())
                                 ->searchable()
-                                ->preload(false)
+                                ->preload()
                                 ->required(),
                             Select::make('from_year_id')
                                 ->label('ឆ្នាំសិក្សា')
                                 ->options(fn (): array => StudentPromotionResource::academicYearOptions())
                                 ->searchable()
-                                ->preload(false)
+                                ->preload()
                                 ->live()
                                 ->afterStateUpdated(function (Set $set): void {
                                     $set('from_semester_id', null);
@@ -156,7 +156,7 @@ class ListStudentPromotions extends ListRecords
                                 ->options(fn (Get $get): array => StudentPromotionResource::semesterOptions($get('from_year_id')))
                                 ->disabled(fn (Get $get): bool => blank($get('from_year_id')))
                                 ->searchable()
-                                ->preload(false)
+                                ->preload()
                                 ->required(),
                         ]),
                     Section::make('ទៅ')
@@ -166,7 +166,7 @@ class ListStudentPromotions extends ListRecords
                                 ->label('ឆ្នាំសិក្សាថ្មី')
                                 ->options(fn (): array => StudentPromotionResource::academicYearOptions())
                                 ->searchable()
-                                ->preload(false)
+                                ->preload()
                                 ->live()
                                 ->afterStateUpdated(function (Set $set): void {
                                     $set('to_semester_id', null);
@@ -177,7 +177,7 @@ class ListStudentPromotions extends ListRecords
                                 ->options(fn (Get $get): array => StudentPromotionResource::semesterOptions($get('to_year_id')))
                                 ->disabled(fn (Get $get): bool => blank($get('to_year_id')))
                                 ->searchable()
-                                ->preload(false)
+                                ->preload()
                                 ->required(),
                             Textarea::make('note')
                                 ->label('កំណត់សម្គាល់')
@@ -227,13 +227,13 @@ class ListStudentPromotions extends ListRecords
                                     ->pluck('department_name', 'department_id')
                                     ->all())
                                 ->searchable()
-                                ->preload(false)
+                                ->preload()
                                 ->required(),
                             Select::make('from_year_id')
                                 ->label('Academic Year')
                                 ->options(fn (): array => StudentPromotionResource::academicYearOptions())
                                 ->searchable()
-                                ->preload(false)
+                                ->preload()
                                 ->live()
                                 ->afterStateUpdated(function (Set $set): void {
                                     $set('from_semester_id', null);
@@ -244,7 +244,7 @@ class ListStudentPromotions extends ListRecords
                                 ->options(fn (Get $get): array => StudentPromotionResource::semesterOptions($get('from_year_id')))
                                 ->disabled(fn (Get $get): bool => blank($get('from_year_id')))
                                 ->searchable()
-                                ->preload(false)
+                                ->preload()
                                 ->required(),
                             Textarea::make('note')
                                 ->label('Note')

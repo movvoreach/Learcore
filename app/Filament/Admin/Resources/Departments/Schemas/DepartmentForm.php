@@ -20,12 +20,12 @@ class DepartmentForm
                             ->label('មហាវិទ្យាល័យ')
                             ->relationship('faculty', 'faculty_name')
                             ->searchable()
-                            ->preload(false)
+                            ->preload()
                             ->required()
                             ->placeholder('ជ្រើសរើសជម្រើសណាមួយ'),
                         TextInput::make('department_code')
                             ->label('លេខកូដដេប៉ាតឺម៉ង់')
-                            ->placeholder('បង្កើតដោយស្វ័យប្រវត្តិ')
+                            ->placeholder('DP001')
                             ->disabled()
                             ->dehydrated(false)
                             ->maxLength(30),

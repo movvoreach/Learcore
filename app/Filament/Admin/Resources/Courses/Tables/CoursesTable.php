@@ -89,25 +89,25 @@ class CoursesTable
                     ->label('Category')
                     ->relationship('category', 'category_name')
                     ->searchable()
-                    ->preload(false),
+                    ->preload(),
 
                 SelectFilter::make('department_id')
                     ->label('Department')
                     ->relationship('department', 'department_name')
                     ->searchable()
-                    ->preload(false),
+                    ->preload(),
 
                 SelectFilter::make('academic_year_id')
                     ->label('Academic Year')
                     ->relationship('academicYear', 'year_name')
                     ->searchable()
-                    ->preload(false),
+                    ->preload(),
 
                 SelectFilter::make('semester_id')
                     ->label('Semester')
                     ->relationship('semester', 'semester_name')
                     ->searchable()
-                    ->preload(false),
+                    ->preload(),
             ], layout: FiltersLayout::AboveContent)
             ->recordUrl(fn (Course $record): ?string => auth()->user()?->isStudent()
                 ? StudentCourse::getUrl(['course' => $record->course_id])

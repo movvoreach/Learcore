@@ -18,18 +18,18 @@ class StudentProgressForm
                     ->label('និស្សិត')
                     ->relationship('student', 'first_name')
                     ->searchable(['student_code', 'first_name', 'last_name'])
-                    ->preload(false)
+                    ->preload()
                     ->required(),
                 Select::make('course_id')
                     ->label('វគ្គសិក្សា')
                     ->relationship('course', 'course_name')
                     ->searchable()
-                    ->preload(false),
+                    ->preload(),
                 Select::make('class_room_id')
                     ->label('ថ្នាក់រៀន')
                     ->relationship('classRoom', 'class_name')
                     ->searchable()
-                    ->preload(false),
+                    ->preload(),
                 DatePicker::make('progress_date')
                     ->label('កាលបរិច្ឆេទ'),
                 TextInput::make('progress_percent')

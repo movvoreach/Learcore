@@ -15,8 +15,8 @@ class ContentVideoForm
     {
         return $schema
             ->components([
-                Select::make('content_lesson_id')->label('មេរៀន')->relationship('lesson', 'title')->searchable()->preload(false)->default(fn (): ?int => request()->integer('content_lesson_id') ?: null)->required(),
-                Select::make('content_chapter_id')->label('ជំពូក')->relationship('chapter', 'title')->searchable()->preload(false),
+                Select::make('content_lesson_id')->label('មេរៀន')->relationship('lesson', 'title')->searchable()->preload()->default(fn (): ?int => request()->integer('content_lesson_id') ?: null)->required(),
+                Select::make('content_chapter_id')->label('ជំពូក')->relationship('chapter', 'title')->searchable()->preload(),
                 TextInput::make('title')->label('ចំណងជើងវីដេអូ')->required()->maxLength(180),
                 Textarea::make('description')->label('ការពិពណ៌នា')->columnSpanFull(),
                 FileUpload::make('video_path')

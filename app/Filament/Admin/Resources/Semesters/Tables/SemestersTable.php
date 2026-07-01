@@ -45,7 +45,7 @@ class SemestersTable
                     ->label('ឆ្នាំសិក្សា')
                     ->relationship('academicYear', 'year_name')
                     ->searchable()
-                    ->preload(false),
+                    ->preload(),
             ], layout: FiltersLayout::AboveContent)
             ->recordActions([
                 EditAction::make()

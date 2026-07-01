@@ -56,7 +56,7 @@ class TeachersTable
                     ->label('ដេប៉ាតឺម៉ង់')
                     ->relationship('department', 'department_name')
                     ->searchable()
-                    ->preload(false),
+                    ->preload(),
                 SelectFilter::make('employment_type')
                     ->label('ប្រភេទការងារ')
                     ->options([

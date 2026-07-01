@@ -18,7 +18,7 @@ class ContentChapterForm
                     ->label('មេរៀន')
                     ->relationship('lesson', 'title')
                     ->searchable()
-                    ->preload(false)
+                    ->preload()
                     ->default(fn (): ?int => request()->integer('content_lesson_id') ?: null)
                     ->required(),
                 TextInput::make('title')

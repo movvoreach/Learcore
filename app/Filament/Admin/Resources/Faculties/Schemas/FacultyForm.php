@@ -17,7 +17,7 @@ class FacultyForm
                     ->schema([
                         TextInput::make('faculty_code')
                             ->label('លេខកូដមហាវិទ្យាល័យ')
-                            ->placeholder('បង្កើតដោយស្វ័យប្រវត្តិ')
+                            ->placeholder('FC001')
                             ->disabled()
                             ->dehydrated(false)
                             ->columnSpanFull()

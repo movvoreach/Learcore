@@ -30,7 +30,7 @@ class ContentLessonsTable
                 TextColumn::make('created_at')->label('បានបង្កើត')->dateTime()->sortable()->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                SelectFilter::make('course_id')->label('វគ្គសិក្សា')->relationship('course', 'course_name')->searchable()->preload(false),
+                SelectFilter::make('course_id')->label('វគ្គសិក្សា')->relationship('course', 'course_name')->searchable()->preload(),
                 SelectFilter::make('content_type')
                     ->label('Type')
                     ->options([

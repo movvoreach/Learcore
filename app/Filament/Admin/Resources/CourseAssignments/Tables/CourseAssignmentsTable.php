@@ -28,8 +28,8 @@ class CourseAssignmentsTable
                 TextColumn::make('status')->label('ស្ថានភាព')->badge(),
             ])
             ->filters([
-                SelectFilter::make('teacher_id')->label('គ្រូបង្រៀន')->relationship('teacher', 'first_name')->searchable()->preload(false),
-                SelectFilter::make('course_id')->label('វគ្គសិក្សា')->relationship('course', 'course_name')->searchable()->preload(false),
+                SelectFilter::make('teacher_id')->label('គ្រូបង្រៀន')->relationship('teacher', 'first_name')->searchable()->preload(),
+                SelectFilter::make('course_id')->label('វគ្គសិក្សា')->relationship('course', 'course_name')->searchable()->preload(),
                 SelectFilter::make('status')
                     ->label('ស្ថានភាព')
                     ->options([

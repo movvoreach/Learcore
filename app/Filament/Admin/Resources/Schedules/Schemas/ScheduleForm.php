@@ -12,17 +12,56 @@ class ScheduleForm
     {
         return $schema
             ->components([
+                Select::make('department_id')
+                    ->label('ដេប៉ាតឺម៉ង់ (Department)')
+                    ->options(\App\Models\Department::pluck('department_name', 'department_id'))
+                    ->searchable()
+                    ->preload()
+                    ->live()
+                    ->dehydrated(false),
+                Select::make('academic_year_id')
+                    ->label('ឆ្នាំសិក្សា (Academic Year)')
+                    ->options(\App\Models\AcademicYear::pluck('year_name', 'academic_year_id'))
+                    ->searchable()
+                    ->preload()
+                    ->live()
+                    ->dehydrated(false),
+                Select::make('semester_id')
+                    ->label('ឆមាស (Semester)')
+                    ->options(\App\Models\Semester::pluck('semester_name', 'semester_id'))
+                    ->searchable()
+                    ->preload()
+                    ->live()
+                    ->dehydrated(false),
                 Select::make('teacher_id')
                     ->label('គ្រូបង្រៀន (Teacher)')
-                    ->relationship('teacher', 'first_name')
+                    ->relationship('teacher', 'first_name', function (\Illuminate\Database\Eloquent\Builder $query, $get) {
+                        if ($get('department_id')) {
+                            $query->where('department_id', $get('department_id'));
+                        }
+                    })
                     ->searchable(['teacher_code', 'first_name', 'last_name'])
-                    ->preload(false)
+                    ->preload()
                     ->required(),
                 Select::make('class_id')
                     ->label('ថ្នាក់រៀន (Class)')
-                    ->relationship('classRoom', 'class_name')
+                    ->relationship('classRoom', 'class_name', function (\Illuminate\Database\Eloquent\Builder $query, $get) {
+                        if ($get('academic_year_id')) {
+                            $query->where('academic_year_id', $get('academic_year_id'));
+                        }
+                        if ($get('department_id') || $get('semester_id')) {
+                            $query->whereHas('course', function ($q) use ($get) {
+                                if ($get('department_id')) {
+                                    $q->where('department_id', $get('department_id'));
+                                }
+                                if ($get('semester_id')) {
+                                    $q->where('semester_id', $get('semester_id'));
+                                }
+                            });
+                        }
+                    })
                     ->searchable()
-                    ->preload(false)
+                    ->preload()
                     ->required(),
                 Select::make('day')
                     ->label('ថ្ងៃ (Day)')
@@ -44,12 +83,6 @@ class ScheduleForm
                     ->label('ម៉ោងបញ្ចប់ (End Time)')
                     ->seconds(false)
                     ->required(),
-                Select::make('students')
-                    ->label('សិស្ស / និស្សិត (Students)')
-                    ->relationship('students', 'first_name')
-                    ->multiple()
-                    ->searchable(['student_code', 'first_name', 'last_name'])
-                    ->preload(false),
             ]);
     }
 }

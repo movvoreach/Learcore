@@ -25,7 +25,7 @@ class ContentLessonForm
                             ->label('វគ្គសិក្សា')
                             ->relationship('course', 'course_name')
                             ->searchable()
-                            ->preload(false)
+                            ->preload()
                             ->default(fn (): ?int => request()->integer('course_id') ?: null)
                             ->live()
                             ->afterStateUpdated(function (Set $set, ?int $state): void {

@@ -20,19 +20,19 @@ class CourseForm
                     ->label('ប្រភេទវគ្គសិក្សា')
                     ->relationship('category', 'category_name')
                     ->searchable()
-                    ->preload(false)
+                    ->preload()
                     ->required(),
                 Select::make('department_id')
                     ->label('Department')
                     ->relationship('department', 'department_name')
                     ->searchable()
-                    ->preload(false)
+                    ->preload()
                     ->required(),
                 Select::make('academic_year_id')
                     ->label('Academic Year')
                     ->relationship('academicYear', 'year_name')
                     ->searchable()
-                    ->preload(false)
+                    ->preload()
                     ->live()
                     ->afterStateUpdated(function (Set $set): void {
                         $set('semester_id', null);
@@ -49,7 +49,7 @@ class CourseForm
                             ->all())
                     ->disabled(fn (Get $get): bool => blank($get('academic_year_id')))
                     ->searchable()
-                    ->preload(false)
+                    ->preload()
                     ->required(),
                 TextInput::make('course_code')
                     ->label('លេខកូដវគ្គសិក្សា')

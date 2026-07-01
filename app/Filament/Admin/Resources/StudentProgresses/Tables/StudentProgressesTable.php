@@ -28,7 +28,7 @@ class StudentProgressesTable
                 TextColumn::make('progress_date')->label('កាលបរិច្ឆេទ')->date()->sortable(),
             ])
             ->filters([
-                SelectFilter::make('course_id')->label('វគ្គសិក្សា')->relationship('course', 'course_name')->searchable()->preload(false),
+                SelectFilter::make('course_id')->label('វគ្គសិក្សា')->relationship('course', 'course_name')->searchable()->preload(),
                 SelectFilter::make('status')
                     ->label('ស្ថានភាព')
                     ->options([

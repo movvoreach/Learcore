@@ -17,24 +17,24 @@ class CourseAssignmentForm
                     ->label('គ្រូបង្រៀន')
                     ->relationship('teacher', 'first_name')
                     ->searchable(['teacher_code', 'first_name', 'last_name'])
-                    ->preload(false)
+                    ->preload()
                     ->required(),
                 Select::make('course_id')
                     ->label('វគ្គសិក្សា')
                     ->relationship('course', 'course_name')
                     ->searchable()
-                    ->preload(false)
+                    ->preload()
                     ->required(),
                 Select::make('class_room_id')
                     ->label('ថ្នាក់រៀន')
                     ->relationship('classRoom', 'class_name')
                     ->searchable()
-                    ->preload(false),
+                    ->preload(),
                 Select::make('academic_year_id')
                     ->label('ឆ្នាំសិក្សា')
                     ->relationship('academicYear', 'year_name')
                     ->searchable()
-                    ->preload(false),
+                    ->preload(),
                 DatePicker::make('assigned_date')
                     ->label('ថ្ងៃចាត់តាំង'),
                 Select::make('status')

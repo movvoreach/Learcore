@@ -26,7 +26,7 @@ class StudentForm
                     ->schema([
                         TextInput::make('student_code')
                             ->label('លេខកូដនិស្សិត')
-                            ->placeholder('បង្កើតដោយស្វ័យប្រវត្តិ')
+                            ->placeholder('ST001')
                             ->disabled()
                             ->dehydrated(false)
                             ->maxLength(30),

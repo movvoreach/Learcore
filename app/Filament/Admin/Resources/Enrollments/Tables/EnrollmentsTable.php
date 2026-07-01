@@ -52,24 +52,25 @@ class EnrollmentsTable
                     ->label('វគ្គសិក្សា')
                     ->relationship('course', 'course_name')
                     ->searchable()
-                    ->preload(false),
+                    ->preload(),
                 SelectFilter::make('academic_year_id')
                     ->label('ឆ្នាំសិក្សា')
                     ->relationship('academicYear', 'year_name')
                     ->searchable()
-                    ->preload(false),
+                    ->preload(),
                 SelectFilter::make('semester_id')
                     ->label('ឆមាស')
                     ->relationship('semester', 'semester_name')
                     ->searchable()
-                    ->preload(false),
+                    ->preload(),
                 SelectFilter::make('status')
                     ->label('ស្ថានភាព')
                     ->options([
                         'studying' => 'កំពុងសិក្សា',
                         'completed' => 'បានបញ្ចប់',
                         'cancelled' => 'បានបោះបង់',
-                    ]),
+                    ])
+                    ->searchable(),
             ], layout: FiltersLayout::AboveContent)
             ->recordActions([
                 EditAction::make(),

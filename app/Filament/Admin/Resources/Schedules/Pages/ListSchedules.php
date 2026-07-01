@@ -14,6 +14,8 @@ class ListSchedules extends Page
 
     public $teacher_id = null;
     public $academic_year_id = null;
+    public $semester_id = null;
+    public $department_id = null;
 
     protected function getHeaderActions(): array
     {
@@ -24,14 +26,34 @@ class ListSchedules extends Page
 
     protected function getViewData(): array
     {
-        $query = \App\Models\Schedule::with(['teacher', 'classRoom']);
+        $query = \App\Models\Schedule::with(['teacher', 'classRoom', 'classRoom.course', 'classRoom.academicYear']);
+        $user = auth()->user();
+        $isTeacher = $user->hasRole('teacher');
 
-        if ($this->teacher_id) {
+        if ($isTeacher && $user->teacher) {
+            $this->teacher_id = $user->teacher->teacher_id;
+            $query->where('teacher_id', $this->teacher_id);
+        } elseif ($this->teacher_id) {
             $query->where('teacher_id', $this->teacher_id);
         }
 
-        // Add academic year filter logic here if academic_year_id is on classRoom or schedules
-        // if ($this->academic_year_id) { ... }
+        if ($this->academic_year_id) {
+            $query->whereHas('classRoom', function($q) {
+                $q->where('academic_year_id', $this->academic_year_id);
+            });
+        }
+
+        if ($this->semester_id) {
+            $query->whereHas('classRoom.course', function($q) {
+                $q->where('semester_id', $this->semester_id);
+            });
+        }
+
+        if ($this->department_id) {
+            $query->whereHas('classRoom.course', function($q) {
+                $q->where('department_id', $this->department_id);
+            });
+        }
 
         $schedules = $query->get();
 
@@ -58,13 +80,18 @@ class ListSchedules extends Page
 
         $days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
         $teachers = \App\Models\Teacher::all();
-        $academicYears = \App\Models\AcademicYear::all(); // Assuming AcademicYear exists
+        $academicYears = \App\Models\AcademicYear::all(); 
+        $semesters = \App\Models\Semester::all();
+        $departments = \App\Models\Department::all();
 
         return [
             'timeSlots' => $timeSlots,
             'days' => $days,
             'teachers' => $teachers,
             'academicYears' => $academicYears,
+            'semesters' => $semesters,
+            'departments' => $departments,
+            'isTeacher' => $isTeacher,
         ];
     }
 }

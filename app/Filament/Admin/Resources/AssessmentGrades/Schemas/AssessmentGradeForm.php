@@ -13,11 +13,11 @@ class AssessmentGradeForm
     public static function configure(Schema $schema): Schema
     {
         return $schema->components([
-            Select::make('student_id')->label('និស្សិត')->relationship('student', 'student_code')->searchable()->preload(false)->required(),
-            Select::make('exam_id')->label('ការប្រឡង')->relationship('exam', 'title')->searchable()->preload(false),
-            Select::make('quiz_id')->label('តេស្តខ្លី')->relationship('quiz', 'title')->searchable()->preload(false),
-            Select::make('content_assignment_id')->label('កិច្ចការ')->relationship('assignment', 'title')->searchable()->preload(false),
-            Select::make('graded_by')->label('អ្នកដាក់ពិន្ទុ')->relationship('grader', 'name')->searchable()->preload(false),
+            Select::make('student_id')->label('និស្សិត')->relationship('student', 'student_code')->searchable()->preload()->required(),
+            Select::make('exam_id')->label('ការប្រឡង')->relationship('exam', 'title')->searchable()->preload(),
+            Select::make('quiz_id')->label('តេស្តខ្លី')->relationship('quiz', 'title')->searchable()->preload(),
+            Select::make('content_assignment_id')->label('កិច្ចការ')->relationship('assignment', 'title')->searchable()->preload(),
+            Select::make('graded_by')->label('អ្នកដាក់ពិន្ទុ')->relationship('grader', 'name')->searchable()->preload(),
             TextInput::make('score')->label('ពិន្ទុ')->numeric()->default(0)->required(),
             TextInput::make('max_score')->label('ពិន្ទុអតិបរមា')->numeric()->default(100)->required(),
             TextInput::make('grade')->label('និទ្ទេស')->maxLength(20),
