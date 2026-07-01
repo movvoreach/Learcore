@@ -22,7 +22,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->bind(\Filament\Support\Contracts\LoadingIndicator::class, \App\Support\CustomLoadingIndicator::class);
     }
 
     /**
@@ -36,10 +36,14 @@ class AppServiceProvider extends ServiceProvider
                 <div wire:loading class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/30 backdrop-blur-[2px]">
                     <div class="flex flex-col items-center gap-3 p-6 bg-white dark:bg-gray-900 rounded-xl shadow-2xl border border-gray-100 dark:border-gray-800">
                         <x-filament::loading-indicator class="h-10 w-10 text-primary-600 dark:text-primary-400" />
-                        <span class="text-sm font-semibold text-gray-700 dark:text-gray-300">កំពុងដំណើរការ...</span>
                     </div>
                 </div>
             '),
+        );
+
+        FilamentView::registerRenderHook(
+            PanelsRenderHook::HEAD_END,
+            fn (): string => '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">'
         );
 
         if (config('app.env') === 'production') {
