@@ -20,6 +20,7 @@ use App\Filament\Admin\Resources\ContentLessons\ContentLessonResource;
 use App\Filament\Admin\Resources\ContentResources\ContentResourceResource;
 use App\Filament\Admin\Resources\ContentVideos\ContentVideoResource;
 use App\Filament\Admin\Resources\Courses\CourseResource;
+use App\Filament\Admin\Resources\ClassRooms\ClassRoomResource;
 use App\Filament\Admin\Resources\CourseAssignments\CourseAssignmentResource;
 use App\Filament\Admin\Resources\CourseCategories\CourseCategoryResource;
 use App\Filament\Admin\Resources\ExamCandidates\ExamCandidateResource;
@@ -364,6 +365,7 @@ HTML);
 
             $this->resourceNavItem('ប្រភេទវគ្គសិក្សា', self::GROUP_CONTENT, 10, asset('Icons/course.png'), CourseCategoryResource::class),
             $this->resourceNavItem('វគ្គសិក្សា', self::GROUP_CONTENT, 15, asset('Icons/courses.png'), CourseResource::class),
+            $this->resourceNavItem('ថ្នាក់រៀន', self::GROUP_CONTENT, 18, asset('Icons/course.png'), ClassRoomResource::class),
             $this->resourceNavItem('ជំពូក', self::GROUP_CONTENT, 20, asset('Icons/content-chapters.png'), ContentChapterResource::class),
             $this->resourceNavItem('មេរៀន', self::GROUP_CONTENT, 30, asset('Icons/ducs.png'), ContentLessonResource::class),
             $this->resourceNavItem('វីដេអូ', self::GROUP_CONTENT, 40, Heroicon::OutlinedVideoCamera, ContentVideoResource::class),
