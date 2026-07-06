@@ -143,7 +143,7 @@ class AdminPanelProvider extends PanelProvider
                 'home' => MenuItem::make()
                     ->label('ចូលគេហទំព័រ')
                     ->icon('heroicon-o-globe-alt')
-                    ->url('/'),
+                    ->url('/learning'),
             ])
 
             ->renderHook(

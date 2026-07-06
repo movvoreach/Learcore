@@ -27,6 +27,8 @@ class ActivityLogChartWidget extends ChartWidget
                     'label' => 'Activities',
                     'data' => $data,
                     'fill' => 'start',
+                    'borderColor' => '#3b82f6',
+                    'backgroundColor' => 'rgba(59, 130, 246, 0.1)'  ,
                 ],
             ],
             'labels' => $labels,

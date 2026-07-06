@@ -69,6 +69,9 @@ class Login extends BaseLogin
     protected function getAuthenticateFormAction(): \Filament\Actions\Action
     {
         return parent::getAuthenticateFormAction()
-            ->label('ចូល');
+            ->label(fn() => new \Illuminate\Support\HtmlString('
+                <span wire:loading.remove wire:target="authenticate">ចូលប្រព័ន្ធ</span>
+                <span wire:loading wire:target="authenticate">កំពុងដំណើរការ...</span>
+            '));
     }
 }

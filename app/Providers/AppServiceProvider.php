@@ -23,6 +23,7 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->bind(\Filament\Support\Contracts\LoadingIndicator::class, \App\Support\CustomLoadingIndicator::class);
+        $this->app->bind(\Filament\Auth\Http\Responses\Contracts\LoginResponse::class, \App\Http\Responses\FilamentLoginResponse::class);
     }
 
     /**
@@ -145,6 +146,14 @@ class AppServiceProvider extends ServiceProvider
                     'model_id' => $event->user->id,
                     'user_id' => $event->user->id,
                     'ip_address' => request()->ip(),
+                ]);
+            }
+        });
+
+        \Filament\Actions\Action::configureUsing(function (\Filament\Actions\Action $action): void {
+            if (in_array($action->getName(), ['create', 'save'])) {
+                $action->extraAttributes([
+                    'x-init' => '$watch(\'isProcessing\', (value) => { if (value) processingMessage = \'កំពុងបញ្ចូល...\' })',
                 ]);
             }
         });

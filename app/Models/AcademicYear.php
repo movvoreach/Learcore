@@ -44,4 +44,9 @@ class AcademicYear extends Model
     {
         return $this->hasMany(Student::class, 'academic_year_id', 'academic_year_id');
     }
+
+    public function courses(): HasMany
+    {
+        return $this->hasMany(Course::class, 'academic_year_id', 'academic_year_id');
+    }
 }

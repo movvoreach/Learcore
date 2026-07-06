@@ -36,7 +36,7 @@ return [
         'actions' => [
 
             'authenticate' => [
-                'label' => 'ចុះឈ្មោះចូល',
+                'label' => 'ចូលប្រព័ន្ធ',
             ],
 
         ],

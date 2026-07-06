@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 
 class Course extends Model
 {
@@ -87,6 +88,18 @@ class Course extends Model
     public function courseAssignments(): HasMany
     {
         return $this->hasMany(CourseAssignment::class, 'course_id', 'course_id');
+    }
+
+    public function instructor(): HasOneThrough
+    {
+        return $this->hasOneThrough(
+            Teacher::class,
+            CourseAssignment::class,
+            'course_id',
+            'teacher_id',
+            'course_id',
+            'teacher_id'
+        );
     }
 
     public function teacherSchedules(): HasMany
