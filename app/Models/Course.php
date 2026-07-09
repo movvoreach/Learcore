@@ -20,6 +20,7 @@ class Course extends Model
         'course_code',
         'course_name',
         'description',
+        'visibility',
     ];
 
     public function category(): BelongsTo
@@ -56,6 +57,26 @@ class Course extends Model
             'enrollments',
             fn (Builder $query): Builder => $query->where('student_id', $student->student_id)
         );
+    }
+
+    public function scopePublicCourses(Builder $query): Builder
+    {
+        return $query->where('visibility', 'public');
+    }
+
+    public function scopeVisibleOnFrontend(Builder $query, ?User $user = null): Builder
+    {
+        $student = $user?->isStudent() ? $user->student : null;
+
+        if (! $student) {
+            return $query->publicCourses();
+        }
+
+        return $query->where(function (Builder $query) use ($student): void {
+            $query
+                ->publicCourses()
+                ->orWhere(fn (Builder $query): Builder => $query->enrolledByStudent($student));
+        });
     }
 
     public function subjects(): HasMany
@@ -113,5 +134,10 @@ class Course extends Model
     public function teacherSchedules(): HasMany
     {
         return $this->hasMany(TeacherSchedule::class, 'course_id', 'course_id');
+    }
+
+    public function discussionPosts(): HasMany
+    {
+        return $this->hasMany(DiscussionPost::class, 'course_id', 'course_id');
     }
 }

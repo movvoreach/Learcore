@@ -3,6 +3,7 @@
 @section('title', 'Moodle LMS')
 
 @section('content')
+    @include('frontend.partials.splash')
     @include('frontend.partials.slideshow.index')
     @include('frontend.partials.programs.index')
     @include('frontend.partials.courses.index')

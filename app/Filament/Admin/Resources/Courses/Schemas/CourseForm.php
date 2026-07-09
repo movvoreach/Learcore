@@ -63,6 +63,15 @@ class CourseForm
                 Textarea::make('description')
                     ->label('ការពិពណ៌នា')
                     ->columnSpanFull(),
+                Select::make('visibility')
+                    ->label('Visibility')
+                    ->options([
+                        'public' => 'Public',
+                        'private' => 'Private',
+                        'university_students' => 'University Students Only',
+                    ])
+                    ->default('private')
+                    ->required(),
             ]);
     }
 }

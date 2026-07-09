@@ -76,7 +76,7 @@
             @empty
                 <div class="col-12 text-center py-5">
                     <img src="{{ asset('backend/img/course-image-default.png') }}" width="180" alt="Default Course Image">
-                    <h4 class="mt-3">No Courses Available</h4>
+                    <h4 class="mt-3">{{ auth()->user()?->isStudent() ? 'No courses are available for your account at the moment.' : 'No public courses are available at the moment.' }}</h4>
                     <p>Please check back later.</p>
                 </div>
             @endforelse

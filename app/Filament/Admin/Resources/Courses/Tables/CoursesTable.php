@@ -55,6 +55,21 @@ class CoursesTable
                     ->searchable()
                     ->sortable(),
 
+                TextColumn::make('visibility')
+                    ->label('Visibility')
+                    ->badge()
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                        'public' => 'Public',
+                        'university_students' => 'University Students Only',
+                        default => 'Private',
+                    })
+                    ->color(fn (string $state): string => match ($state) {
+                        'public' => 'success',
+                        'university_students' => 'warning',
+                        default => 'gray',
+                    })
+                    ->sortable(),
+
                 TextColumn::make('teacher_name')
                     ->label('Teacher')
                     ->getStateUsing(function (Course $record): string {

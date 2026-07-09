@@ -107,4 +107,9 @@ class ContentLesson extends Model
     {
         return $this->hasMany(ContentResource::class, 'content_lesson_id', 'content_lesson_id');
     }
+
+    public function discussionPosts(): HasMany
+    {
+        return $this->hasMany(DiscussionPost::class, 'content_lesson_id', 'content_lesson_id');
+    }
 }

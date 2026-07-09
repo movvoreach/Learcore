@@ -2,6 +2,14 @@
 
 namespace App\Filament\Admin\Pages;
 
+use App\Filament\Admin\Resources\Attendances\AttendanceResource;
+use App\Filament\Admin\Resources\Certificates\CertificateResource;
+use App\Filament\Admin\Resources\ContentLessons\ContentLessonResource;
+use App\Filament\Admin\Resources\Departments\DepartmentResource;
+use App\Filament\Admin\Resources\Exams\ExamResource;
+use App\Filament\Admin\Resources\Students\StudentResource;
+use App\Filament\Admin\Resources\Subjects\SubjectResource;
+use App\Filament\Admin\Resources\Teachers\TeacherResource;
 use App\Models\AssessmentGrade;
 use App\Models\Attendance;
 use App\Models\Certificate;
@@ -13,6 +21,7 @@ use App\Models\Enrollment;
 use App\Models\Exam;
 use App\Models\Student;
 use App\Models\StudentProgress;
+use App\Models\Subject;
 use App\Models\Teacher;
 use BackedEnum;
 use Filament\Pages\Dashboard as BaseDashboard;
@@ -49,12 +58,12 @@ class Dashboard extends BaseDashboard
         }
 
         try {
-            return Cache::remember('filament.admin.dashboard.full', now()->addMinutes(5), function () {
+            return Cache::remember('filament.admin.dashboard.full.links', now()->addMinutes(5), function () {
             // ── Basic counts ──────────────────────────────────────────
             $totalStudents   = Student::query()->count();
             $activeStudents  = Student::query()->where('status', 'active')->count();
             $totalTeachers   = Teacher::query()->count();
-            $totalCourses    = Course::query()->count();
+            $totalSubjects   = Subject::query()->count();
             $totalLessons    = ContentLesson::query()->count();
             $totalDepts      = Department::query()->count();
             $totalExams      = Exam::query()->count();
@@ -66,13 +75,26 @@ class Dashboard extends BaseDashboard
             $stats = [
                 ['label' => 'និស្សិត',       'value' => $totalStudents,    'sub' => $activeStudents.' សកម្ម',          'color' => '#2563eb', 'fa_icon' => 'fas fa-user-graduate', 'icon' => '🎓'],
                 ['label' => 'គ្រូបង្រៀន',   'value' => $totalTeachers,    'sub' => 'សរុបគ្រូ',                         'color' => '#7c3aed', 'fa_icon' => 'fas fa-chalkboard-teacher', 'icon' => '👨‍🏫'],
-                ['label' => 'មុខវិជ្ជា',     'value' => $totalCourses,     'sub' => 'វគ្គសិក្សា',                      'color' => '#059669', 'fa_icon' => 'fas fa-book-open', 'icon' => '📚'],
+                ['label' => 'មុខវិជ្ជា',     'value' => $totalSubjects,     'sub' => 'សរុបមុខវិជ្ជា',                   'color' => '#059669', 'fa_icon' => 'fas fa-book-open', 'icon' => '📚'],
                 ['label' => 'មេរៀន',         'value' => $totalLessons,     'sub' => 'សរុបមេរៀន',                       'color' => '#d97706', 'fa_icon' => 'fas fa-file-alt', 'icon' => '📖'],
                 ['label' => 'នាយកដ្ឋាន',    'value' => $totalDepts,       'sub' => 'ផ្នែក',                           'color' => '#dc2626', 'fa_icon' => 'fas fa-building', 'icon' => '🏫'],
                 ['label' => 'ការប្រឡង',      'value' => $totalExams,       'sub' => 'ការប្រឡង',                        'color' => '#0891b2', 'fa_icon' => 'fas fa-file-signature', 'icon' => '📝'],
                 ['label' => 'វត្តមាន',       'value' => $totalAttendance,  'sub' => 'កំណត់ត្រា',                       'color' => '#65a30d', 'fa_icon' => 'fas fa-user-check', 'icon' => '✅'],
                 ['label' => 'វិញ្ញាបនប័ត្រ', 'value' => $totalCerts,       'sub' => 'ផ្តល់ជូន',                        'color' => '#e11d48', 'fa_icon' => 'fas fa-award', 'icon' => '🏆'],
             ];
+            $stats = collect($stats)
+                ->zip([
+                    StudentResource::getUrl('index'),
+                    TeacherResource::getUrl('index'),
+                    SubjectResource::getUrl('index'),
+                    ContentLessonResource::getUrl('index'),
+                    DepartmentResource::getUrl('index'),
+                    ExamResource::getUrl('index'),
+                    AttendanceResource::getUrl('index'),
+                    CertificateResource::getUrl('index'),
+                ])
+                ->map(fn ($stat): array => array_merge($stat[0], ['url' => $stat[1]]))
+                ->all();
 
             // ── Monthly enrollments — last 6 months ───────────────────
             $months = collect(range(5, 0))->map(fn ($i) => Carbon::now()->subMonths($i));
@@ -223,14 +245,14 @@ class Dashboard extends BaseDashboard
         return [
             'mode' => 'admin',
             'stats' => [
-                ['label' => 'Students', 'value' => 128, 'sub' => '112 active', 'color' => '#2563eb', 'icon' => ''],
-                ['label' => 'Teachers', 'value' => 24, 'sub' => 'Total teachers', 'color' => '#7c3aed', 'icon' => ''],
-                ['label' => 'Courses', 'value' => 36, 'sub' => 'Learning courses', 'color' => '#059669', 'icon' => ''],
-                ['label' => 'Lessons', 'value' => 214, 'sub' => 'Published lessons', 'color' => '#d97706', 'icon' => ''],
-                ['label' => 'Departments', 'value' => 8, 'sub' => 'Academic departments', 'color' => '#dc2626', 'icon' => ''],
-                ['label' => 'Exams', 'value' => 18, 'sub' => 'Scheduled exams', 'color' => '#0891b2', 'icon' => ''],
-                ['label' => 'Attendance', 'value' => 982, 'sub' => 'Attendance records', 'color' => '#65a30d', 'icon' => ''],
-                ['label' => 'Certificates', 'value' => 47, 'sub' => 'Issued certificates', 'color' => '#e11d48', 'icon' => ''],
+                ['label' => 'Students', 'value' => 128, 'sub' => '112 active', 'color' => '#2563eb', 'icon' => '', 'url' => StudentResource::getUrl('index')],
+                ['label' => 'Teachers', 'value' => 24, 'sub' => 'Total teachers', 'color' => '#7c3aed', 'icon' => '', 'url' => TeacherResource::getUrl('index')],
+                ['label' => 'Subjects', 'value' => 36, 'sub' => 'Learning subjects', 'color' => '#059669', 'icon' => '', 'url' => SubjectResource::getUrl('index')],
+                ['label' => 'Lessons', 'value' => 214, 'sub' => 'Published lessons', 'color' => '#d97706', 'icon' => '', 'url' => ContentLessonResource::getUrl('index')],
+                ['label' => 'Departments', 'value' => 8, 'sub' => 'Academic departments', 'color' => '#dc2626', 'icon' => '', 'url' => DepartmentResource::getUrl('index')],
+                ['label' => 'Exams', 'value' => 18, 'sub' => 'Scheduled exams', 'color' => '#0891b2', 'icon' => '', 'url' => ExamResource::getUrl('index')],
+                ['label' => 'Attendance', 'value' => 982, 'sub' => 'Attendance records', 'color' => '#65a30d', 'icon' => '', 'url' => AttendanceResource::getUrl('index')],
+                ['label' => 'Certificates', 'value' => 47, 'sub' => 'Issued certificates', 'color' => '#e11d48', 'icon' => '', 'url' => CertificateResource::getUrl('index')],
             ],
             'courses' => $courses,
             'topCourses' => $courses,

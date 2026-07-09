@@ -1192,10 +1192,27 @@
                     justify-content: space-between;
                     align-items: center;
                     box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+                    color: inherit;
+                    text-decoration: none;
+                    cursor: pointer;
+                    transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+                }
+                .admin-stat-card:hover {
+                    border-color: #cbd5e1;
+                    box-shadow: 0 10px 24px rgba(15,23,42,0.08);
+                    transform: translateY(-2px);
+                }
+                .admin-stat-card:focus-visible {
+                    outline: 3px solid rgba(37, 99, 235, 0.35);
+                    outline-offset: 3px;
                 }
                 .dark .admin-stat-card {
                     background: #1e293b;
                     border-color: #334155;
+                }
+                .dark .admin-stat-card:hover {
+                    border-color: #475569;
+                    box-shadow: 0 10px 24px rgba(0,0,0,0.24);
                 }
                 .admin-stat-info {
                     display: flex;
@@ -1236,7 +1253,12 @@
             </style>
             <section class="admin-stats-grid">
                 @foreach ($stats as $stat)
-                    <div class="admin-stat-card">
+                    @php($statUrl = $stat['url'] ?? null)
+                    @if($statUrl)
+                        <a href="{{ $statUrl }}" class="admin-stat-card" aria-label="{{ $stat['label'] }}">
+                    @else
+                        <div class="admin-stat-card">
+                    @endif
                         <div class="admin-stat-info">
                             <div class="admin-stat-label">{{ $stat['label'] }}</div>
                             <div class="admin-stat-value">{{ $stat['value'] }}</div>
@@ -1248,7 +1270,11 @@
                                 {{ $stat['icon'] }}
                             @endif
                         </div>
-                    </div>
+                    @if($statUrl)
+                        </a>
+                    @else
+                        </div>
+                    @endif
                 @endforeach
             </section>
 

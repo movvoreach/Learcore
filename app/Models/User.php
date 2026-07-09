@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable implements FilamentUser
@@ -79,5 +80,20 @@ class User extends Authenticatable implements FilamentUser
     public function isStudent(): bool
     {
         return $this->hasRole('student');
+    }
+
+    public function discussionPosts(): HasMany
+    {
+        return $this->hasMany(DiscussionPost::class);
+    }
+
+    public function discussionComments(): HasMany
+    {
+        return $this->hasMany(DiscussionComment::class);
+    }
+
+    public function discussionReactions(): HasMany
+    {
+        return $this->hasMany(DiscussionReaction::class);
     }
 }

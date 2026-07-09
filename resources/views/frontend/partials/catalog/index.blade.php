@@ -28,8 +28,8 @@
                 <div class="learning-filter-group">
                     <h3>ឆ្នាំសិក្សា និងកម្រិត</h3>
                     <button type="button" class="is-active" data-filter="all">គ្រប់មុខវិជ្ជាទាំងអស់</button>
-                    @foreach($academicYears as $year)
-                        <button type="button" data-filter="year-{{ $year->academic_year_id }}">ឆ្នាំសិក្សា {{ $year->year_name }}</button>
+                    @foreach(range(1, 4) as $studyYear)
+                        <button type="button" data-filter="year-{{ $studyYear }}">ឆ្នាំទី {{ $studyYear }}</button>
                     @endforeach
                 </div>
 
@@ -48,8 +48,11 @@
                         $courseSlug = $course->slug ?? \Illuminate\Support\Str::slug($courseTitle.'-'.$course->course_id);
                         $categoryName = optional($course->category)->category_name ?? 'Uncategorized';
                         $categoryId = optional($course->category)->course_category_id ?? 'uncategorized';
-                        $academicYearName = optional($course->academicYear)->year_name ?? 'All levels';
-                        $academicYearId = optional($course->academicYear)->academic_year_id ?? 'all';
+                        $studyYear = 1;
+                        if (preg_match('/-(\d)/', (string) $course->course_code, $matches)) {
+                            $studyYear = min(4, max(1, (int) $matches[1]));
+                        }
+                        $studyYearLabel = 'ឆ្នាំទី '.$studyYear;
                         
                         $instructor = $course->instructor;
                         $teacherName = trim((optional($instructor)->first_name ?? '').' '.(optional($instructor)->last_name ?? ''));
@@ -66,11 +69,11 @@
                             $courseTitle,
                             $categoryName,
                             $instructorName,
-                            $academicYearName
+                            $studyYearLabel
                         ]));
                     @endphp
-                    <article class="learning-catalog-card reveal-item" 
-                             data-year="year-{{ $academicYearId }}" 
+                    <article class="learning-catalog-card reveal-item"
+                             data-year="year-{{ $studyYear }}" 
                              data-type="cat-{{ $categoryId }}" 
                              data-rating="{{ $rating }}" 
                              data-search="{{ $searchTags }}">
@@ -81,7 +84,7 @@
                                 <img src="{{ asset('backend/dist/img/photo3.jpg') }}" alt="{{ $courseTitle }}">
                             @endif
                             <div class="learning-course-tags">
-                                <span>ឆ្នាំសិក្សា {{ $academicYearName }}</span>
+                                <span>{{ $studyYearLabel }}</span>
                                 <strong>ថ្មីៗនេះ</strong>
                             </div>
                         </div>
@@ -103,8 +106,8 @@
                     </article>
                 @empty
                     <div class="col-12 text-center py-5">
-                        <h4 class="mt-3">មិនមានមុខវិជ្ជាទេ</h4>
-                        <p>សូមពិនិត្យមើលឡើងវិញនៅពេលក្រោយ។</p>
+                        <h4 class="mt-3">{{ auth()->user()?->isStudent() ? 'No courses are available for your account at the moment.' : 'No public courses are available at the moment.' }}</h4>
+                        <p>Please check back later.</p>
                     </div>
                 @endforelse
             </div>

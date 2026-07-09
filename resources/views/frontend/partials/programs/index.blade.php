@@ -38,7 +38,7 @@
                 </span>
                 <h3>ឆ្នាំទី១ (Year 1)</h3>
                 <p>គណិតវិទ្យា ភាសាអង់គ្លេស និងបច្ចេកវិទ្យា</p>
-                <a href="{{ route('login') }}">ចូលរៀន <i class="fas fa-arrow-right"></i></a>
+                <a href="{{ route('dashboard') }}">ចូលរៀន <i class="fas fa-arrow-right"></i></a>
             </article>
 
             <article class="learning-program-card reveal-item">
@@ -47,7 +47,7 @@
                 </span>
                 <h3>ឆ្នាំទី២ (Year 2)</h3>
                 <p>អភិវឌ្ឍកម្មវិធី Java និង MySQL</p>
-                <a href="{{ route('login') }}">ចូលរៀន <i class="fas fa-arrow-right"></i></a>
+                <a href="{{ route('dashboard') }}">ចូលរៀន <i class="fas fa-arrow-right"></i></a>
             </article>
 
             <article class="learning-program-card reveal-item">
@@ -56,7 +56,7 @@
                 </span>
                 <h3>ឆ្នាំទី៣ (Year 3)</h3>
                 <p>ការគ្រប់គ្រងបណ្តាញ និងបច្ចេកទេសកុំព្យូទ័រ</p>
-                <a href="{{ route('login') }}">ចូលរៀន <i class="fas fa-arrow-right"></i></a>
+                <a href="{{ route('dashboard') }}">ចូលរៀន <i class="fas fa-arrow-right"></i></a>
             </article>
 
             <article class="learning-program-card reveal-item">
@@ -65,7 +65,7 @@
                 </span>
                 <h3>ឆ្នាំទី៤ (Year 4)</h3>
                 <p>គម្រោងបញ្ចប់ និងការត្រៀមខ្លួនសម្រាប់ការងារ</p>
-                <a href="{{ route('login') }}">ចូលរៀន <i class="fas fa-arrow-right"></i></a>
+                <a href="{{ route('dashboard') }}">ចូលរៀន <i class="fas fa-arrow-right"></i></a>
             </article>
         </div>
     </div>
