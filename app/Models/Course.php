@@ -50,6 +50,14 @@ class Course extends Model
             ->where('semester_id', $student->semester_id);
     }
 
+    public function scopeEnrolledByStudent(Builder $query, Student $student): Builder
+    {
+        return $query->whereHas(
+            'enrollments',
+            fn (Builder $query): Builder => $query->where('student_id', $student->student_id)
+        );
+    }
+
     public function subjects(): HasMany
     {
         return $this->hasMany(Subject::class, 'course_id', 'course_id');

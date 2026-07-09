@@ -13,6 +13,8 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 
 class CertificateResource extends Resource
 {
@@ -29,6 +31,48 @@ class CertificateResource extends Resource
     protected static string|\UnitEnum|null $navigationGroup = 'គ្រប់គ្រងនិស្សិត';
 
     protected static ?int $navigationSort = 50;
+
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->hasAnyRole(['super_admin', 'admin', 'teacher', 'student']) ?? false;
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()?->hasAnyRole(['super_admin', 'admin', 'teacher']) ?? false;
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        return ! auth()->user()?->isStudent()
+            && (auth()->user()?->hasAnyRole(['super_admin', 'admin', 'teacher']) ?? false);
+    }
+
+    public static function canDelete(Model $record): bool
+    {
+        return ! auth()->user()?->isStudent()
+            && (auth()->user()?->hasAnyRole(['super_admin', 'admin', 'teacher']) ?? false);
+    }
+
+    public static function canDeleteAny(): bool
+    {
+        return ! auth()->user()?->isStudent()
+            && (auth()->user()?->hasAnyRole(['super_admin', 'admin', 'teacher']) ?? false);
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+        $user = auth()->user();
+
+        if ($user?->isStudent()) {
+            return $user->student
+                ? $query->where('student_id', $user->student->student_id)
+                : $query->whereRaw('1 = 0');
+        }
+
+        return $query;
+    }
 
     public static function form(Schema $schema): Schema
     {

@@ -4,6 +4,71 @@
 @source '../../../../resources/views/filament';
 @source '../../../../vendor/filament/filament/resources/views';
 
+@font-face {
+    font-family: "Battambang";
+    src: url("/fonts/Battambang-Regular.ttf") format("truetype");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Battambang";
+    src: url("/fonts/Battambang-Bold.ttf") format("truetype");
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+.fi-resource-schedules {
+    color: #3f4566;
+    font-family: "Battambang", "Noto Sans Khmer", "Khmer OS Siemreap", ui-sans-serif, system-ui, sans-serif;
+    font-size: 100%;
+    font-weight: 400;
+    line-height: 1.65;
+    letter-spacing: 0;
+}
+
+.fi-resource-schedules *,
+.fi-resource-schedules button,
+.fi-resource-schedules input,
+.fi-resource-schedules select,
+.fi-resource-schedules textarea {
+    font-family: inherit;
+    letter-spacing: 0;
+}
+
+.fi-resource-schedules .fa,
+.fi-resource-schedules .fas,
+.fi-resource-schedules .fa-solid {
+    font-family: "Font Awesome 5 Free" !important;
+    font-weight: 900 !important;
+}
+
+.fi-resource-schedules .far {
+    font-family: "Font Awesome 5 Free" !important;
+    font-weight: 400 !important;
+}
+
+.fi-resource-schedules .fab {
+    font-family: "Font Awesome 5 Brands" !important;
+    font-weight: 400 !important;
+}
+
+.fi-resource-schedules .fi-header-heading {
+    color: #3a405f;
+    font-size: 32px;
+    font-weight: 400;
+    line-height: 1.35;
+}
+
+.fi-resource-schedules .fi-breadcrumbs,
+.fi-resource-schedules .fi-breadcrumbs * {
+    color: #9aa0b8;
+    font-size: 13px;
+    font-weight: 400;
+}
+
 /*
    Filament admin sidebar active state.
    The .fi-active class is rendered by Filament from the current route, so the
@@ -568,10 +633,8 @@ textarea:focus,
 .fi-checkbox-input:focus,
 .fi-radio-input:focus {
     outline: none !important;
-    border-color: #f59e0b !important;
-    /* Amber theme highlight */
-    box-shadow: 0 0 0 1px #f59e0b !important;
-    /* Primary focus ring */
+    border-color: #4f5ef7 !important;
+    box-shadow: 0 0 0 1px #4f5ef7 !important;
 }
 
 /* Dark Mode support for inputs */
@@ -587,8 +650,8 @@ textarea:focus,
 .dark .fi-select-wrp:focus-within,
 .dark .fi-checkbox-input:focus,
 .dark .fi-radio-input:focus {
-    border-color: #fbbf24 !important;
-    box-shadow: 0 0 0 1px #fbbf24 !important;
+    border-color: #818cf8 !important;
+    box-shadow: 0 0 0 1px #818cf8 !important;
 }
 
 /* Ensure inputs, select, and textarea are square and clear inside wrappers */

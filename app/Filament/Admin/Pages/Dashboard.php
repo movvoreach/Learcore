@@ -64,14 +64,14 @@ class Dashboard extends BaseDashboard
 
             // ── Stats cards ───────────────────────────────────────────
             $stats = [
-                ['label' => 'និស្សិត',       'value' => $totalStudents,    'sub' => $activeStudents.' សកម្ម',          'color' => '#2563eb', 'icon' => '🎓'],
-                ['label' => 'គ្រូបង្រៀន',   'value' => $totalTeachers,    'sub' => 'សរុបគ្រូ',                         'color' => '#7c3aed', 'icon' => '👨‍🏫'],
-                ['label' => 'មុខវិជ្ជា',     'value' => $totalCourses,     'sub' => 'វគ្គសិក្សា',                      'color' => '#059669', 'icon' => '📚'],
-                ['label' => 'មេរៀន',         'value' => $totalLessons,     'sub' => 'សរុបមេរៀន',                       'color' => '#d97706', 'icon' => '📖'],
-                ['label' => 'នាយកដ្ឋាន',    'value' => $totalDepts,       'sub' => 'ផ្នែក',                           'color' => '#dc2626', 'icon' => '🏫'],
-                ['label' => 'ការប្រឡង',      'value' => $totalExams,       'sub' => 'ការប្រឡង',                        'color' => '#0891b2', 'icon' => '📝'],
-                ['label' => 'វត្តមាន',       'value' => $totalAttendance,  'sub' => 'កំណត់ត្រា',                       'color' => '#65a30d', 'icon' => '✅'],
-                ['label' => 'វិញ្ញាបនប័ត្រ', 'value' => $totalCerts,       'sub' => 'ផ្តល់ជូន',                        'color' => '#e11d48', 'icon' => '🏆'],
+                ['label' => 'និស្សិត',       'value' => $totalStudents,    'sub' => $activeStudents.' សកម្ម',          'color' => '#2563eb', 'fa_icon' => 'fas fa-user-graduate', 'icon' => '🎓'],
+                ['label' => 'គ្រូបង្រៀន',   'value' => $totalTeachers,    'sub' => 'សរុបគ្រូ',                         'color' => '#7c3aed', 'fa_icon' => 'fas fa-chalkboard-teacher', 'icon' => '👨‍🏫'],
+                ['label' => 'មុខវិជ្ជា',     'value' => $totalCourses,     'sub' => 'វគ្គសិក្សា',                      'color' => '#059669', 'fa_icon' => 'fas fa-book-open', 'icon' => '📚'],
+                ['label' => 'មេរៀន',         'value' => $totalLessons,     'sub' => 'សរុបមេរៀន',                       'color' => '#d97706', 'fa_icon' => 'fas fa-file-alt', 'icon' => '📖'],
+                ['label' => 'នាយកដ្ឋាន',    'value' => $totalDepts,       'sub' => 'ផ្នែក',                           'color' => '#dc2626', 'fa_icon' => 'fas fa-building', 'icon' => '🏫'],
+                ['label' => 'ការប្រឡង',      'value' => $totalExams,       'sub' => 'ការប្រឡង',                        'color' => '#0891b2', 'fa_icon' => 'fas fa-file-signature', 'icon' => '📝'],
+                ['label' => 'វត្តមាន',       'value' => $totalAttendance,  'sub' => 'កំណត់ត្រា',                       'color' => '#65a30d', 'fa_icon' => 'fas fa-user-check', 'icon' => '✅'],
+                ['label' => 'វិញ្ញាបនប័ត្រ', 'value' => $totalCerts,       'sub' => 'ផ្តល់ជូន',                        'color' => '#e11d48', 'fa_icon' => 'fas fa-award', 'icon' => '🏆'],
             ];
 
             // ── Monthly enrollments — last 6 months ───────────────────
@@ -307,7 +307,7 @@ class Dashboard extends BaseDashboard
             ];
         }
 
-        $courseQuery = Course::query()->availableToStudent($student);
+        $courseQuery = Course::query()->enrolledByStudent($student);
         $courseIds = (clone $courseQuery)->pluck('course_id');
         $progressByCourse = StudentProgress::query()
             ->where('student_id', $student->student_id)
@@ -324,7 +324,7 @@ class Dashboard extends BaseDashboard
                 ->orderBy('course_name')
                 ->get(),
             'lessons'          => ContentLesson::query()
-                ->availableToStudent($student)
+                ->whereIn('course_id', $courseIds)
                 ->publishedForStudents()
                 ->with('course')
                 ->orderBy('course_id')
@@ -333,7 +333,7 @@ class Dashboard extends BaseDashboard
                 ->get(),
             'assignments'      => ContentAssignment::query()
                 ->where('is_published', true)
-                ->whereHas('lesson.course', fn (Builder $query): Builder => $query->availableToStudent($student))
+                ->whereHas('lesson', fn (Builder $query): Builder => $query->whereIn('course_id', $courseIds))
                 ->with('lesson.course')
                 ->orderBy('due_at')
                 ->limit(10)

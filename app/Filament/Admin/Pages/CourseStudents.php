@@ -44,10 +44,18 @@ class CourseStudents extends Page
 
         $courseId = $course instanceof Course ? (int) $course->getKey() : (int) $course;
 
-        $this->courseRecord = Course::query()
+        $courseQuery = Course::query()
             ->with(['department', 'academicYear', 'semester', 'category', 'courseAssignments.teacher'])
-            ->whereKey($courseId)
-            ->firstOrFail();
+            ->whereKey($courseId);
+
+        if ($user->hasRole('teacher') && ! $user->hasAnyRole(['super_admin', 'admin'])) {
+            abort_unless($user->teacher, 403);
+
+            $courseQuery->whereHas('courseAssignments', fn (Builder $query): Builder => $query
+                ->where('teacher_id', $user->teacher->teacher_id));
+        }
+
+        $this->courseRecord = $courseQuery->firstOrFail();
 
         $this->initializeScores();
     }

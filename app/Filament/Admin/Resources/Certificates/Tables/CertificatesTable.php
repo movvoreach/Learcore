@@ -27,7 +27,12 @@ class CertificatesTable
                 TextColumn::make('status')->label('ស្ថានភាព')->badge(),
             ])
             ->filters([
-                SelectFilter::make('course_id')->label('វគ្គសិក្សា')->relationship('course', 'course_name')->searchable()->preload(),
+                SelectFilter::make('course_id')
+                    ->label('វគ្គសិក្សា')
+                    ->relationship('course', 'course_name')
+                    ->searchable()
+                    ->preload()
+                    ->visible(fn (): bool => ! auth()->user()?->isStudent()),
                 SelectFilter::make('status')
                     ->label('ស្ថានភាព')
                     ->options([
@@ -37,13 +42,16 @@ class CertificatesTable
                     ]),
             ], layout: FiltersLayout::AboveContent)
             ->recordActions([
-                EditAction::make(),
-                DeleteAction::make(),
+                EditAction::make()
+                    ->visible(fn (): bool => ! auth()->user()?->isStudent()),
+                DeleteAction::make()
+                    ->visible(fn (): bool => ! auth()->user()?->isStudent()),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
-                ]),
+                ])
+                    ->visible(fn (): bool => ! auth()->user()?->isStudent()),
             ])
             ->defaultSort('created_at', 'desc');
     }

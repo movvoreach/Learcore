@@ -70,8 +70,19 @@ class CourseResource extends Resource
             ], 'progress_percent');
         }
 
-        if (auth()->user()?->isStudent() && $student) {
-            return $query->availableToStudent($student);
+        if (auth()->user()?->isStudent()) {
+            return $student
+                ? $query->enrolledByStudent($student)
+                : $query->whereRaw('1 = 0');
+        }
+
+        $user = auth()->user();
+
+        if ($user?->hasRole('teacher') && ! $user->hasAnyRole(['super_admin', 'admin'])) {
+            return $user->teacher
+                ? $query->whereHas('courseAssignments', fn (Builder $query): Builder => $query
+                    ->where('teacher_id', $user->teacher->teacher_id))
+                : $query->whereRaw('1 = 0');
         }
 
         return $query;

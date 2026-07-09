@@ -2,9 +2,13 @@
 
 namespace App\Filament\Admin\Resources\Schedules\Tables;
 
+use App\Filament\Admin\Resources\Schedules\ScheduleResource;
+use App\Models\Schedule;
+use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
@@ -60,6 +64,10 @@ class SchedulesTable
                 //
             ])
             ->recordActions([
+                Action::make('show')
+                    ->label('មើល')
+                    ->icon(Heroicon::OutlinedEye)
+                    ->url(fn (Schedule $record): string => ScheduleResource::getUrl('show', ['record' => $record])),
                 EditAction::make(),
             ])
             ->toolbarActions([

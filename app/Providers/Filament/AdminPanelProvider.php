@@ -420,10 +420,35 @@ HTML);
 
     private function canShowResourceNavItem(string $resource): bool
     {
-        if (! auth()->user()?->isStudent()) {
+        $user = auth()->user();
+
+        if (! $user?->isStudent() && $user?->hasRole('teacher') && ! $user->hasAnyRole(['super_admin', 'admin'])) {
+            return in_array($resource, [
+                CourseResource::class,
+                ScheduleResource::class,
+                ContentChapterResource::class,
+                ContentLessonResource::class,
+                ContentVideoResource::class,
+                ContentDocumentResource::class,
+                ContentAssignmentResource::class,
+                ContentResourceResource::class,
+                QuizResource::class,
+                QuestionBankResource::class,
+                AssessmentQuestionResource::class,
+                QuestionOptionResource::class,
+                AssignmentSubmissionResource::class,
+                CertificateResource::class,
+            ], true) && $resource::canAccess();
+        }
+
+        if (! $user?->isStudent()) {
             return $resource::canAccess();
         }
 
-        return $resource === CourseResource::class && $resource::canAccess();
+        return in_array($resource, [
+            CourseResource::class,
+            ScheduleResource::class,
+            CertificateResource::class,
+        ], true) && $resource::canAccess();
     }
 }

@@ -46,3 +46,19 @@ body {
     border-left: 4px solid #f59e0b;
     padding-left: 12px;
 }
+
+input:focus,
+select:focus,
+textarea:focus,
+button:focus-visible,
+[contenteditable="true"]:focus {
+    outline: none !important;
+    border-color: #4f5ef7 !important;
+    box-shadow: 0 0 0 1px #4f5ef7 !important;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    color: #4f5ef7;
+}

@@ -1171,14 +1171,82 @@
             @endif
         @else
             {{-- Admin/Teacher Dashboard --}}
-            <section class="db-stats-grid">
+            <style>
+                .admin-stats-grid {
+                    display: grid;
+                    grid-template-columns: repeat(2, minmax(0, 1fr));
+                    gap: 24px;
+                    margin-bottom: 24px;
+                }
+                @media (max-width: 1024px) {
+                    .admin-stats-grid {
+                        grid-template-columns: 1fr;
+                    }
+                }
+                .admin-stat-card {
+                    background: #ffffff;
+                    border: 1px solid #e2e8f0;
+                    border-radius: 4px;
+                    padding: 24px;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+                }
+                .dark .admin-stat-card {
+                    background: #1e293b;
+                    border-color: #334155;
+                }
+                .admin-stat-info {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 12px;
+                }
+                .admin-stat-label {
+                    font-size: 15px;
+                    color: #64748b;
+                    font-family: 'Khmer OS Siemreap', sans-serif;
+                }
+                .dark .admin-stat-label {
+                    color: #94a3b8;
+                }
+                .admin-stat-value {
+                    font-size: 24px;
+                    font-weight: 500;
+                    color: #334155;
+                }
+                .dark .admin-stat-value {
+                    color: #e2e8f0;
+                }
+                .admin-stat-icon {
+                    width: 56px;
+                    height: 56px;
+                    border-radius: 50%;
+                    background-color: #e0e7ff;
+                    color: #4f46e5;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 24px;
+                }
+                .dark .admin-stat-icon {
+                    background-color: rgba(79, 70, 229, 0.2);
+                    color: #818cf8;
+                }
+            </style>
+            <section class="admin-stats-grid">
                 @foreach ($stats as $stat)
-                    <div class="db-stat-card">
-                        <div class="db-stat-icon" style="background: #eff6ff; color: #2563eb;">⚡</div>
-                        <div class="db-stat-info">
-                            <div class="db-stat-label">{{ $stat['label'] }}</div>
-                            <div class="db-stat-value">{{ $stat['value'] }}</div>
-                            <div class="db-stat-subtext" style="color: #64748b;">{{ $stat['sub'] }}</div>
+                    <div class="admin-stat-card">
+                        <div class="admin-stat-info">
+                            <div class="admin-stat-label">{{ $stat['label'] }}</div>
+                            <div class="admin-stat-value">{{ $stat['value'] }}</div>
+                        </div>
+                        <div class="admin-stat-icon">
+                            @if(isset($stat['fa_icon']))
+                                <i class="{{ $stat['fa_icon'] }}"></i>
+                            @else
+                                {{ $stat['icon'] }}
+                            @endif
                         </div>
                     </div>
                 @endforeach

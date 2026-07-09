@@ -2,9 +2,11 @@
 
 namespace App\Http\Middleware;
 
+use App\Filament\Admin\Resources\Certificates\CertificateResource;
+use App\Filament\Admin\Resources\Courses\CourseResource;
+use App\Filament\Admin\Resources\Schedules\ScheduleResource;
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
 use Symfony\Component\HttpFoundation\Response;
 
 class EnsureStudentFilamentAccess
@@ -22,6 +24,15 @@ class EnsureStudentFilamentAccess
         'filament.admin.auth.profile',
         'filament.admin.pages.profile',
         'livewire.',
+    ];
+
+    /**
+     * Resource list pages that student users can open in read-only/my-data mode.
+     */
+    private const ALLOWED_RESOURCE_INDEXES = [
+        CourseResource::class,
+        ScheduleResource::class,
+        CertificateResource::class,
     ];
 
     /**
@@ -48,6 +59,11 @@ class EnsureStudentFilamentAccess
         // Check if the current route name starts with any of our allowed prefixes.
         $allowed = collect(self::ALLOWED_ROUTE_PREFIXES)
             ->contains(fn (string $prefix): bool => str_starts_with($currentRouteName, $prefix));
+
+        if (! $allowed) {
+            $allowed = collect(self::ALLOWED_RESOURCE_INDEXES)
+                ->contains(fn (string $resource): bool => $currentRouteName === $resource::getRouteBaseName().'.index');
+        }
 
         abort_unless($allowed, 403, 'ការចូលប្រើប្រាស់ត្រូវបានបដិសេធ');
 
