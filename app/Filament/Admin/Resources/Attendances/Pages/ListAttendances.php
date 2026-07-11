@@ -17,12 +17,15 @@ class ListAttendances extends ListRecords
 {
     protected static string $resource = AttendanceResource::class;
 
+    protected string $view = 'filament.admin.resources.attendances.pages.list-attendances';
+
     protected function getHeaderActions(): array
     {
         return [
             Action::make('quickCreateAttendance')
-                ->label('បង្កើតវត្តមានរហ័ស')
-                ->icon('heroicon-o-check-circle')
+                ->icon('heroicon-m-clock')
+                ->hiddenLabel()
+                ->tooltip('បង្កើតវត្តមានរហ័ស')
                 ->color('success')
                 ->modalHeading('បង្កើតវត្តមានរហ័ស')
                 ->modalDescription('ជ្រើសរើសថ្នាក់រៀន និងកាលបរិច្ឆេទដើម្បីបង្កើតកំណត់ត្រាវត្តមានសម្រាប់និស្សិតទាំងអស់។')
@@ -97,7 +100,10 @@ class ListAttendances extends ListRecords
                         ->success()
                         ->send();
                 }),
-            CreateAction::make(),
+            CreateAction::make()
+                ->icon('heroicon-m-plus')
+                ->hiddenLabel()
+                ->tooltip('បញ្ចូលវត្តមាន'),
         ];
     }
 }

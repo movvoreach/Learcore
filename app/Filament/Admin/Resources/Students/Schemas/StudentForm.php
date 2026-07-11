@@ -21,7 +21,7 @@ class StudentForm
     {
         return $schema
             ->components([
-                Section::make('ព័ត៌មានគណនី & ការសិក្សា')
+                Section::make('ព័ត៌មាននិស្សិត')
                     ->columns(2)
                     ->schema([
                         TextInput::make('student_code')
@@ -83,12 +83,7 @@ class StudentForm
                             ])
                             ->default('active')
                             ->required(),
-                    ])
-                    ->columnSpanFull(),
 
-                Section::make('ព័ត៌មានផ្ទាល់ខ្លួន')
-                    ->columns(2)
-                    ->schema([
                         TextInput::make('first_name')
                             ->label('នាមខ្លួន')
                             ->required()

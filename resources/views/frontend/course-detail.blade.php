@@ -2,8 +2,35 @@
     $courseTitle = $courseRecord?->course_name ?? 'Course Not Found';
     $modules = $lessons->groupBy(fn ($lesson) => $lesson->module_title ?: 'Course Lessons');
     $firstLesson = $lessons->first();
-    $activeLessonTitle = $firstLesson?->title ?? $courseTitle;
+    $lessonDisplayTitle = function ($contentLesson, string $fallback): string {
+        if (! $contentLesson) {
+            return $fallback;
+        }
+
+        $title = trim((string) ($contentLesson->title ?? $fallback));
+        $title = preg_replace('/^\s*មេរៀនទី\s*[០-៩0-9]+\s*[-–—:]\s*/u', '', $title) ?? $title;
+        $title = preg_replace('/^\s*Lesson\s*[0-9]+\s*[-–—:]\s*/i', '', $title) ?? $title;
+        $khmerNumber = strtr((string) $contentLesson->module_number, [
+            '0' => '០',
+            '1' => '១',
+            '2' => '២',
+            '3' => '៣',
+            '4' => '៤',
+            '5' => '៥',
+            '6' => '៦',
+            '7' => '៧',
+            '8' => '៨',
+            '9' => '៩',
+        ]);
+
+        return $contentLesson->module_number
+            ? 'មេរៀនទី '.$khmerNumber.' - '.$title
+            : $title;
+    };
+    $activeLessonTitle = $lessonDisplayTitle($firstLesson, $courseTitle);
     $activeLessonSummary = $firstLesson?->summary ?? $courseRecord?->description ?? 'No lesson content is available yet.';
+    $quizzesCount = $lessons->sum(fn ($contentLesson) => $contentLesson->quizzes->count());
+    $assignmentsCount = $lessons->sum(fn ($contentLesson) => $contentLesson->assignments->count());
 @endphp
 
 @extends('frontend.layouts.master')
@@ -64,6 +91,17 @@
                             <i class="fas fa-arrow-right"></i>
                         </a>
                     @endif
+                </div>
+
+                <div class="course-workspace-assessment-summary">
+                    <span>
+                        <i class="fas fa-question-circle"></i>
+                        {{ $quizzesCount }} តេស្តខ្លី
+                    </span>
+                    <span>
+                        <i class="fas fa-clipboard-check"></i>
+                        {{ $assignmentsCount }} កិច្ចការ
+                    </span>
                 </div>
             </article>
 
@@ -223,6 +261,7 @@
         }
 
         .course-workspace-module {
+            width: 100%;
             min-height: 50px;
             display: flex;
             align-items: center;
@@ -230,9 +269,34 @@
             border: 0;
             background: #fff;
             color: #62718a;
+            cursor: pointer;
             font-size: 18px;
             font-weight: 900;
             text-align: left;
+        }
+
+        .course-workspace-module i {
+            flex: 0 0 auto;
+            transition: transform .2s ease;
+        }
+
+        .course-workspace-module.is-collapsed i {
+            transform: rotate(180deg);
+        }
+
+        .course-workspace-module-lessons {
+            display: grid;
+            gap: 1px;
+        }
+
+        .course-workspace-module-lessons.is-collapsed {
+            display: none;
+        }
+
+        .course-workspace-lesson-node,
+        .course-lesson-node {
+            display: grid;
+            gap: 4px;
         }
 
         .course-workspace-lessons a,
@@ -261,6 +325,38 @@
             background: #237dbe;
             color: #030b16;
             font-weight: 900;
+        }
+
+        .course-workspace-topics,
+        .course-detail-topics {
+            display: grid;
+            gap: 4px;
+            padding: 0 52px 10px;
+            color: #66758c;
+            font-size: 15px;
+            line-height: 1.45;
+        }
+
+        .course-workspace-topics a,
+        .course-detail-topics a {
+            min-height: auto;
+            display: block;
+            padding: 0;
+            border-radius: 4px;
+            color: inherit;
+            font-size: inherit;
+            line-height: inherit;
+            text-decoration: none;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .course-workspace-topics a:hover,
+        .course-detail-topics a:hover {
+            background: transparent;
+            color: #0f63b7;
+            text-decoration: none;
         }
 
         .course-workspace-main {
@@ -427,6 +523,29 @@
             text-decoration: none;
         }
 
+        .course-workspace-assessment-summary {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 22px;
+        }
+
+        .course-workspace-assessment-summary span {
+            min-height: 38px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border-radius: 999px;
+            background: #eef4fb;
+            color: #36506d;
+            padding: 0 14px;
+            font-weight: 900;
+        }
+
+        .course-workspace-assessment-summary i {
+            color: #237dbe;
+        }
+
         .course-workspace-discussion {
             margin-top: 24px;
             padding: 28px 30px;
@@ -547,10 +666,17 @@
             }
 
             .course-workspace-lessons a,
-            .course-workspace-empty {
+            .course-workspace-empty,
+            .course-workspace-topics,
+            .course-detail-topics {
                 padding-left: 28px;
                 padding-right: 28px;
                 font-size: 16px;
+            }
+
+            .course-workspace-topics a,
+            .course-detail-topics a {
+                padding: 0;
             }
 
             .course-workspace-card {
@@ -586,6 +712,17 @@
 
             $('.js-course-sidebar-open').on('click', function() {
                 $('.course-workspace').removeClass('is-course-sidebar-hidden');
+            });
+
+            $('.js-course-module-toggle').on('click', function() {
+                const $button = $(this);
+                const $lessons = $('#' + $button.attr('aria-controls'));
+                const isOpen = $button.attr('aria-expanded') === 'true';
+
+                $button
+                    .toggleClass('is-collapsed', isOpen)
+                    .attr('aria-expanded', String(!isOpen));
+                $lessons.toggleClass('is-collapsed', isOpen);
             });
 
             $('.js-course-more-toggle').on('click', function(event) {

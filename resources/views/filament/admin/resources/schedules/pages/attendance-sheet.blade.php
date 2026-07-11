@@ -1,4 +1,6 @@
 <x-filament-panels::page>
+    @include('filament.admin.resources.schedules.partials.schedule-page-scope')
+
     @once
         <link rel="stylesheet" href="{{ asset('fonts/battambang.css') }}">
     @endonce

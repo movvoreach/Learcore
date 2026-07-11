@@ -23,6 +23,8 @@ class ListStudentPromotions extends ListRecords
 {
     protected static string $resource = StudentPromotionResource::class;
 
+    protected string $view = 'filament.admin.resources.student-promotions.pages.list-student-promotions';
+
     public function mount(): void
     {
         parent::mount();
@@ -36,6 +38,9 @@ class ListStudentPromotions extends ListRecords
     {
         return [
             CreateAction::make()
+                ->icon('heroicon-m-plus')
+                ->hiddenLabel()
+                ->tooltip('ដំឡើងឆមាសនិស្សិត')
                 ->modalHeading('ដំឡើងឆមាសនិស្សិត')
                 ->modalDescription('ជ្រើសនិស្សិតម្នាក់ ហើយកំណត់ឆ្នាំសិក្សា និងឆមាសគោលដៅ។')
                 ->modalSubmitActionLabel('ដំឡើងឆមាស')
@@ -121,10 +126,11 @@ class ListStudentPromotions extends ListRecords
                         $data['note'] ?? null,
                     );
                 })
-                ->successNotificationTitle('បានដំឡើងឆមាសនិស្សិត')
-                ->label('ដំឡើងឆមាសនិស្សិត'),
+                ->successNotificationTitle('បានដំឡើងឆមាសនិស្សិត'),
             Action::make('promote_group')
-                ->label('ដំឡើងឆមាសជាក្រុម')
+                ->icon('heroicon-m-users')
+                ->hiddenLabel()
+                ->tooltip('ដំឡើងឆមាសជាក្រុម')
                 ->modalHeading('ដំឡើងឆមាសជាក្រុម')
                 ->modalDescription('ប្រព័ន្ធនឹងដំឡើងឆមាសនិស្សិតទាំងអស់ដែលត្រូវនឹងលក្ខខណ្ឌដើម។ មាតិកាវគ្គសិក្សា មេរៀន មុខវិជ្ជា និងម៉ូឌុល មិនត្រូវបានផ្លាស់ប្តូរទេ។')
                 ->modalWidth(Width::SevenExtraLarge)
@@ -212,7 +218,9 @@ class ListStudentPromotions extends ListRecords
                         ->send();
                 }),
             Action::make('promote_group_to_next')
-                ->label('Promote Group Next')
+                ->icon('heroicon-m-chevron-double-right')
+                ->hiddenLabel()
+                ->tooltip('Promote Group Next')
                 ->modalHeading('Promote Group to Next Semester')
                 ->modalDescription('Promotes every matching active student to the next semester in sequence while preserving academic history.')
                 ->modalWidth(Width::SevenExtraLarge)

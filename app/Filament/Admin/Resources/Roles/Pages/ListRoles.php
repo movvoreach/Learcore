@@ -14,11 +14,15 @@ class ListRoles extends ListRecords
 
     protected static ?string $breadcrumb = 'បញ្ជី';
 
+    protected string $view = 'filament.admin.resources.roles.pages.list-roles';
+
     protected function getHeaderActions(): array
     {
         return [
             CreateAction::make()
-                ->label('បញ្ចូលតួនាទី'),
+                ->icon('heroicon-m-plus')
+                ->hiddenLabel()
+                ->tooltip('បញ្ចូលតួនាទី'),
         ];
     }
 }

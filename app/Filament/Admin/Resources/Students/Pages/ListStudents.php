@@ -14,11 +14,19 @@ class ListStudents extends ListRecords
 
     protected static ?string $breadcrumb = 'បញ្ជី';
 
+    protected string $view = 'filament.admin.resources.students.pages.list-students';
+
+    public ?int $department_id = null;
+    public ?int $academic_year_id = null;
+    public ?int $semester_id = null;
+
     protected function getHeaderActions(): array
     {
         return [
             CreateAction::make()
-                ->label('បញ្ចូលនិស្សិត'),
+                ->icon('heroicon-m-plus')
+                ->hiddenLabel()
+                ->tooltip('បញ្ចូលនិស្សិត'),
         ];
     }
 

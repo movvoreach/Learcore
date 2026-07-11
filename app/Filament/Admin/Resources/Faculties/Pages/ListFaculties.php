@@ -14,11 +14,15 @@ class ListFaculties extends ListRecords
 
     protected static ?string $breadcrumb = 'បញ្ជី';
 
+    protected string $view = 'filament.admin.resources.faculties.pages.list-faculties';
+
     protected function getHeaderActions(): array
     {
         return [
             CreateAction::make()
-                ->label('បញ្ចូលមហាវិទ្យាល័យ'),
+                ->icon('heroicon-m-plus')
+                ->hiddenLabel()
+                ->tooltip('បញ្ចូលមហាវិទ្យាល័យ'),
         ];
     }
 

@@ -10,10 +10,15 @@ class ListCourseAssignments extends ListRecords
 {
     protected static string $resource = CourseAssignmentResource::class;
 
+    protected string $view = 'filament.admin.resources.course-assignments.pages.list-course-assignments';
+
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make(),
+            CreateAction::make()
+                ->icon('heroicon-m-plus')
+                ->hiddenLabel()
+                ->tooltip('បញ្ចូលការចាត់តាំងវគ្គសិក្សា'),
         ];
     }
 }

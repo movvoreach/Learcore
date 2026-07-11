@@ -36,6 +36,12 @@ Route::post('/learning/courses/{course}/discussion', [frontendController::class,
 Route::post('/learning/courses/{course}/lessons/{lesson}/discussion', [frontendController::class, 'storeLessonDiscussion'])
     ->middleware('auth')
     ->name('frontend.courses.lessons.discussion.store');
+Route::post('/learning/courses/{course}/lessons/{lesson}/quizzes/{quiz}/submit', [frontendController::class, 'submitQuiz'])
+    ->middleware('auth')
+    ->name('frontend.courses.lessons.quizzes.submit');
+Route::post('/learning/courses/{course}/lessons/{lesson}/assignments/{assignment}/submit', [frontendController::class, 'submitAssignment'])
+    ->middleware('auth')
+    ->name('frontend.courses.lessons.assignments.submit');
 Route::post('/learning/discussion/{discussionPost}/comments', [frontendController::class, 'storeDiscussionComment'])
     ->middleware('auth')
     ->name('frontend.discussion.comments.store');

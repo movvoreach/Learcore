@@ -14,11 +14,15 @@ class ListDepartments extends ListRecords
 
     protected static ?string $breadcrumb = 'បញ្ជី';
 
+    protected string $view = 'filament.admin.resources.departments.pages.list-departments';
+
     protected function getHeaderActions(): array
     {
         return [
             CreateAction::make()
-                ->label('បញ្ចូលដេប៉ាតឺម៉ង់'),
+                ->icon('heroicon-m-plus')
+                ->hiddenLabel()
+                ->tooltip('បញ្ចូលដេប៉ាតឺម៉ង់'),
         ];
     }
 

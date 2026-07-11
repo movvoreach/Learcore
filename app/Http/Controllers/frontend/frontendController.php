@@ -3,9 +3,15 @@
 namespace App\Http\Controllers\frontend;
 
 use App\Http\Controllers\Controller;
+use App\Models\AssessmentQuestion;
+use App\Models\AssessmentResult;
+use App\Models\AssignmentSubmission;
+use App\Models\ContentAssignment;
 use App\Models\Course;
 use App\Models\DiscussionComment;
 use App\Models\DiscussionPost;
+use App\Models\Quiz;
+use App\Models\Student;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -70,6 +76,23 @@ class frontendController extends Controller
         $courseRecord = $this->resolveCourse($course);
         $lessons = $courseRecord?->contentLessons()
             ->publishedForStudents()
+            ->with([
+                'chapters' => fn ($query) => $query
+                    ->where('is_published', true)
+                    ->orderBy('sort_order')
+                    ->orderBy('content_chapter_id'),
+                'assignments' => fn ($query) => $query
+                    ->where('is_published', true)
+                    ->orderBy('due_at')
+                    ->orderBy('content_assignment_id'),
+                'quizzes' => fn ($query) => $query
+                    ->where('is_published', true)
+                    ->orderBy('available_from')
+                    ->orderBy('quiz_id'),
+                'assessmentQuestions' => fn ($query) => $query
+                    ->where('is_active', true)
+                    ->with(['options' => fn ($optionQuery) => $optionQuery->orderBy('sort_order')]),
+            ])
             ->orderBy('module_number')
             ->orderBy('position')
             ->get()
@@ -91,6 +114,23 @@ class frontendController extends Controller
         $courseRecord = $this->resolveCourse($course);
         $lessons = $courseRecord?->contentLessons()
             ->publishedForStudents()
+            ->with([
+                'chapters' => fn ($query) => $query
+                    ->where('is_published', true)
+                    ->orderBy('sort_order')
+                    ->orderBy('content_chapter_id'),
+                'assignments' => fn ($query) => $query
+                    ->where('is_published', true)
+                    ->orderBy('due_at')
+                    ->orderBy('content_assignment_id'),
+                'quizzes' => fn ($query) => $query
+                    ->where('is_published', true)
+                    ->orderBy('available_from')
+                    ->orderBy('quiz_id'),
+                'assessmentQuestions' => fn ($query) => $query
+                    ->where('is_active', true)
+                    ->with(['options' => fn ($optionQuery) => $optionQuery->orderBy('sort_order')]),
+            ])
             ->orderBy('module_number')
             ->orderBy('position')
             ->get()
@@ -102,6 +142,22 @@ class frontendController extends Controller
         $discussionPosts = $courseRecord && $lessonRecord
             ? $this->discussionPostsQuery($courseRecord)->where('content_lesson_id', $lessonRecord->content_lesson_id)->get()
             : collect();
+        $student = auth()->user()?->student;
+        $quizResults = $student && $lessonRecord
+            ? AssessmentResult::query()
+                ->where('student_id', $student->student_id)
+                ->whereIn('quiz_id', $lessonRecord->quizzes->pluck('quiz_id'))
+                ->get()
+                ->keyBy('quiz_id')
+            : collect();
+        $assignmentSubmissions = $student && $lessonRecord
+            ? AssignmentSubmission::query()
+                ->where('student_id', $student->student_id)
+                ->whereIn('content_assignment_id', $lessonRecord->assignments->pluck('content_assignment_id'))
+                ->latest('submitted_at')
+                ->get()
+                ->keyBy('content_assignment_id')
+            : collect();
 
         return view('frontend.lesson', [
             'course' => $course,
@@ -111,7 +167,128 @@ class frontendController extends Controller
             'nextLesson' => $nextLesson,
             'lesson' => $lesson,
             'discussionPosts' => $discussionPosts,
+            'quizResults' => $quizResults,
+            'assignmentSubmissions' => $assignmentSubmissions,
         ]);
+    }
+
+    public function submitQuiz(Request $request, string $course, string $lesson, Quiz $quiz): RedirectResponse
+    {
+        $student = $this->studentForSubmission($request);
+        $lessonRecord = $this->lessonForSubmission($course, $lesson);
+
+        abort_unless((int) $quiz->content_lesson_id === (int) $lessonRecord->content_lesson_id, 404);
+        abort_unless($quiz->is_published, 404);
+
+        $quizOpen = (! $quiz->available_from || $quiz->available_from <= now())
+            && (! $quiz->available_until || $quiz->available_until >= now());
+
+        if (! $quizOpen) {
+            return redirect()->back()->with('assessment_error', 'តេស្តខ្លីនេះមិនទាន់បើកឱ្យដាក់ចម្លើយទេ។');
+        }
+
+        $validated = $request->validate([
+            'answers' => ['nullable', 'array'],
+            'answers.*' => ['nullable', 'string', 'max:5000'],
+        ]);
+
+        $questions = AssessmentQuestion::query()
+            ->where('content_lesson_id', $lessonRecord->content_lesson_id)
+            ->where('is_active', true)
+            ->with('options')
+            ->get();
+
+        $answers = collect($validated['answers'] ?? []);
+        $totalPoints = max((float) $questions->sum('points'), 1);
+        $earnedPoints = 0.0;
+
+        foreach ($questions as $question) {
+            $answer = $answers->get((string) $question->assessment_question_id);
+
+            if ($question->options->isNotEmpty()) {
+                $selectedOption = $question->options->firstWhere('question_option_id', (int) $answer);
+
+                if ($selectedOption?->is_correct) {
+                    $earnedPoints += (float) $question->points;
+                }
+
+                continue;
+            }
+
+            if ($question->correct_answer && Str::lower(trim((string) $answer)) === Str::lower(trim($question->correct_answer))) {
+                $earnedPoints += (float) $question->points;
+            }
+        }
+
+        $score = round(($earnedPoints / $totalPoints) * 100, 2);
+
+        AssessmentResult::query()->updateOrCreate(
+            [
+                'student_id' => $student->student_id,
+                'quiz_id' => $quiz->quiz_id,
+            ],
+            [
+                'assessment_type' => 'quiz',
+                'total_score' => $score,
+                'passed' => $score >= (float) $quiz->passing_score,
+                'published_at' => now(),
+                'remarks' => 'Submitted from public lesson page.',
+            ],
+        );
+
+        return redirect()->back()->with('assessment_success', 'បានដាក់តេស្តខ្លីរួចរាល់។ ពិន្ទុរបស់អ្នក: '.$score.'%');
+    }
+
+    public function submitAssignment(Request $request, string $course, string $lesson, ContentAssignment $assignment): RedirectResponse
+    {
+        $student = $this->studentForSubmission($request);
+        $lessonRecord = $this->lessonForSubmission($course, $lesson);
+
+        abort_unless((int) $assignment->content_lesson_id === (int) $lessonRecord->content_lesson_id, 404);
+        abort_unless($assignment->is_published, 404);
+
+        $assignmentOpen = $assignment->allow_late_submission
+            || ! $assignment->due_at
+            || $assignment->due_at->endOfDay()->gte(now());
+
+        if (! $assignmentOpen) {
+            return redirect()->back()->with('assessment_error', 'កិច្ចការនេះផុតកំណត់ដាក់ស្នើហើយ។');
+        }
+
+        $validated = $request->validate([
+            'response' => ['nullable', 'string', 'max:10000'],
+            'attachment' => ['nullable', 'file', 'mimes:pdf,doc,docx,ppt,pptx,xls,xlsx,jpg,jpeg,png,zip,rar', 'max:10240'],
+        ]);
+
+        if (! $request->filled('response') && ! $request->hasFile('attachment')) {
+            return redirect()->back()->withErrors(['response' => 'សូមសរសេរចម្លើយ ឬ Upload ឯកសារ។']);
+        }
+
+        $existingSubmission = AssignmentSubmission::query()
+            ->where('content_assignment_id', $assignment->content_assignment_id)
+            ->where('student_id', $student->student_id)
+            ->first();
+        $attachmentUrl = $existingSubmission?->attachment_url;
+
+        if ($request->hasFile('attachment')) {
+            $path = $request->file('attachment')->store('assignment-submissions', 'public');
+            $attachmentUrl = $path;
+        }
+
+        AssignmentSubmission::query()->updateOrCreate(
+            [
+                'content_assignment_id' => $assignment->content_assignment_id,
+                'student_id' => $student->student_id,
+            ],
+            [
+                'response' => $validated['response'] ?? null,
+                'attachment_url' => $attachmentUrl,
+                'submitted_at' => now(),
+                'status' => 'submitted',
+            ],
+        );
+
+        return redirect()->back()->with('assessment_success', 'បានដាក់កិច្ចការរួចរាល់។ គ្រូអាចពិនិត្យបានហើយ។');
     }
 
     public function storeCourseDiscussion(Request $request, string $course): RedirectResponse|JsonResponse
@@ -305,6 +482,26 @@ class frontendController extends Controller
             ->exists();
 
         abort_unless($canSeeCourse, 403);
+    }
+
+    private function studentForSubmission(Request $request): Student
+    {
+        $student = $request->user()?->student;
+
+        abort_unless($student, 403);
+
+        return $student;
+    }
+
+    private function lessonForSubmission(string $course, string $lesson): \App\Models\ContentLesson
+    {
+        $courseRecord = $this->resolveCourse($course);
+        abort_unless($courseRecord, 404);
+
+        return $courseRecord->contentLessons()
+            ->publishedForStudents()
+            ->where('slug', $lesson)
+            ->firstOrFail();
     }
 
     private function toggleReaction(HasMany $reactions, int $userId, string $targetKey): void

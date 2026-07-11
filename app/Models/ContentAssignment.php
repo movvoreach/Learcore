@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ContentAssignment extends Model
 {
@@ -35,5 +36,10 @@ class ContentAssignment extends Model
     public function chapter(): BelongsTo
     {
         return $this->belongsTo(ContentChapter::class, 'content_chapter_id', 'content_chapter_id');
+    }
+
+    public function submissions(): HasMany
+    {
+        return $this->hasMany(AssignmentSubmission::class, 'content_assignment_id', 'content_assignment_id');
     }
 }

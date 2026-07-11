@@ -103,6 +103,11 @@ class ContentLesson extends Model
         return $this->hasMany(Quiz::class, 'content_lesson_id', 'content_lesson_id');
     }
 
+    public function assessmentQuestions(): HasMany
+    {
+        return $this->hasMany(AssessmentQuestion::class, 'content_lesson_id', 'content_lesson_id');
+    }
+
     public function resources(): HasMany
     {
         return $this->hasMany(ContentResource::class, 'content_lesson_id', 'content_lesson_id');

@@ -10,10 +10,15 @@ class ListContentLessons extends ListRecords
 {
     protected static string $resource = ContentLessonResource::class;
 
+    protected string $view = 'filament.admin.resources.content-lessons.pages.list-content-lessons';
+
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make(),
+            CreateAction::make()
+                ->icon('heroicon-m-plus')
+                ->hiddenLabel()
+                ->tooltip('បញ្ចូលមេរៀន'),
         ];
     }
 }

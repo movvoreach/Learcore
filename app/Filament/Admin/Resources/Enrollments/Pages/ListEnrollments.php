@@ -11,6 +11,12 @@ class ListEnrollments extends ListRecords
 {
     protected static string $resource = EnrollmentResource::class;
 
+    protected string $view = 'filament.admin.resources.enrollments.pages.list-enrollments';
+
+    public ?int $course_id = null;
+    public ?int $academic_year_id = null;
+    public ?int $semester_id = null;
+
     public function mount(): void
     {
         parent::mount();
@@ -24,7 +30,9 @@ class ListEnrollments extends ListRecords
     {
         return [
             CreateAction::make()
-                ->label('ចុះឈ្មោះចូលរៀន')
+                ->icon('heroicon-m-plus')
+                ->hiddenLabel()
+                ->tooltip('ចុះឈ្មោះចូលរៀន')
                 ->modalHeading('ចុះឈ្មោះចូលរៀន')
                 ->modalDescription('ជ្រើសនិស្សិត វគ្គសិក្សា ឆ្នាំសិក្សា និងឆមាស ដើម្បីចុះឈ្មោះចូលរៀន។')
                 ->modalSubmitActionLabel('រក្សាទុក')

@@ -69,6 +69,155 @@
     font-weight: 400;
 }
 
+.lc-schedules-page .fi-modal-window,
+.lc-schedules-page .fi-modal-window *,
+.lc-schedules-page .fi-modal-close-btn,
+.lc-schedules-page .fi-modal-submit-action,
+.lc-schedules-page .fi-modal-cancel-action {
+    font-family: "Battambang", "Noto Sans Khmer", "Khmer OS Siemreap", ui-sans-serif, system-ui, sans-serif;
+    letter-spacing: 0;
+}
+
+.lc-schedules-page .fi-modal-window {
+    width: min(82rem, calc(100vw - 2rem)) !important;
+    max-width: calc(100vw - 2rem) !important;
+    border-radius: 4px !important;
+    border: 0 !important;
+    background: #ffffff !important;
+    color: #3f4566 !important;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.22) !important;
+}
+
+.lc-schedules-index-page [wire\:loading],
+.lc-schedules-index-page [wire\:loading\.delay],
+.lc-schedules-index-page .fi-loading-indicator,
+.lc-schedules-index-page .fi-btn .fi-loading-indicator,
+.lc-schedules-index-page .fi-ta.fi-loading .fi-ta-table-loading-ctn,
+.lc-schedules-index-page .fi-ta.fi-loading .fi-ta-table-loading-ctn::before {
+    display: none !important;
+}
+
+.fi-modal-header {
+    border-bottom: 1px solid #e3e5ef;
+    padding: 16px 18px !important;
+}
+
+.fi-modal-heading {
+    color: #3f4566 !important;
+    font-size: 19px !important;
+    font-weight: 600 !important;
+    line-height: 1.45 !important;
+}
+
+.fi-modal-content {
+    border-radius: 4px !important;
+    padding: 24px 18px 26px !important;
+}
+
+.fi-modal-footer {
+    border-top: 1px solid #e3e5ef;
+    padding: 16px 18px !important;
+}
+
+.fi-modal-close-btn {
+    color: #777777 !important;
+}
+
+.fi-fo-field-wrp-label,
+.fi-fo-field-wrp-label span {
+    color: #59617e !important;
+    font-size: 14px !important;
+    font-weight: 400 !important;
+}
+
+.fi-input-wrp,
+.fi-select-input-wrp,
+.fi-select-wrp {
+    min-height: 42px !important;
+    border: 1px solid #cfd4ec !important;
+    border-radius: 3px !important;
+    background: #ffffff !important;
+    color: #59617e !important;
+    box-shadow: none !important;
+    transition: border-color 150ms ease, box-shadow 150ms ease, color 150ms ease !important;
+}
+
+.fi-input-wrp:focus-within,
+.fi-select-input-wrp:focus-within,
+.fi-select-wrp:focus-within {
+    border-color: #4f5ef7 !important;
+    color: #4f5ef7 !important;
+    box-shadow: 0 0 0 3px rgba(79, 94, 247, 0.22) !important;
+}
+
+input,
+select,
+textarea {
+    color: #59617e !important;
+    font-size: 14px !important;
+}
+
+.fi-btn {
+    min-height: 40px !important;
+    border-radius: 4px !important;
+    box-shadow: none !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    padding: 8px 16px !important;
+}
+
+.fi-btn.fi-color-primary:not(.fi-outlined) {
+    background: #5866f5 !important;
+    color: #ffffff !important;
+}
+
+.fi-btn.fi-color-primary:not(.fi-outlined):hover {
+    background: #4351e6 !important;
+}
+
+.fi-btn.fi-color-gray,
+.fi-btn.fi-color-gray:not(.fi-outlined) {
+    background: #2d2d39 !important;
+    color: #ffffff !important;
+}
+
+.fi-btn.fi-color-gray:hover,
+.fi-btn.fi-color-gray:not(.fi-outlined):hover {
+    background: #1e1e27 !important;
+}
+
+/* Danger buttons styling */
+.fi-btn.fi-color-danger:not(.fi-outlined) {
+    background: #dc2626 !important;
+    color: #ffffff !important;
+}
+
+.fi-btn.fi-color-danger:not(.fi-outlined):hover {
+    background: #b91c1c !important;
+}
+
+.dark .fi-modal-window {
+    background: #111827 !important;
+    color: #e5e7eb !important;
+}
+
+.dark .fi-modal-header,
+.dark .fi-modal-footer {
+    border-color: #374151 !important;
+}
+
+.dark .fi-modal-heading {
+    color: #f3f4f6 !important;
+}
+
+.dark .fi-modal-window .fi-input-wrp,
+.dark .fi-modal-window .fi-select-input-wrp,
+.dark .fi-modal-window .fi-select-wrp {
+    border-color: #4b5563 !important;
+    background: #1f2937 !important;
+    color: #e5e7eb !important;
+}
+
 /*
    Filament admin sidebar active state.
    The .fi-active class is rendered by Filament from the current route, so the
@@ -955,3 +1104,4 @@ textarea:focus,
 .dark .lc-user-chevron {
     color: #cbd5e1 !important;
 }
+

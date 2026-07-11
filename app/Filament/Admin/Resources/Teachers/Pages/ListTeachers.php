@@ -10,10 +10,15 @@ class ListTeachers extends ListRecords
 {
     protected static string $resource = TeacherResource::class;
 
+    protected string $view = 'filament.admin.resources.teachers.pages.list-teachers';
+
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make(),
+            CreateAction::make()
+                ->icon('heroicon-m-plus')
+                ->hiddenLabel()
+                ->tooltip('បញ្ចូលគ្រូបង្រៀន'),
         ];
     }
 }

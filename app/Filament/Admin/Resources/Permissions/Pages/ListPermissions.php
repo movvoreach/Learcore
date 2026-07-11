@@ -14,11 +14,15 @@ class ListPermissions extends ListRecords
 
     protected static ?string $breadcrumb = 'បញ្ជី';
 
+    protected string $view = 'filament.admin.resources.permissions.pages.list-permissions';
+
     protected function getHeaderActions(): array
     {
         return [
             CreateAction::make()
-                ->label('បញ្ចូលសិទ្ធិ'),
+                ->icon('heroicon-m-plus')
+                ->hiddenLabel()
+                ->tooltip('បញ្ចូលសិទ្ធិ'),
         ];
     }
 }

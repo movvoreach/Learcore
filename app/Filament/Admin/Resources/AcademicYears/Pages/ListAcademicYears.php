@@ -14,11 +14,15 @@ class ListAcademicYears extends ListRecords
 
     protected static ?string $breadcrumb = 'បញ្ជី';
 
+    protected string $view = 'filament.admin.resources.academic-years.pages.list-academic-years';
+
     protected function getHeaderActions(): array
     {
         return [
             CreateAction::make()
-                ->label('បញ្ចូលឆ្នាំសិក្សា'),
+                ->icon('heroicon-m-plus')
+                ->hiddenLabel()
+                ->tooltip('បញ្ចូលឆ្នាំសិក្សា'),
         ];
     }
 

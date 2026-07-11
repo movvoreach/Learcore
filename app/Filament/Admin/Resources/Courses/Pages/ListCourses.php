@@ -10,6 +10,8 @@ class ListCourses extends ListRecords
 {
     protected static string $resource = CourseResource::class;
 
+    protected string $view = 'filament.admin.resources.courses.pages.list-courses';
+
     protected function getHeaderActions(): array
     {
         if (auth()->user()?->isStudent()) {
@@ -17,7 +19,10 @@ class ListCourses extends ListRecords
         }
 
         return [
-            CreateAction::make(),
+            CreateAction::make()
+                ->icon('heroicon-m-plus')
+                ->hiddenLabel()
+                ->tooltip('បញ្ចូលវគ្គសិក្សា'),
         ];
     }
 }

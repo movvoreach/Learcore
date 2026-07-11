@@ -13,6 +13,7 @@ class AssignmentSubmissionForm
     {
         return $schema->components([
             Select::make('status')
+                ->label('Status')
                 ->options([
                     'submitted' => 'Submitted',
                     'reviewed' => 'Reviewed',
@@ -20,18 +21,23 @@ class AssignmentSubmissionForm
                 ])
                 ->required(),
             TextInput::make('score')
+                ->label('Score')
                 ->numeric()
                 ->minValue(0),
             Textarea::make('feedback')
+                ->label('Teacher Feedback')
                 ->rows(5)
                 ->columnSpanFull(),
             Textarea::make('response')
+                ->label('Student Response')
                 ->rows(8)
                 ->disabled()
                 ->columnSpanFull(),
             TextInput::make('attachment_url')
+                ->label('Submitted Document URL')
                 ->url()
                 ->disabled()
+                ->helperText('Use the Open file action on the submissions table to view the student document.')
                 ->columnSpanFull(),
         ]);
     }

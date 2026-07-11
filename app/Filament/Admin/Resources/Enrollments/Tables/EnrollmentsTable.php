@@ -17,7 +17,12 @@ class EnrollmentsTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn (Builder $query): Builder => $query->with(['academicYear', 'course', 'semester', 'student']))
+            ->modifyQueryUsing(fn (Builder $query, $livewire): Builder => $query
+                ->with(['academicYear', 'course', 'semester', 'student'])
+                ->when($livewire && isset($livewire->course_id) && $livewire->course_id, fn ($q) => $q->where('course_id', $livewire->course_id))
+                ->when($livewire && isset($livewire->academic_year_id) && $livewire->academic_year_id, fn ($q) => $q->where('academic_year_id', $livewire->academic_year_id))
+                ->when($livewire && isset($livewire->semester_id) && $livewire->semester_id, fn ($q) => $q->where('semester_id', $livewire->semester_id))
+            )
             ->columns([
                 TextColumn::make('student.student_code')
                     ->label('លេខកូដ')
@@ -47,31 +52,7 @@ class EnrollmentsTable
                     ->label('ស្ថានភាព')
                     ->badge(),
             ])
-            ->filters([
-                SelectFilter::make('course_id')
-                    ->label('វគ្គសិក្សា')
-                    ->relationship('course', 'course_name')
-                    ->searchable()
-                    ->preload(),
-                SelectFilter::make('academic_year_id')
-                    ->label('ឆ្នាំសិក្សា')
-                    ->relationship('academicYear', 'year_name')
-                    ->searchable()
-                    ->preload(),
-                SelectFilter::make('semester_id')
-                    ->label('ឆមាស')
-                    ->relationship('semester', 'semester_name')
-                    ->searchable()
-                    ->preload(),
-                SelectFilter::make('status')
-                    ->label('ស្ថានភាព')
-                    ->options([
-                        'studying' => 'កំពុងសិក្សា',
-                        'completed' => 'បានបញ្ចប់',
-                        'cancelled' => 'បានបោះបង់',
-                    ])
-                    ->searchable(),
-            ], layout: FiltersLayout::AboveContent)
+            ->filters([])
             ->recordActions([
                 EditAction::make(),
                 DeleteAction::make(),

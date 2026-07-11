@@ -382,11 +382,11 @@ class AllFeaturesSeeder extends Seeder
             $course = $courses->get($index % $courses->count());
             Certificate::updateOrCreate(
                 [
-                    'student_id' => $student->student_id,
-                    'course_id' => $course->course_id,
+                    'certificate_no' => 'CERT-' . str_pad((string)($index + 1), 6, '0', STR_PAD_LEFT),
                 ],
                 [
-                    'certificate_no' => 'CERT-' . str_pad((string)($index + 1), 6, '0', STR_PAD_LEFT),
+                    'student_id' => $student->student_id,
+                    'course_id' => $course->course_id,
                     'issued_date' => now()->subDays(5)->format('Y-m-d'),
                     'status' => 'issued',
                     'note' => 'Course completed successfully.',

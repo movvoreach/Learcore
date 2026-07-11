@@ -15,7 +15,10 @@ class UsersTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn (Builder $query): Builder => $query->with(['roles']))
+            ->modifyQueryUsing(fn (Builder $query, $livewire): Builder => $query
+                ->with(['roles'])
+                ->when($livewire && isset($livewire->role_id) && $livewire->role_id, fn ($q) => $q->whereHas('roles', fn ($r) => $r->where('roles.id', $livewire->role_id)))
+            )
             ->columns([
                 TextColumn::make('row_number')
                     ->label('No.')

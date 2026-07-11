@@ -1,7 +1,32 @@
 @php
-    $lessonTitle = $lessonRecord?->title ?? 'Lesson Not Found';
+    $lessonRawTitle = trim((string) ($lessonRecord?->title ?? 'Lesson Not Found'));
+    $lessonCleanTitle = preg_replace('/^\s*មេរៀនទី\s*[០-៩0-9]+\s*[-–—:]\s*/u', '', $lessonRawTitle) ?? $lessonRawTitle;
+    $lessonCleanTitle = preg_replace('/^\s*Lesson\s*[0-9]+\s*[-–—:]\s*/i', '', $lessonCleanTitle) ?? $lessonCleanTitle;
+    $lessonKhmerNumber = strtr((string) $lessonRecord?->module_number, [
+        '0' => '០',
+        '1' => '១',
+        '2' => '២',
+        '3' => '៣',
+        '4' => '៤',
+        '5' => '៥',
+        '6' => '៦',
+        '7' => '៧',
+        '8' => '៨',
+        '9' => '៩',
+    ]);
+    $lessonTitle = $lessonRecord?->module_number
+        ? 'មេរៀនទី '.$lessonKhmerNumber.' - '.$lessonCleanTitle
+        : $lessonCleanTitle;
     $courseTitle = $courseRecord?->course_name ?? 'Course';
     $lessonSummary = $lessonRecord?->summary ?? $courseRecord?->description ?? 'No lesson content is available yet.';
+    $lessonQuizzes = $lessonRecord?->quizzes ?? collect();
+    $lessonAssignments = $lessonRecord?->assignments ?? collect();
+    $lessonQuestions = $lessonRecord?->assessmentQuestions ?? collect();
+    $quizResults = $quizResults ?? collect();
+    $assignmentSubmissions = $assignmentSubmissions ?? collect();
+    $assignmentAttachmentUrl = fn (?string $path): ?string => $path
+        ? (str_starts_with($path, 'http') ? $path : asset('storage/'.$path))
+        : null;
 @endphp
 
 @extends('frontend.layouts.master')
@@ -39,9 +64,33 @@
                 <h2>{{ $lessonTitle }}</h2>
             </header>
 
+            @if(session('assessment_success'))
+                <div class="course-workspace-alert course-workspace-alert--success">
+                    {{ session('assessment_success') }}
+                </div>
+            @endif
+
+            @if(session('assessment_error') || $errors->any())
+                <div class="course-workspace-alert course-workspace-alert--danger">
+                    {{ session('assessment_error') ?? $errors->first() }}
+                </div>
+            @endif
+
             <div class="course-workspace-tabs" role="tablist" aria-label="Lesson content">
                 <button type="button" class="is-active" data-workspace-panel="video">មេរៀន</button>
                 <button type="button" data-workspace-panel="document">ឯកសារ</button>
+                <button type="button" data-workspace-panel="quiz">
+                    តេស្តខ្លី
+                    @if($lessonQuizzes->isNotEmpty())
+                        <span>{{ $lessonQuizzes->count() }}</span>
+                    @endif
+                </button>
+                <button type="button" data-workspace-panel="assignment">
+                    កិច្ចការ
+                    @if($lessonAssignments->isNotEmpty())
+                        <span>{{ $lessonAssignments->count() }}</span>
+                    @endif
+                </button>
             </div>
 
             <article class="course-workspace-card">
@@ -68,28 +117,250 @@
                     </div>
                 </div>
 
-                <div class="course-workspace-copy">
-                    <p>{{ $lessonSummary }}</p>
+                <div class="course-workspace-panel" data-workspace-panel-content="quiz">
+                    <div class="course-workspace-assessment-list">
+                        @forelse($lessonQuizzes as $quiz)
+                            @php
+                                $quizOpen = (! $quiz->available_from || $quiz->available_from <= now())
+                                    && (! $quiz->available_until || $quiz->available_until >= now());
+                                $quizResult = $quizResults->get($quiz->quiz_id);
+                            @endphp
 
-                    <div class="course-workspace-actions">
-                        <a href="{{ route('frontend.courses.show', $course) }}" class="course-workspace-secondary">
-                            <i class="fas fa-arrow-left"></i>
-                            Back
-                        </a>
-                        @if($nextLesson)
-                            <a href="{{ route('frontend.courses.lessons.show', ['course' => $course, 'lesson' => $nextLesson->slug]) }}" class="course-workspace-start">
-                                Next lesson
-                                <i class="fas fa-arrow-right"></i>
-                            </a>
-                        @endif
+                            <section class="course-workspace-assessment course-workspace-assessment--quiz">
+                                <div class="course-workspace-assessment-icon">
+                                    <i class="fas fa-question-circle"></i>
+                                </div>
+
+                                <div class="course-workspace-assessment-body">
+                                    <div class="course-workspace-assessment-kicker">តេស្តខ្លី</div>
+                                    <h4>{{ $quiz->title }}</h4>
+
+                                    <div class="course-workspace-assessment-meta">
+                                        <span>{{ $lessonQuestions->count() }} សំណួរ</span>
+                                        <span>ពិន្ទុជាប់ {{ number_format((float) $quiz->passing_score, 0) }}%</span>
+                                        <span>{{ $quiz->time_limit_minutes ? $quiz->time_limit_minutes.' នាទី' : 'គ្មានកំណត់ពេល' }}</span>
+                                        <span>{{ $quizOpen ? 'កំពុងបើក' : 'មិនទាន់បើក' }}</span>
+                                    </div>
+
+                                    @if($quiz->instructions)
+                                        <div class="course-workspace-assessment-copy">{!! $quiz->instructions !!}</div>
+                                    @else
+                                        <p>សូមអានមេរៀន និងត្រៀមខ្លួនសម្រាប់តេស្តខ្លីនេះ។</p>
+                                    @endif
+
+                                    @if($quiz->available_from || $quiz->available_until)
+                                        <div class="course-workspace-assessment-window">
+                                            @if($quiz->available_from)
+                                                <span>ចាប់ផ្តើម: {{ $quiz->available_from->format('d/m/Y H:i') }}</span>
+                                            @endif
+                                            @if($quiz->available_until)
+                                                <span>បញ្ចប់: {{ $quiz->available_until->format('d/m/Y H:i') }}</span>
+                                            @endif
+                                        </div>
+                                    @endif
+
+                                    @if($quizResult)
+                                        <div class="course-workspace-done">
+                                            <i class="fas fa-check-circle"></i>
+                                            <span>បានដាក់រួចរាល់។ ពិន្ទុ: {{ number_format((float) $quizResult->total_score, 2) }}%</span>
+                                        </div>
+                                    @elseif(! auth()->check())
+                                        <a class="course-workspace-assessment-link" href="{{ route('login') }}">
+                                            <i class="fas fa-lock"></i>
+                                            ចូលប្រើ ដើម្បីដាក់តេស្តខ្លី
+                                        </a>
+                                    @elseif(! auth()->user()?->student)
+                                        <div class="course-workspace-empty-state is-compact">
+                                            <i class="fas fa-user-graduate"></i>
+                                            <span>ត្រូវការគណនីសិស្ស ដើម្បីដាក់តេស្តខ្លី។</span>
+                                        </div>
+                                    @elseif(! $quizOpen)
+                                        <div class="course-workspace-empty-state is-compact">
+                                            <i class="fas fa-clock"></i>
+                                            <span>តេស្តខ្លីនេះមិនទាន់បើក ឬបានបិទហើយ។</span>
+                                        </div>
+                                    @elseif($lessonQuestions->isEmpty())
+                                        <div class="course-workspace-empty-state is-compact">
+                                            <i class="fas fa-question-circle"></i>
+                                            <span>មិនទាន់មានសំណួរសម្រាប់តេស្តនេះទេ។</span>
+                                        </div>
+                                    @else
+                                        <form
+                                            class="course-workspace-submit-form"
+                                            action="{{ route('frontend.courses.lessons.quizzes.submit', ['course' => $course, 'lesson' => $lesson, 'quiz' => $quiz]) }}"
+                                            method="POST"
+                                        >
+                                            @csrf
+
+                                            @foreach($lessonQuestions as $question)
+                                                <div class="course-workspace-question">
+                                                    <strong>{{ $loop->iteration }}. {!! $question->question_text !!}</strong>
+
+                                                    @if($question->options->isNotEmpty())
+                                                        <div class="course-workspace-options">
+                                                            @foreach($question->options as $option)
+                                                                <label class="course-workspace-option">
+                                                                    <input type="radio" name="answers[{{ $question->assessment_question_id }}]" value="{{ $option->question_option_id }}">
+                                                                    <span>{{ $option->option_text }}</span>
+                                                                </label>
+                                                            @endforeach
+                                                        </div>
+                                                    @else
+                                                        <textarea name="answers[{{ $question->assessment_question_id }}]" class="course-workspace-text-answer" placeholder="សរសេរចម្លើយរបស់អ្នក..."></textarea>
+                                                    @endif
+                                                </div>
+                                            @endforeach
+                                            <button type="submit" class="course-workspace-submit-btn">ដាក់ស្នើចម្លើយ</button>
+                                        </form>
+                                    @endif
+                                </div>
+                            </section>
+                        @empty
+                            <div class="course-workspace-empty-state">
+                                <i class="fas fa-question-circle"></i>
+                                <span>មិនទាន់មានតេស្តខ្លីសម្រាប់មេរៀននេះទេ។</span>
+                            </div>
+                        @endforelse
+                    </div>
+                </div>
+
+                <div class="course-workspace-panel" data-workspace-panel-content="assignment">
+                    <div class="course-workspace-assessment-list">
+                        @forelse($lessonAssignments as $assignment)
+                            @php
+                                $assignmentOpen = ! $assignment->due_at || $assignment->due_at->endOfDay()->gte(now()) || $assignment->allow_late_submission;
+                                $submission = $assignmentSubmissions->get($assignment->content_assignment_id);
+                            @endphp
+
+                            <section class="course-workspace-assessment course-workspace-assessment--assignment">
+                                <div class="course-workspace-assessment-icon">
+                                    <i class="fas fa-tasks"></i>
+                                </div>
+
+                                <div class="course-workspace-assessment-body">
+                                    <div class="course-workspace-assessment-kicker">កិច្ចការ</div>
+                                    <h4>{{ $assignment->title }}</h4>
+
+                                    <div class="course-workspace-assessment-meta">
+                                        <span>ពិន្ទុអតិបរមា: {{ number_format((float) $assignment->max_score, 0) }}</span>
+                                        @if($assignment->due_at)
+                                            <span>កាលបរិច្ឆេទកំណត់: {{ $assignment->due_at->format('d/m/Y H:i') }}</span>
+                                        @else
+                                            <span>គ្មានកាលកំណត់</span>
+                                        @endif
+                                        <span>{{ $assignmentOpen ? 'កំពុងបើក' : 'បានបិទ' }}</span>
+                                    </div>
+
+                                    @if($assignment->instructions)
+                                        <div class="course-workspace-assessment-copy">{!! $assignment->instructions !!}</div>
+                                    @else
+                                        <p>សូមបំពេញកិច្ចការខាងក្រោម និងដាក់ស្នើតាមទម្រង់។</p>
+                                    @endif
+
+                                    @if($submission)
+                                        <div class="course-workspace-done">
+                                            <i class="fas fa-check-circle"></i>
+                                            <span>បានដាក់ស្នើរួចហើយនៅថ្ងៃទី {{ $submission->submitted_at->format('d/m/Y H:i') }}</span>
+                                            @if($submission->status === 'graded')
+                                                <strong>ពិន្ទុ: {{ $submission->score }} / {{ $assignment->max_score }}</strong>
+                                            @else
+                                                <span class="badge badge-info">កំពុងរង់ចាំការកែ</span>
+                                            @endif
+                                        </div>
+                                    @elseif(! auth()->check())
+                                        <a class="course-workspace-assessment-link" href="{{ route('login') }}">
+                                            <i class="fas fa-lock"></i>
+                                            ចូលប្រើ ដើម្បីដាក់កិច្ចការ
+                                        </a>
+                                    @elseif(! auth()->user()?->student)
+                                        <div class="course-workspace-empty-state is-compact">
+                                            <i class="fas fa-user-graduate"></i>
+                                            <span>ត្រូវការគណនីសិស្ស ដើម្បីដាក់កិច្ចការ។</span>
+                                        </div>
+                                    @elseif(! $assignmentOpen)
+                                        <div class="course-workspace-empty-state is-compact">
+                                            <i class="fas fa-clock"></i>
+                                            <span>កិច្ចការនេះបានបិទការដាក់ចម្លើយហើយ។</span>
+                                        </div>
+                                    @else
+                                        <form
+                                            class="course-workspace-submit-form"
+                                            action="{{ route('frontend.courses.lessons.assignments.submit', ['course' => $course, 'lesson' => $lesson, 'assignment' => $assignment]) }}"
+                                            method="POST"
+                                            enctype="multipart/form-data"
+                                        >
+                                            @csrf
+                                            <div class="form-group">
+                                                <label for="response_{{ $assignment->content_assignment_id }}">ចម្លើយ/កំណត់ចំណាំ (បើមាន):</label>
+                                                <textarea name="response" id="response_{{ $assignment->content_assignment_id }}" class="form-control" rows="5" placeholder="សរសេរចម្លើយ ឬការកត់សម្គាល់របស់អ្នកនៅទីនេះ..."></textarea>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="attachment_{{ $assignment->content_assignment_id }}">ឯកសារភ្ជាប់ (PDF, Image, Word, Zip...):</label>
+                                                <input type="file" name="attachment" id="attachment_{{ $assignment->content_assignment_id }}" class="form-control-file">
+                                            </div>
+                                            <button type="submit" class="course-workspace-submit-btn">ដាក់ស្នើកិច្ចការ</button>
+                                        </form>
+                                    @endif
+                                </div>
+                            </section>
+                        @empty
+                            <div class="course-workspace-empty-state">
+                                <i class="fas fa-tasks"></i>
+                                <span>មិនទាន់មានកិច្ចការសម្រាប់មេរៀននេះទេ។</span>
+                            </div>
+                        @endforelse
                     </div>
                 </div>
             </article>
 
-            @include('frontend.partials.course.discussion', [
-                'discussionAction' => route('frontend.courses.lessons.discussion.store', ['course' => $course, 'lesson' => $lesson]),
-                'discussionPosts' => $discussionPosts,
-            ])
+            @if($lessonRecord?->allow_comments)
+                <section class="course-workspace-discussion">
+                    <div class="course-workspace-discussion-head">
+                        <span>ការពិភាក្សា</span>
+                        <strong>{{ $discussionPosts->count() }} មតិយោបល់</strong>
+                    </div>
+
+                    @auth
+                        <form
+                            class="course-workspace-comment-form"
+                            action="{{ route('frontend.courses.lessons.discussion.store', ['course' => $course, 'lesson' => $lesson]) }}"
+                            method="POST"
+                        >
+                            @csrf
+                            <img src="{{ auth()->user()->avatar ? asset('storage/'.auth()->user()->avatar) : asset('backend/img/avatar.png') }}" alt="{{ auth()->user()->name }}">
+                            <div>
+                                <textarea name="content" placeholder="សរសេរមតិយោបល់ ឬសួរដេញដោលនៅទីនេះ..." required></textarea>
+                                <button type="submit">
+                                    <i class="fas fa-paper-plane"></i>
+                                    ផ្ញើមតិ
+                                </button>
+                            </div>
+                        </form>
+                    @else
+                        <div class="course-workspace-empty-state is-compact">
+                            <i class="fas fa-lock"></i>
+                            <span><a href="{{ route('login') }}">ចូលប្រើប្រាស់</a> ដើម្បីចូលរួមការពិភាក្សា។</span>
+                        </div>
+                    @endauth
+
+                    <div class="course-workspace-comment-list">
+                        @forelse($discussionPosts as $post)
+                            <article class="course-workspace-comment" id="comment-{{ $post->discussion_post_id }}">
+                                <img src="{{ $post->user?->avatar ? asset('storage/'.$post->user->avatar) : asset('backend/img/avatar.png') }}" alt="{{ $post->user?->name }}">
+                                <div>
+                                    <strong>{{ $post->user?->name ?? 'User' }} <small>{{ $post->created_at->diffForHumans() }}</small></strong>
+                                    <p>{!! nl2br(e($post->content)) !!}</p>
+                                </div>
+                            </article>
+                        @empty
+                            <div class="course-workspace-empty-state is-compact">
+                                <i class="far fa-comments"></i>
+                                <span>មិនទាន់មានការពិភាក្សាសម្រាប់មេរៀននេះនៅឡើយទេ។ ផ្ដើមការពិភាក្សាដំបូងគេ!</span>
+                            </div>
+                        @endforelse
+                    </div>
+                </section>
+            @endif
         </main>
     </section>
 @endsection
@@ -179,95 +450,116 @@
             top: calc(100% + 8px);
             right: -8px;
             z-index: 20;
-            width: 206px;
-            overflow: hidden;
-            border: 1px solid #e3ebf5;
-            border-radius: 4px;
+            display: grid;
+            gap: 4px;
+            width: 224px;
+            padding: 8px;
+            border: 1px solid #d9e2ef;
+            border-radius: 7px;
             background: #fff;
-            box-shadow: 0 16px 34px rgba(39, 56, 79, .15);
+            box-shadow: 0 10px 30px rgba(38, 54, 75, .08);
             opacity: 0;
-            visibility: hidden;
-            transform: translateY(-4px);
-            transition: opacity .16s ease, transform .16s ease, visibility .16s ease;
+            transform: translateY(8px);
+            pointer-events: none;
+            transition: opacity .18s ease, transform .18s ease;
         }
 
         .course-workspace-more.is-open .course-workspace-more-menu {
             opacity: 1;
-            visibility: visible;
             transform: translateY(0);
+            pointer-events: auto;
         }
 
         .course-workspace-more-menu a {
-            min-height: 60px;
+            min-height: 40px;
             display: flex;
             align-items: center;
-            gap: 17px;
-            padding: 0 22px;
-            background: #fff;
-            color: #4b5d75;
-            font-size: 17px;
-            font-weight: 900;
+            gap: 12px;
+            padding: 0 14px;
+            border-radius: 5px;
+            color: #53657f;
+            font-size: 15px;
             text-decoration: none;
-        }
-
-        .course-workspace-more-menu a:first-child {
-            background: #eef3f8;
+            transition: background-color .15s ease, color .15s ease;
         }
 
         .course-workspace-more-menu a:hover {
+            background: #f4f7fd;
             color: #237dbe;
-            text-decoration: none;
-        }
-
-        .course-workspace-more-menu i {
-            width: 22px;
-            color: #5e718b;
-            font-size: 19px;
-            text-align: center;
         }
 
         .course-workspace-brand {
+            display: flex;
+            align-items: center;
+            min-height: 52px;
             margin: 0;
-            padding: 6px 30px 18px;
-            color: #27384f;
-            font-size: 29px;
-            line-height: 1.35;
+            padding: 0 30px 10px;
+            color: #1a2a3e;
+            font-size: 18px;
             font-weight: 900;
+            letter-spacing: .02em;
         }
 
         .course-workspace-lessons {
-            display: grid;
-            gap: 1px;
-            padding: 0 30px 28px;
+            padding: 10px 30px 42px;
         }
 
         .course-workspace-module {
-            min-height: 50px;
+            min-height: 52px;
             display: flex;
             align-items: center;
             justify-content: space-between;
+            gap: 14px;
+            width: 100%;
+            margin-top: 14px;
+            padding: 0;
             border: 0;
-            background: #fff;
-            color: #62718a;
-            font-size: 18px;
+            background: transparent;
+            color: #1a2a3e;
+            font-size: 16px;
             font-weight: 900;
             text-align: left;
+            cursor: pointer;
         }
 
-        .course-workspace-lessons a,
-        .course-workspace-empty {
-            min-height: 42px;
+        .course-workspace-module i {
+            color: #66758c;
+            font-size: 14px;
+            transition: transform .24s ease;
+        }
+
+        .course-workspace-module.is-collapsed i {
+            transform: rotate(180deg);
+        }
+
+        .course-workspace-module-lessons {
+            display: grid;
+            gap: 4px;
+            max-height: 2000px;
+            overflow: hidden;
+            transition: max-height .32s cubic-bezier(0, 1, 0, 1);
+        }
+
+        .course-workspace-module-lessons.is-collapsed {
+            max-height: 0;
+        }
+
+        .course-workspace-lesson-node {
+            display: grid;
+            gap: 4px;
+        }
+
+        .course-workspace-lessons a {
+            min-height: 48px;
             display: flex;
             align-items: center;
-            overflow: hidden;
-            padding: 8px 52px;
-            border-radius: 8px;
-            color: #26364b;
-            font-size: 18px;
-            line-height: 1.45;
+            padding: 0 20px;
+            border-radius: 6px;
+            color: #53657f;
+            font-size: 15px;
+            font-weight: 500;
             text-decoration: none;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+            transition: background-color .18s ease, color .18s ease, font-weight .18s ease;
         }
 
         .course-workspace-lessons a:hover {
@@ -278,8 +570,49 @@
 
         .course-workspace-lessons a.is-active {
             background: #237dbe;
-            color: #030b16;
+            color: #fff;
             font-weight: 900;
+        }
+
+        .course-workspace-topics,
+        .course-detail-topics {
+            display: grid;
+            gap: 4px;
+            padding: 0 20px 10px;
+            color: #66758c;
+            font-size: 14px;
+            line-height: 1.45;
+        }
+
+        .course-workspace-topics a,
+        .course-detail-topics a {
+            min-height: auto;
+            display: block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            color: inherit;
+            font-size: inherit;
+            line-height: inherit;
+            text-decoration: none;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .course-workspace-topics a:hover,
+        .course-detail-topics a:hover {
+            background: transparent;
+            color: #0f63b7;
+            text-decoration: none;
+        }
+
+        .course-workspace-topics a.is-active,
+        .course-detail-topics a.is-active {
+            background: #eaf1ff;
+            color: #0f63b7;
+            font-weight: 800;
+            padding: 4px 8px;
+            margin: 0 -8px;
         }
 
         .course-workspace-main {
@@ -288,82 +621,153 @@
         }
 
         .course-workspace-open-menu {
-            min-height: 40px;
             display: none;
             align-items: center;
-            gap: 9px;
-            margin-bottom: 22px;
-            border: 1px solid #cdd8e8;
-            border-radius: 6px;
-            background: #fff;
-            color: #237dbe;
+            gap: 8px;
+            height: 38px;
+            margin-bottom: 24px;
             padding: 0 14px;
+            border: 1px solid #237dbe;
+            border-radius: 6px;
+            background: transparent;
+            color: #237dbe;
+            font-size: 15px;
             font-weight: 900;
+            cursor: pointer;
+            transition: background-color .15s ease, color .15s ease;
         }
 
-        .learning-course-detail.course-workspace.is-course-sidebar-hidden .course-workspace-open-menu {
-            display: inline-flex;
+        .course-workspace-open-menu:hover {
+            background: #237dbe;
+            color: #fff;
         }
 
         .course-workspace-breadcrumb {
             display: flex;
             align-items: center;
-            gap: 5px;
-            margin-bottom: 48px;
-            color: #33455f;
-            font-size: 16px;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 16px;
+            color: #66758c;
+            font-size: 14px;
         }
 
         .course-workspace-breadcrumb a {
-            color: #0057ff;
+            color: inherit;
             text-decoration: none;
+        }
+
+        .course-workspace-breadcrumb a:hover {
+            color: #237dbe;
         }
 
         .course-workspace-header {
             display: flex;
             align-items: center;
-            gap: 22px;
-            margin-bottom: 52px;
+            gap: 16px;
+            margin-bottom: 38px;
         }
 
         .course-workspace-title-icon {
-            color: #2d9bff;
-            font-size: 28px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            background: #237dbe;
+            color: #fff;
+            font-size: 20px;
         }
 
         .course-workspace-header h2 {
             margin: 0;
-            color: #26364b;
-            font-size: 34px;
-            line-height: 1.35;
+            color: #1a2a3e;
+            font-size: 32px;
             font-weight: 900;
+        }
+
+        .course-workspace-alert {
+            margin-bottom: 24px;
+            padding: 14px 20px;
+            border-radius: 6px;
+            font-size: 15px;
+        }
+
+        .course-workspace-alert--success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .course-workspace-alert--danger {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
         }
 
         .course-workspace-tabs {
-            min-height: 63px;
             display: flex;
             align-items: center;
-            gap: 8px;
-            margin-bottom: 20px;
-            padding: 0 13px;
-            border: 1px solid #ccd7e7;
-            border-radius: 7px;
-            background: #fff;
+            height: 52px;
+            border-bottom: 2px solid #e2e8f0;
+            margin-bottom: 28px;
         }
 
         .course-workspace-tabs button {
-            min-height: 38px;
+            position: relative;
+            height: 100%;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0 24px;
             border: 0;
-            border-radius: 999px;
             background: transparent;
-            color: #26364b;
-            padding: 0 14px;
+            color: #64748b;
             font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: color .2s ease;
+        }
+
+        .course-workspace-tabs button::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: #237dbe;
+            transform: scaleX(0);
+            transition: transform .2s ease;
         }
 
         .course-workspace-tabs button.is-active {
-            background: #eef4fb;
-            font-weight: 900;
+            color: #237dbe;
+            font-weight: 800;
+        }
+
+        .course-workspace-tabs button.is-active::after {
+            transform: scaleX(1);
+        }
+
+        .course-workspace-tabs button span {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 20px;
+            height: 20px;
+            padding: 0 6px;
+            border-radius: 10px;
+            background: #cbd5e1;
+            color: #1e293b;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .course-workspace-tabs button.is-active span {
+            background: #237dbe;
+            color: #fff;
         }
 
         .course-workspace-card {
@@ -375,9 +779,8 @@
 
         .course-workspace-card h3 {
             margin: 0 0 24px;
-            color: #26364b;
-            font-size: 29px;
-            line-height: 1.35;
+            color: #1a2a3e;
+            font-size: 20px;
             font-weight: 900;
         }
 
@@ -390,109 +793,298 @@
         }
 
         .course-workspace-frame {
-            height: min(58vh, 520px);
-            min-height: 360px;
-            overflow: auto;
-            border: 2px solid #a9a9a9;
-            background: #fff;
-            padding: 10px;
+            position: relative;
+            width: 100%;
+            height: 480px;
+            border-radius: 6px;
+            background: #09121d;
+            overflow: hidden;
         }
 
         .course-workspace-video {
-            min-height: 500px;
-            display: grid;
-            place-items: center;
-            background:
-                linear-gradient(135deg, rgba(255, 255, 255, .04) 25%, transparent 25%) 0 0 / 160px 160px,
-                linear-gradient(225deg, rgba(255, 255, 255, .035) 25%, transparent 25%) 0 0 / 160px 160px,
-                linear-gradient(180deg, #1499bd, #05667d);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, #1a2e46 0%, #080f18 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .course-workspace-play {
-            width: 114px;
-            height: 62px;
-            display: grid;
-            place-items: center;
-            border: 2px solid #fff;
-            border-radius: 9px;
-            background: rgba(6, 30, 46, .56);
+            width: 72px;
+            height: 72px;
+            border: 0;
+            border-radius: 50%;
+            background: #237dbe;
             color: #fff;
-            font-size: 23px;
+            font-size: 24px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 24px rgba(35, 125, 190, .4);
+            transition: transform .2s ease, background-color .2s ease, box-shadow .2s ease;
+        }
+
+        .course-workspace-play:hover {
+            background: #2a8ad0;
+            transform: scale(1.08);
+            box-shadow: 0 12px 28px rgba(35, 125, 190, .5);
+        }
+
+        .course-workspace-play i {
+            margin-left: 4px;
         }
 
         .course-workspace-document {
-            min-height: 360px;
-            border: 1px solid #d9e2ef;
-            border-radius: 7px;
-            background: #f8fafc;
-            padding: 28px;
+            padding: 10px 0;
         }
 
         .course-workspace-document span {
-            color: #237dbe;
+            color: #66758c;
             font-size: 13px;
-            font-weight: 900;
+            font-weight: 800;
             text-transform: uppercase;
+            letter-spacing: .05em;
         }
 
         .course-workspace-document h4 {
-            margin: 12px 0 16px;
-            color: #26364b;
+            margin: 8px 0 16px;
+            color: #1a2a3e;
             font-size: 24px;
             font-weight: 900;
         }
 
-        .course-workspace-copy {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 24px;
-            margin-top: 24px;
-        }
-
-        .course-workspace-copy p {
-            margin: 0;
-            color: #52627a;
+        .course-workspace-document p {
+            color: #53657f;
             font-size: 16px;
-            line-height: 1.75;
+            line-height: 1.6;
         }
 
-        .course-workspace-actions {
+        .course-workspace-assessment-list {
+            display: grid;
+            gap: 20px;
+        }
+
+        .course-workspace-assessment {
+            display: grid;
+            grid-template-columns: 54px minmax(0, 1fr);
+            gap: 20px;
+            padding: 24px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            background: #fff;
+        }
+
+        .course-workspace-assessment-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 54px;
+            height: 54px;
+            border-radius: 50%;
+            background: #edf5ff;
+            color: #237dbe;
+            font-size: 20px;
+        }
+
+        .course-workspace-assessment-body {
+            display: grid;
+            gap: 8px;
+        }
+
+        .course-workspace-assessment-kicker {
+            color: #237dbe;
+            font-size: 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+        }
+
+        .course-workspace-assessment-body h4 {
+            margin: 0;
+            color: #1a2a3e;
+            font-size: 18px;
+            font-weight: 900;
+        }
+
+        .course-workspace-assessment-meta {
             display: flex;
             align-items: center;
-            gap: 10px;
-            flex: 0 0 auto;
+            flex-wrap: wrap;
+            gap: 16px;
+            color: #64748b;
+            font-size: 13px;
         }
 
-        .course-workspace-start,
-        .course-workspace-secondary {
-            min-height: 44px;
+        .course-workspace-assessment-copy {
+            margin-top: 8px;
+            color: #53657f;
+            font-size: 15px;
+            line-height: 1.5;
+        }
+
+        .course-workspace-assessment-window {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            color: #e53e3e;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .course-workspace-done {
             display: inline-flex;
             align-items: center;
             gap: 10px;
-            border-radius: 6px;
-            padding: 0 18px;
-            font-weight: 900;
+            margin-top: 12px;
+            padding: 10px 16px;
+            border-radius: 5px;
+            background: #def7ec;
+            color: #03543f;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .course-workspace-done i {
+            font-size: 18px;
+        }
+
+        .course-workspace-assessment-link {
+            min-height: 42px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            justify-self: start;
+            margin-top: 12px;
+            border-radius: 5px;
+            background: #237dbe;
+            color: #fff;
+            padding: 0 16px;
+            font-size: 14px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: background-color .15s ease;
+        }
+
+        .course-workspace-assessment-link:hover {
+            background: #2a8ad0;
+            color: #fff;
             text-decoration: none;
         }
 
-        .course-workspace-start {
+        .course-workspace-empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            padding: 42px 24px;
+            border: 2px dashed #cbd5e1;
+            border-radius: 6px;
+            color: #64748b;
+            text-align: center;
+        }
+
+        .course-workspace-empty-state i {
+            font-size: 32px;
+        }
+
+        .course-workspace-empty-state.is-compact {
+            padding: 20px;
+            border: 0;
+            background: #f8fafc;
+            border-radius: 6px;
+            flex-direction: row;
+            justify-content: start;
+            gap: 12px;
+            text-align: left;
+        }
+
+        .course-workspace-empty-state.is-compact i {
+            font-size: 20px;
+        }
+
+        .course-workspace-submit-form {
+            display: grid;
+            gap: 16px;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px dashed #cbd5e1;
+        }
+
+        .course-workspace-question {
+            display: grid;
+            gap: 10px;
+        }
+
+        .course-workspace-question strong {
+            color: #1e293b;
+            font-size: 15px;
+        }
+
+        .course-workspace-options {
+            display: grid;
+            gap: 8px;
+            padding-left: 14px;
+        }
+
+        .course-workspace-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #475569;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .course-workspace-text-answer {
+            width: 100%;
+            border: 1px solid #cbd5e1;
+            border-radius: 4px;
+            padding: 8px 12px;
+            font-size: 14px;
+            resize: vertical;
+        }
+
+        .course-workspace-submit-btn {
+            justify-self: start;
+            height: 38px;
+            padding: 0 20px;
+            border: 0;
+            border-radius: 5px;
             background: #237dbe;
             color: #fff;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color .15s ease;
+        }
+
+        .course-workspace-submit-btn:hover {
+            background: #2a8ad0;
         }
 
         .course-workspace-secondary {
-            border: 1px solid #cdd8e8;
+            min-height: 48px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border-radius: 6px;
             background: #fff;
-            color: #52627a;
-        }
-
-        .course-workspace-start:hover {
-            color: #fff;
+            border: 1px solid #cbd5e1;
+            color: #53657f;
+            padding: 0 20px;
+            font-weight: 900;
             text-decoration: none;
+            transition: background-color .15s ease, color .15s ease;
         }
 
         .course-workspace-secondary:hover {
+            background: #f8fafc;
             color: #237dbe;
             text-decoration: none;
         }
@@ -618,13 +1210,37 @@
             }
 
             .course-workspace-lessons a,
-            .course-workspace-empty {
+            .course-workspace-empty,
+            .course-workspace-topics,
+            .course-detail-topics {
                 padding-left: 28px;
                 padding-right: 28px;
                 font-size: 16px;
             }
 
+            .course-workspace-topics a,
+            .course-detail-topics a {
+                padding: 0;
+            }
+
             .course-workspace-card {
+                padding: 18px;
+            }
+
+            .course-workspace-tabs {
+                align-items: stretch;
+                flex-direction: column;
+                height: auto;
+                padding: 12px;
+            }
+
+            .course-workspace-tabs button {
+                justify-content: center;
+                width: 100%;
+            }
+
+            .course-workspace-assessment {
+                grid-template-columns: 1fr;
                 padding: 18px;
             }
 
@@ -659,6 +1275,17 @@
                 $('.course-workspace').removeClass('is-course-sidebar-hidden');
             });
 
+            $('.js-course-module-toggle').on('click', function() {
+                const $button = $(this);
+                const $lessons = $('#' + $button.attr('aria-controls'));
+                const isOpen = $button.attr('aria-expanded') === 'true';
+
+                $button
+                    .toggleClass('is-collapsed', isOpen)
+                    .attr('aria-expanded', String(!isOpen));
+                $lessons.toggleClass('is-collapsed', isOpen);
+            });
+
             $('.js-course-more-toggle').on('click', function(event) {
                 event.stopPropagation();
 
@@ -683,14 +1310,56 @@
                 }
             });
 
-            $('[data-workspace-panel]').on('click', function() {
-                const panel = $(this).data('workspace-panel');
+            const openWorkspacePanel = function(panel) {
+                const $targetTab = $(`[data-workspace-panel="${panel}"]`);
+
+                if (! $targetTab.length) {
+                    return;
+                }
 
                 $('[data-workspace-panel]').removeClass('is-active');
-                $(this).addClass('is-active');
+                $targetTab.addClass('is-active');
                 $('[data-workspace-panel-content]').removeClass('is-active');
                 $(`[data-workspace-panel-content="${panel}"]`).addClass('is-active');
+
+                // Update active state in sidebar topic links
+                $('.js-workspace-topic-link').removeClass('is-active');
+                $(`.js-workspace-topic-link[data-panel="${panel}"]`).addClass('is-active');
+            };
+
+            $('[data-workspace-panel]').on('click', function() {
+                const panel = $(this).data('workspace-panel');
+                openWorkspacePanel(panel);
+
+                // Update URL search parameters without reloading
+                const url = new URL(window.location.href);
+                url.searchParams.set('panel', panel);
+                window.history.pushState(null, '', url.toString());
             });
+
+            // Prevent reload when clicking sidebar topic links pointing to the current lesson
+            $('.js-workspace-topic-link').on('click', function(event) {
+                const url = new URL(this.href);
+                const currentUrl = new URL(window.location.href);
+
+                if (url.pathname === currentUrl.pathname) {
+                    event.preventDefault();
+                    
+                    const panel = $(this).data('panel') || url.searchParams.get('panel');
+                    if (panel) {
+                        openWorkspacePanel(panel);
+                        
+                        // Update URL search parameters without reloading
+                        window.history.pushState(null, '', this.href);
+                    }
+                }
+            });
+
+            const initialPanel = new URLSearchParams(window.location.search).get('panel');
+
+            if (initialPanel) {
+                openWorkspacePanel(initialPanel);
+            }
         });
     </script>
 @endpush

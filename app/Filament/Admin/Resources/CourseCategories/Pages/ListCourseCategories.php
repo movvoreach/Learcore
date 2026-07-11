@@ -10,10 +10,15 @@ class ListCourseCategories extends ListRecords
 {
     protected static string $resource = CourseCategoryResource::class;
 
+    protected string $view = 'filament.admin.resources.course-categories.pages.list-course-categories';
+
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make(),
+            CreateAction::make()
+                ->icon('heroicon-m-plus')
+                ->hiddenLabel()
+                ->tooltip('បញ្ចូលប្រភេទវគ្គសិក្សា'),
         ];
     }
 }

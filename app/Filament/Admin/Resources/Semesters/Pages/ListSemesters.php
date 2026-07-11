@@ -27,6 +27,8 @@ class ListSemesters extends ListRecords
 
     protected static ?string $breadcrumb = 'បញ្ជី';
 
+    protected string $view = 'filament.admin.resources.semesters.pages.list-semesters';
+
     public function getMaxContentWidth(): ?string
     {
         return 'full';
@@ -36,7 +38,9 @@ class ListSemesters extends ListRecords
     {
         return [
             CreateAction::make()
-                ->label('បញ្ចូលឆមាស'),
+                ->icon('heroicon-m-plus')
+                ->hiddenLabel()
+                ->tooltip('បញ្ចូលឆមាស'),
             Action::make('create_semesters_group')
                 ->label('បង្កើតឆមាសជាក្រុម')
                 ->icon('heroicon-o-squares-plus')

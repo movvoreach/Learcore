@@ -18,7 +18,12 @@ class StudentsTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn (Builder $query): Builder => $query->with(['department', 'academicYear', 'semester']))
+            ->modifyQueryUsing(fn (Builder $query, $livewire): Builder => $query
+                ->with(['department', 'academicYear', 'semester'])
+                ->when($livewire && isset($livewire->department_id) && $livewire->department_id, fn ($q) => $q->where('department_id', $livewire->department_id))
+                ->when($livewire && isset($livewire->academic_year_id) && $livewire->academic_year_id, fn ($q) => $q->where('academic_year_id', $livewire->academic_year_id))
+                ->when($livewire && isset($livewire->semester_id) && $livewire->semester_id, fn ($q) => $q->where('semester_id', $livewire->semester_id))
+            )
             ->columns([
                 TextColumn::make('student_code')
                     ->label('និស្សិត')
@@ -89,34 +94,7 @@ class StudentsTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->filters([
-                SelectFilter::make('department_id')
-                    ->label('ដេប៉ាតឺម៉ង់')
-                    ->relationship('department', 'department_name')
-                    ->searchable()
-                    ->preload(),
-
-                SelectFilter::make('academic_year_id')
-                    ->label('ឆ្នាំសិក្សា')
-                    ->relationship('academicYear', 'year_name')
-                    ->searchable()
-                    ->preload(),
-
-                SelectFilter::make('semester_id')
-                    ->label('ឆមាស')
-                    ->relationship('semester', 'semester_name')
-                    ->searchable()
-                    ->preload(),
-
-                SelectFilter::make('status')
-                    ->label('ស្ថានភាព')
-                    ->options([
-                        'active' => 'សកម្ម',
-                        'inactive' => 'អសកម្ម',
-                        'graduated' => 'បានបញ្ចប់ការសិក្សា',
-                    ])
-                    ->searchable(),
-            ], layout: FiltersLayout::AboveContent)
+            ->filters([])
             ->recordActions([
                 EditAction::make()
                     ->label('កែសម្រួល')

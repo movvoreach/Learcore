@@ -5,9 +5,67 @@
         : asset('backend/img/course-image-default.png');
     $sidebarLessons = ($lessons ?? collect())->isNotEmpty()
         ? $lessons
-        : ($courseRecord?->contentLessons()->publishedForStudents()->orderBy('module_number')->orderBy('position')->get() ?? collect());
-    $modules = $sidebarLessons->groupBy(fn ($contentLesson) => $contentLesson->module_title ?: 'Course Lessons');
+        : ($courseRecord?->contentLessons()
+            ->publishedForStudents()
+            ->with([
+                'chapters' => fn ($query) => $query->where('is_published', true)->orderBy('sort_order')->orderBy('content_chapter_id'),
+                'assignments' => fn ($query) => $query->where('is_published', true)->orderBy('due_at')->orderBy('content_assignment_id'),
+                'quizzes' => fn ($query) => $query->where('is_published', true)->orderBy('available_from')->orderBy('quiz_id'),
+            ])
+            ->orderBy('module_number')
+            ->orderBy('position')
+            ->get() ?? collect());
+    $modules = $sidebarLessons->groupBy(fn ($contentLesson) => ($contentLesson->module_number ?? 0).'|'.($contentLesson->module_title ?: 'Course Lessons'));
     $compactSidebar = $compactSidebar ?? false;
+    $toKhmerNumber = fn ($number): string => strtr((string) $number, [
+        '0' => '០',
+        '1' => '១',
+        '2' => '២',
+        '3' => '៣',
+        '4' => '៤',
+        '5' => '៥',
+        '6' => '៦',
+        '7' => '៧',
+        '8' => '៨',
+        '9' => '៩',
+    ]);
+    $cleanOutlineTitle = function (?string $title, string $fallback = 'Lesson'): string {
+        $cleanTitle = trim((string) ($title ?: $fallback));
+        $cleanTitle = preg_replace('/^\s*មេរៀនទី\s*[០-៩0-9]+\s*[-–—:]\s*/u', '', $cleanTitle) ?? $cleanTitle;
+        $cleanTitle = preg_replace('/^\s*Lesson\s*[0-9]+\s*[-–—:]\s*/i', '', $cleanTitle) ?? $cleanTitle;
+        $cleanTitle = preg_replace('/^\s*[0-9]+\.[0-9]+\s*[-–—:]\s*/', '', $cleanTitle) ?? $cleanTitle;
+
+        return $cleanTitle;
+    };
+    $lessonDisplayTitle = function ($contentLesson, int $moduleNumber) use ($cleanOutlineTitle, $toKhmerNumber): string {
+        return 'មេរៀនទី '.$toKhmerNumber($moduleNumber).' - '.$cleanOutlineTitle($contentLesson?->title);
+    };
+    $lessonTopics = function ($contentLesson) use ($cleanOutlineTitle) {
+        $topics = collect();
+
+        foreach (($contentLesson?->chapters ?? collect()) as $chapter) {
+            $topics->push([
+                'title' => $cleanOutlineTitle($chapter->title, 'Topic'),
+                'panel' => 'document',
+            ]);
+        }
+
+        foreach (($contentLesson?->quizzes ?? collect()) as $quiz) {
+            $topics->push([
+                'title' => $cleanOutlineTitle($quiz->title, 'Quiz'),
+                'panel' => 'quiz',
+            ]);
+        }
+
+        foreach (($contentLesson?->assignments ?? collect()) as $assignment) {
+            $topics->push([
+                'title' => $cleanOutlineTitle($assignment->title, 'Assignment'),
+                'panel' => 'assignment',
+            ]);
+        }
+
+        return $topics;
+    };
 @endphp
 
 @if($compactSidebar)
@@ -36,18 +94,50 @@
     <h1 class="course-workspace-brand">មេរៀនសិក្សា</h1>
 
     <nav class="course-workspace-lessons" aria-label="Course lessons">
-        @forelse($modules as $moduleTitle => $moduleLessons)
-            <button type="button" class="course-workspace-module">
-                <span>{{ $moduleTitle }}</span>
+        @forelse($modules as $moduleKey => $moduleLessons)
+            @php
+                $parts = explode('|', $moduleKey);
+                $moduleNumber = (int) ($parts[0] ?? $loop->iteration);
+                $moduleTitle = $parts[1] ?? 'Course Lessons';
+                $moduleId = 'course-workspace-module-'.$loop->iteration;
+            @endphp
+
+            <button
+                type="button"
+                class="course-workspace-module js-course-module-toggle"
+                aria-expanded="true"
+                aria-controls="{{ $moduleId }}"
+            >
+                <span>Module {{ $moduleNumber }} - {{ $moduleTitle }}</span>
                 <i class="fas fa-chevron-up"></i>
             </button>
 
-            @foreach($moduleLessons as $index => $contentLesson)
-                <a href="{{ route('frontend.courses.lessons.show', ['course' => $course ?? $courseRecord?->getKey(), 'lesson' => $contentLesson->slug]) }}"
-                   class="{{ ($lesson ?? '') === $contentLesson->slug ? 'is-active' : '' }}">
-                    {{ $contentLesson->title }}
-                </a>
-            @endforeach
+            <div id="{{ $moduleId }}" class="course-workspace-module-lessons">
+                @foreach($moduleLessons as $contentLesson)
+                    @php
+                        $topics = $lessonTopics($contentLesson);
+                        $lessonUrl = route('frontend.courses.lessons.show', ['course' => $course ?? $courseRecord?->getKey(), 'lesson' => $contentLesson->slug]);
+                    @endphp
+                    <div class="course-workspace-lesson-node">
+                        <a href="{{ $lessonUrl }}"
+                           class="course-workspace-lesson-link {{ ($lesson ?? '') === $contentLesson->slug ? 'is-active' : '' }}">
+                            {{ $lessonDisplayTitle($contentLesson, $moduleNumber) }}
+                        </a>
+
+                        @if($topics->isNotEmpty())
+                            <div class="course-workspace-topics" aria-label="Lesson topics">
+                                @foreach($topics as $topic)
+                                    <a href="{{ $lessonUrl }}?panel={{ $topic['panel'] }}"
+                                       class="js-workspace-topic-link {{ request('panel') === $topic['panel'] ? 'is-active' : '' }}"
+                                       data-panel="{{ $topic['panel'] }}">
+                                        {{ $moduleNumber }}.{{ $loop->iteration }} - {{ $topic['title'] }}
+                                    </a>
+                                @endforeach
+                            </div>
+                        @endif
+                    </div>
+                @endforeach
+            </div>
         @empty
             <button type="button" class="course-workspace-module">
                 <span>Lesson</span>
@@ -72,19 +162,42 @@
     </div>
 
     <nav class="course-detail-menu course-lesson-menu" aria-label="Course lessons">
-        @forelse($modules as $moduleTitle => $moduleLessons)
-            <h2>{{ $moduleTitle }}</h2>
-            @foreach($moduleLessons as $index => $contentLesson)
-                <a href="{{ route('frontend.courses.lessons.show', ['course' => $course ?? $courseRecord?->getKey(), 'lesson' => $contentLesson->slug]) }}" class="{{ ($lesson ?? '') === $contentLesson->slug ? 'is-active' : '' }}">
-                    <span class="course-check"><i class="fas fa-check"></i></span>
-                    <span class="course-video"><i class="far fa-play-circle"></i></span>
-                    <strong>
-                        {{ $index + 1 }}- {{ $contentLesson->title }}
-                        @if($contentLesson->duration_minutes)
-                            <small>({{ $contentLesson->duration_minutes }} min)</small>
-                        @endif
-                    </strong>
-                </a>
+        @forelse($modules as $moduleKey => $moduleLessons)
+            @php
+                $parts = explode('|', $moduleKey);
+                $moduleNumber = (int) ($parts[0] ?? $loop->iteration);
+                $moduleTitle = $parts[1] ?? 'Course Lessons';
+            @endphp
+            <h2>Module {{ $moduleNumber }} - {{ $moduleTitle }}</h2>
+            @foreach($moduleLessons as $contentLesson)
+                @php
+                    $topics = $lessonTopics($contentLesson);
+                    $lessonUrl = route('frontend.courses.lessons.show', ['course' => $course ?? $courseRecord?->getKey(), 'lesson' => $contentLesson->slug]);
+                @endphp
+                <div class="course-lesson-node">
+                    <a href="{{ $lessonUrl }}" class="{{ ($lesson ?? '') === $contentLesson->slug ? 'is-active' : '' }}">
+                        <span class="course-check"><i class="fas fa-check"></i></span>
+                        <span class="course-video"><i class="far fa-play-circle"></i></span>
+                        <strong>
+                            {{ $lessonDisplayTitle($contentLesson, $moduleNumber) }}
+                            @if($contentLesson->duration_minutes)
+                                <small>({{ $contentLesson->duration_minutes }} min)</small>
+                            @endif
+                        </strong>
+                    </a>
+
+                    @if($topics->isNotEmpty())
+                        <div class="course-detail-topics" aria-label="Lesson topics">
+                            @foreach($topics as $topic)
+                                <a href="{{ $lessonUrl }}?panel={{ $topic['panel'] }}"
+                                   class="js-workspace-topic-link {{ request('panel') === $topic['panel'] ? 'is-active' : '' }}"
+                                   data-panel="{{ $topic['panel'] }}">
+                                    {{ $moduleNumber }}.{{ $loop->iteration }} - {{ $topic['title'] }}
+                                </a>
+                            @endforeach
+                        </div>
+                    @endif
+                </div>
             @endforeach
         @empty
             <h2>No lessons available</h2>

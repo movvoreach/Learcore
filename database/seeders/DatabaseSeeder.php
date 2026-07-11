@@ -67,5 +67,6 @@ class DatabaseSeeder extends Seeder
         $this->call(CourseSeeder::class);
         $this->call(ContentSeeder::class);
         $this->call(AllFeaturesSeeder::class);
+        $this->call(HistoryWesternArtQuizSeeder::class);
     }
 }

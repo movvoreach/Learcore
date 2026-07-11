@@ -12,6 +12,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class AssignmentSubmissionResource extends Resource
 {
@@ -28,6 +29,21 @@ class AssignmentSubmissionResource extends Resource
     public static function canAccess(): bool
     {
         return auth()->user()?->hasAnyRole(['super_admin', 'admin', 'teacher']) ?? false;
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+        $user = auth()->user();
+
+        if ($user?->hasRole('teacher') && ! $user->hasAnyRole(['super_admin', 'admin'])) {
+            return $user->teacher
+                ? $query->whereHas('assignment.lesson.course.courseAssignments', fn (Builder $query): Builder => $query
+                    ->where('teacher_id', $user->teacher->teacher_id))
+                : $query->whereRaw('1 = 0');
+        }
+
+        return $query;
     }
 
     public static function form(Schema $schema): Schema
