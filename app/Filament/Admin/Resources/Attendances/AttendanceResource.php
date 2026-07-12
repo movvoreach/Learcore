@@ -19,6 +19,8 @@ class AttendanceResource extends Resource
 {
     protected static ?string $model = Attendance::class;
 
+    protected static bool $shouldRegisterNavigation = false;
+
     protected static string|BackedEnum|null $navigationIcon = null;
 
     protected static ?string $modelLabel = 'វត្តមាន';

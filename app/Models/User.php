@@ -82,6 +82,11 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasRole('student');
     }
 
+    public function isTeacher(): bool
+    {
+        return $this->hasRole('teacher');
+    }
+
     public function discussionPosts(): HasMany
     {
         return $this->hasMany(DiscussionPost::class);

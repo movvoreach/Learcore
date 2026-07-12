@@ -102,25 +102,24 @@ class ListSchedules extends Page
                     Select::make('class_id')
                         ->label('ថ្នាក់រៀន (Class)')
                         ->placeholder('ជ្រើសរើសថ្នាក់រៀន (Class)')
-                        ->relationship('classRoom', 'class_name', function (Builder $query, $get) {
+                        ->options(function ($get) {
+                            $query = \App\Models\ClassRoom::query();
                             if ($get('academic_year_id')) {
                                 $query->where('academic_year_id', $get('academic_year_id'));
                             }
-
                             if ($get('department_id') || $get('semester_id')) {
-                                $query->whereHas('course', function (Builder $query) use ($get): void {
+                                $query->whereHas('course', function ($q) use ($get) {
                                     if ($get('department_id')) {
-                                        $query->where('department_id', $get('department_id'));
+                                        $q->where('department_id', $get('department_id'));
                                     }
-
                                     if ($get('semester_id')) {
-                                        $query->where('semester_id', $get('semester_id'));
+                                        $q->where('semester_id', $get('semester_id'));
                                     }
                                 });
                             }
+                            return $query->pluck('class_name', 'class_room_id');
                         })
                         ->searchable()
-                        ->preload()
                         ->required(),
                     Select::make('day')
                         ->label('ថ្ងៃ (Day)')

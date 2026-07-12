@@ -11,11 +11,13 @@ use App\Filament\Admin\Resources\Students\StudentResource;
 use App\Filament\Admin\Resources\Subjects\SubjectResource;
 use App\Filament\Admin\Resources\Teachers\TeacherResource;
 use App\Models\AssessmentGrade;
+use App\Models\AssignmentSubmission;
 use App\Models\Attendance;
 use App\Models\Certificate;
 use App\Models\ContentAssignment;
 use App\Models\ContentLesson;
 use App\Models\Course;
+use App\Models\CourseAssignment;
 use App\Models\Department;
 use App\Models\Enrollment;
 use App\Models\Exam;
@@ -53,8 +55,13 @@ class Dashboard extends BaseDashboard
     protected function getViewData(): array
     {
         $user = auth()->user();
+
         if ($user && $user->hasRole('student')) {
             return $this->studentViewData($user->student);
+        }
+
+        if ($user && $user->hasRole('teacher') && ! $user->hasAnyRole(['super_admin', 'admin'])) {
+            return $this->teacherViewData($user->teacher);
         }
 
         try {
@@ -308,6 +315,94 @@ class Dashboard extends BaseDashboard
                 "YEAR({$column}), MONTH({$column})",
             ],
         };
+    }
+
+    /**
+     * Teacher-specific dashboard data.
+     *
+     * @return array<string, mixed>
+     */
+    private function teacherViewData(?Teacher $teacher): array
+    {
+        if (! $teacher) {
+            return [
+                'mode'              => 'teacher',
+                'teacher'           => null,
+                'myCourses'         => collect(),
+                'totalStudents'     => 0,
+                'totalAssignments'  => 0,
+                'totalQuizzes'      => 0,
+                'totalGrades'       => 0,
+                'totalAttendance'   => 0,
+                'totalCertificates' => 0,
+                'recentSubmissions' => collect(),
+            ];
+        }
+
+        // Get teacher's assigned course IDs
+        $courseIds = CourseAssignment::query()
+            ->where('teacher_id', $teacher->teacher_id)
+            ->pluck('course_id');
+
+        // Courses assigned to this teacher
+        $myCourses = Course::query()
+            ->whereIn('course_id', $courseIds)
+            ->with(['department', 'academicYear', 'semester'])
+            ->withCount('contentLessons')
+            ->orderBy('course_name')
+            ->get();
+
+        // Students enrolled in teacher's courses
+        $totalStudents = Enrollment::query()
+            ->whereIn('course_id', $courseIds)
+            ->distinct('student_id')
+            ->count('student_id');
+
+        // Assignments in teacher's courses
+        $totalAssignments = ContentAssignment::query()
+            ->whereHas('lesson', fn (Builder $q) => $q->whereIn('course_id', $courseIds))
+            ->count();
+
+        // Quizzes/exams for teacher's courses
+        $totalQuizzes = Exam::query()
+            ->whereIn('course_id', $courseIds)
+            ->count();
+
+        // Grades given (via exams in teacher's courses)
+        $totalGrades = AssessmentGrade::query()
+            ->whereHas('exam', fn (Builder $q) => $q->whereIn('course_id', $courseIds))
+            ->count();
+
+        // Attendance records (via classrooms linked to teacher's courses)
+        $totalAttendance = Attendance::query()
+            ->whereHas('classRoom', fn (Builder $q) => $q->whereIn('course_id', $courseIds))
+            ->count();
+
+        // Certificates in teacher's courses
+        $totalCertificates = Certificate::query()
+            ->whereIn('course_id', $courseIds)
+            ->count();
+
+        // Recent assignment submissions
+        $recentSubmissions = AssignmentSubmission::query()
+            ->whereHas('assignment.lesson', fn (Builder $q) => $q->whereIn('course_id', $courseIds))
+            ->with(['student', 'assignment.lesson.course'])
+            ->latest()
+            ->limit(8)
+            ->get();
+
+        return [
+            'mode'              => 'teacher',
+            'teacher'           => $teacher->load('department'),
+            'myCourses'         => $myCourses,
+            'totalStudents'     => $totalStudents,
+            'totalAssignments'  => $totalAssignments,
+            'totalQuizzes'      => $totalQuizzes,
+            'totalGrades'       => $totalGrades,
+            'totalAttendance'   => $totalAttendance,
+            'totalCertificates' => $totalCertificates,
+            'recentSubmissions' => $recentSubmissions,
+        ];
     }
 
     /**

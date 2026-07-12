@@ -20,6 +20,8 @@ class DepartmentResource extends Resource
 {
     protected static ?string $model = Department::class;
 
+    protected static bool $shouldRegisterNavigation = false;
+
     protected static string|BackedEnum|null $navigationIcon = null;
 
     protected static ?string $modelLabel = 'ដេប៉ាតឺម៉ង់';

@@ -9,6 +9,16 @@ use App\Filament\Admin\Pages\Reports\ExamReport;
 use App\Filament\Admin\Pages\Reports\FinanceReport;
 use App\Filament\Admin\Pages\Reports\StudentReport;
 use App\Filament\Admin\Resources\AssignmentSubmissions\AssignmentSubmissionResource;
+use App\Filament\Admin\Resources\Attendances\AttendanceResource;
+use App\Filament\Admin\Resources\Enrollments\EnrollmentResource;
+use App\Filament\Admin\Resources\Students\StudentResource;
+use App\Filament\Admin\Resources\Users\UserResource;
+use App\Filament\Admin\Resources\Faculties\FacultyResource;
+use App\Filament\Admin\Resources\Departments\DepartmentResource;
+use App\Filament\Admin\Resources\AcademicYears\AcademicYearResource;
+use App\Filament\Admin\Resources\Semesters\SemesterResource;
+use App\Filament\Admin\Resources\StudentPromotions\StudentPromotionResource;
+use App\Filament\Admin\Resources\ActivityLogResource;
 use App\Filament\Admin\Resources\AssessmentGrades\AssessmentGradeResource;
 use App\Filament\Admin\Resources\AssessmentQuestions\AssessmentQuestionResource;
 use App\Filament\Admin\Resources\AssessmentResults\AssessmentResultResource;
@@ -356,8 +366,137 @@ HTML);
     private function lmsNavigationItems(): array
     {
         return [
+            // ==========================================
+            // Student-Only Navigation Items
+            // ==========================================
+            NavigationItem::make('My Courses')
+                ->icon(new HtmlString('<img src="'.e(asset('Icons/courses.png')).'" alt="" class="fi-sidebar-item-icon" />'))
+                ->url(fn (): string => KhmerDashboard::getUrl())
+                ->isActiveWhen(fn (): bool => request()->routeIs('filament.admin.pages.dashboard') && !request()->has('tab'))
+                ->visible(fn (): bool => auth()->user()?->isStudent() ?? false)
+                ->sort(10),
+
+            NavigationItem::make('Available Courses')
+                ->icon(new HtmlString('<img src="'.e(asset('Icons/course.png')).'" alt="" class="fi-sidebar-item-icon" />'))
+                ->url(fn (): string => KhmerDashboard::getUrl())
+                ->visible(fn (): bool => auth()->user()?->isStudent() ?? false)
+                ->sort(20),
+
+            NavigationItem::make('Schedule')
+                ->icon(new HtmlString('<img src="'.e(asset('Icons/schedule.png')).'" alt="" class="fi-sidebar-item-icon" />'))
+                ->url(fn (): string => ScheduleResource::getUrl('index'))
+                ->isActiveWhen(fn (): bool => request()->routeIs(ScheduleResource::getRouteBaseName().'.*'))
+                ->visible(fn (): bool => auth()->user()?->isStudent() ?? false)
+                ->sort(30),
+
+            NavigationItem::make('Assignments')
+                ->icon(Heroicon::OutlinedClipboardDocumentCheck)
+                ->url(fn (): string => KhmerDashboard::getUrl())
+                ->visible(fn (): bool => auth()->user()?->isStudent() ?? false)
+                ->sort(40),
+
+            NavigationItem::make('Quizzes / Exams')
+                ->icon(Heroicon::OutlinedQuestionMarkCircle)
+                ->url(fn (): string => KhmerDashboard::getUrl())
+                ->visible(fn (): bool => auth()->user()?->isStudent() ?? false)
+                ->sort(50),
+
+            NavigationItem::make('Grades')
+                ->icon(Heroicon::OutlinedListBullet)
+                ->url(fn (): string => KhmerDashboard::getUrl())
+                ->visible(fn (): bool => auth()->user()?->isStudent() ?? false)
+                ->sort(60),
+
+            NavigationItem::make('Attendance')
+                ->icon(Heroicon::OutlinedCalendarDays)
+                ->url(fn (): string => KhmerDashboard::getUrl())
+                ->visible(fn (): bool => auth()->user()?->isStudent() ?? false)
+                ->sort(70),
+
+            NavigationItem::make('Certificates')
+                ->icon(Heroicon::OutlinedAcademicCap)
+                ->url(fn (): string => KhmerDashboard::getUrl())
+                ->visible(fn (): bool => auth()->user()?->isStudent() ?? false)
+                ->sort(80),
+
+            // ==========================================
+            // Teacher-Only Navigation Items
+            // ==========================================
+            NavigationItem::make('My Courses')
+                ->icon(new HtmlString('<img src="'.e(asset('Icons/courses.png')).'" alt="" class="fi-sidebar-item-icon" />'))
+                ->url(fn (): string => CourseResource::getUrl('index'))
+                ->isActiveWhen(fn (): bool => request()->routeIs(CourseResource::getRouteBaseName().'.*') && !request()->routeIs(CourseResource::getRouteBaseName().'.create'))
+                ->visible(fn (): bool => auth()->user()?->isTeacher() ?? false)
+                ->sort(10),
+
+
+            NavigationItem::make('Course Content')
+                ->icon(new HtmlString('<img src="'.e(asset('Icons/ducs.png')).'" alt="" class="fi-sidebar-item-icon" />'))
+                ->url(fn (): string => ContentLessonResource::getUrl('index'))
+                ->isActiveWhen(fn (): bool => request()->routeIs(ContentLessonResource::getRouteBaseName().'.*') || request()->routeIs(ContentChapterResource::getRouteBaseName().'.*') || request()->routeIs(ContentVideoResource::getRouteBaseName().'.*') || request()->routeIs(ContentDocumentResource::getRouteBaseName().'.*'))
+                ->visible(fn (): bool => auth()->user()?->isTeacher() ?? false)
+                ->sort(30),
+
+            NavigationItem::make('Students')
+                ->icon(new HtmlString('<img src="'.e(asset('Icons/students.png')).'" alt="" class="fi-sidebar-item-icon" />'))
+                ->url(fn (): string => StudentResource::getUrl('index'))
+                ->isActiveWhen(fn (): bool => request()->routeIs(StudentResource::getRouteBaseName().'.*'))
+                ->visible(fn (): bool => auth()->user()?->isTeacher() ?? false)
+                ->sort(40),
+
+            NavigationItem::make('Assignments')
+                ->icon(Heroicon::OutlinedClipboardDocumentCheck)
+                ->url(fn (): string => ContentAssignmentResource::getUrl('index'))
+                ->isActiveWhen(fn (): bool => request()->routeIs(ContentAssignmentResource::getRouteBaseName().'.*') || request()->routeIs(AssignmentSubmissionResource::getRouteBaseName().'.*'))
+                ->visible(fn (): bool => auth()->user()?->isTeacher() ?? false)
+                ->sort(50),
+
+            NavigationItem::make('Quizzes / Exams')
+                ->icon(Heroicon::OutlinedQuestionMarkCircle)
+                ->url(fn (): string => QuizResource::getUrl('index'))
+                ->isActiveWhen(fn (): bool => request()->routeIs(QuizResource::getRouteBaseName().'.*') || request()->routeIs(ExamResource::getRouteBaseName().'.*') || request()->routeIs(QuestionBankResource::getRouteBaseName().'.*'))
+                ->visible(fn (): bool => auth()->user()?->isTeacher() ?? false)
+                ->sort(60),
+
+            NavigationItem::make('Gradebook')
+                ->icon(Heroicon::OutlinedCheckBadge)
+                ->url(fn (): string => AssessmentGradeResource::getUrl('index'))
+                ->isActiveWhen(fn (): bool => request()->routeIs(AssessmentGradeResource::getRouteBaseName().'.*'))
+                ->visible(fn (): bool => auth()->user()?->isTeacher() ?? false)
+                ->sort(70),
+
+            NavigationItem::make('Attendance')
+                ->icon(new HtmlString('<img src="'.e(asset('Icons/presence.png')).'" alt="" class="fi-sidebar-item-icon" />'))
+                ->url(fn (): string => AttendanceResource::getUrl('index'))
+                ->isActiveWhen(fn (): bool => request()->routeIs(AttendanceResource::getRouteBaseName().'.*'))
+                ->visible(fn (): bool => auth()->user()?->isTeacher() ?? false)
+                ->sort(80),
+
+            NavigationItem::make('Schedule')
+                ->icon(new HtmlString('<img src="'.e(asset('Icons/schedule.png')).'" alt="" class="fi-sidebar-item-icon" />'))
+                ->url(fn (): string => ScheduleResource::getUrl('index'))
+                ->isActiveWhen(fn (): bool => request()->routeIs(ScheduleResource::getRouteBaseName().'.*'))
+                ->visible(fn (): bool => auth()->user()?->isTeacher() ?? false)
+                ->sort(85),
+
+            NavigationItem::make('Reports')
+                ->icon(Heroicon::OutlinedUsers)
+                ->url(fn (): string => StudentReport::getUrl())
+                ->isActiveWhen(fn (): bool => request()->routeIs(StudentReport::getRouteName()))
+                ->visible(fn (): bool => auth()->user()?->isTeacher() ?? false)
+                ->sort(90),
+
+            // ==========================================
+            // Admin Navigation Items
+            // ==========================================
+            $this->resourceNavItem('អ្នកប្រើប្រាស់', self::GROUP_USERS, 10, asset('Icons/users.png'), UserResource::class),
             $this->resourceNavItem('តួនាទី', self::GROUP_USERS, 20, asset('Icons/roles.png'), RoleResource::class),
             $this->resourceNavItem('សិទ្ធិ', self::GROUP_USERS, 30,  asset('Icons/permission.png'), PermissionResource::class),
+
+            $this->resourceNavItem('មហាវិទ្យាល័យ', self::GROUP_ACADEMIC, 10, asset('Icons/faculty.png'), FacultyResource::class),
+            $this->resourceNavItem('ដេប៉ាតឺម៉ង់', self::GROUP_ACADEMIC, 20, asset('Icons/department.png'), DepartmentResource::class),
+            $this->resourceNavItem('ឆ្នាំសិក្សា', self::GROUP_ACADEMIC, 30, asset('Icons/yearacademic.png'), AcademicYearResource::class),
+            $this->resourceNavItem('ឆមាស', self::GROUP_ACADEMIC, 40, asset('Icons/semester.png'), SemesterResource::class),
 
             $this->resourceNavItem('គ្រូបង្រៀន', self::GROUP_TEACHERS, 10, asset('Icons/teacher.png'), TeacherResource::class),
             $this->resourceNavItem('ចាត់តាំងវគ្គសិក្សា', self::GROUP_TEACHERS, 20, asset('Icons/teacherasign.png'), CourseAssignmentResource::class),
@@ -373,10 +512,14 @@ HTML);
             $this->resourceNavItem('កិច្ចការ', self::GROUP_CONTENT, 60, Heroicon::OutlinedClipboardDocumentCheck, ContentAssignmentResource::class),
             $this->resourceNavItem('ធនធាន', self::GROUP_CONTENT, 70, Heroicon::OutlinedFolderOpen, ContentResourceResource::class),
 
+            $this->resourceNavItem('និស្សិត', self::GROUP_STUDENTS, 10, asset('Icons/students.png'), StudentResource::class),
+            $this->resourceNavItem('ការចុះឈ្មោះ', self::GROUP_STUDENTS, 20, asset('Icons/enrollments.png'), EnrollmentResource::class),
+            $this->resourceNavItem('វត្តមាន', self::GROUP_STUDENTS, 30, asset('Icons/presence.png'), AttendanceResource::class),
+            $this->resourceNavItem('ការឡើងថ្នាក់', self::GROUP_STUDENTS, 40, asset('Icons/students.png'), StudentPromotionResource::class),
+
             $this->resourceNavItem('តេស្តខ្លី', self::GROUP_ASSESSMENT, 10, Heroicon::OutlinedQuestionMarkCircle, QuizResource::class),
             $this->resourceNavItem('ធនាគារសំណួរ', self::GROUP_ASSESSMENT, 20, Heroicon::OutlinedCircleStack, QuestionBankResource::class),
             $this->resourceNavItem('សំណួរ', self::GROUP_ASSESSMENT, 30, Heroicon::OutlinedListBullet, AssessmentQuestionResource::class),
-            $this->resourceNavItem('ជម្រើសចម្លើយ', self::GROUP_ASSESSMENT, 40, Heroicon::OutlinedCheckCircle, QuestionOptionResource::class),
             $this->resourceNavItem('ការប្រឡង', self::GROUP_ASSESSMENT, 50, Heroicon::OutlinedPencilSquare, ExamResource::class, fn (): bool => request()->routeIs(ExamResource::getRouteBaseName().'.*') && request()->query('view') !== 'schedule'),
             $this->resourceNavItem('កាលវិភាគប្រឡង', self::GROUP_ASSESSMENT, 60, Heroicon::OutlinedCalendarDays, ExamResource::class, fn (): bool => request()->routeIs(ExamResource::getRouteBaseName().'.*') && request()->query('view') === 'schedule', ['view' => 'schedule']),
             $this->resourceNavItem('បេក្ខជនប្រឡង', self::GROUP_ASSESSMENT, 70, Heroicon::OutlinedUserGroup, ExamCandidateResource::class),
@@ -402,7 +545,7 @@ HTML);
             ->icon($icon)
             ->sort($sort)
             ->url($url ?? '#')
-            ->visible(fn (): bool => ! auth()->user()?->isStudent());
+            ->visible(fn (): bool => auth()->user()?->hasAnyRole(['super_admin', 'admin']) ?? false);
     }
 
     private function resourceNavItem(string $label, string $group, int $sort, string|BackedEnum|null $icon, string $resource, ?Closure $isActiveWhen = null, array $urlParameters = []): NavigationItem
@@ -422,33 +565,10 @@ HTML);
     {
         $user = auth()->user();
 
-        if (! $user?->isStudent() && $user?->hasRole('teacher') && ! $user->hasAnyRole(['super_admin', 'admin'])) {
-            return in_array($resource, [
-                CourseResource::class,
-                ScheduleResource::class,
-                ContentChapterResource::class,
-                ContentLessonResource::class,
-                ContentVideoResource::class,
-                ContentDocumentResource::class,
-                ContentAssignmentResource::class,
-                ContentResourceResource::class,
-                QuizResource::class,
-                QuestionBankResource::class,
-                AssessmentQuestionResource::class,
-                QuestionOptionResource::class,
-                AssignmentSubmissionResource::class,
-                CertificateResource::class,
-            ], true) && $resource::canAccess();
-        }
-
-        if (! $user?->isStudent()) {
+        if ($user?->hasAnyRole(['super_admin', 'admin'])) {
             return $resource::canAccess();
         }
 
-        return in_array($resource, [
-            CourseResource::class,
-            ScheduleResource::class,
-            CertificateResource::class,
-        ], true) && $resource::canAccess();
+        return false;
     }
 }

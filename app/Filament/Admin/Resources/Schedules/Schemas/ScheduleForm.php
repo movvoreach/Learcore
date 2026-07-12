@@ -66,7 +66,8 @@ class ScheduleForm
                 Select::make('class_id')
                     ->label('ថ្នាក់រៀន (Class)')
                     ->placeholder('ជ្រើសរើសថ្នាក់រៀន (Class)')
-                    ->relationship('classRoom', 'class_name', function (\Illuminate\Database\Eloquent\Builder $query, $get) {
+                    ->options(function ($get) {
+                        $query = \App\Models\ClassRoom::query();
                         if ($get('academic_year_id')) {
                             $query->where('academic_year_id', $get('academic_year_id'));
                         }
@@ -80,9 +81,9 @@ class ScheduleForm
                                 }
                             });
                         }
+                        return $query->pluck('class_name', 'class_room_id');
                     })
                     ->searchable()
-                    ->preload()
                     ->required(),
                 Select::make('day')
                     ->label('ថ្ងៃ (Day)')

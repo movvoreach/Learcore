@@ -18,6 +18,8 @@ class ActivityLogResource extends Resource
 {
     protected static ?string $model = ActivityLog::class;
 
+    protected static bool $shouldRegisterNavigation = false;
+
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-document-magnifying-glass';
     protected static string|\UnitEnum|null $navigationGroup = 'ការកំណត់';
     protected static ?string $navigationLabel = 'សកម្មភាពអ្នកប្រើប្រាស់';

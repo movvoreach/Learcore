@@ -1169,6 +1169,394 @@
                     </div>
                 </div>
             @endif
+        @elseif ($mode === 'teacher')
+            {{-- ═══════════════════════════════════════════════════════════ --}}
+            {{-- TEACHER DASHBOARD                                          --}}
+            {{-- ═══════════════════════════════════════════════════════════ --}}
+            <style>
+                .teacher-banner {
+                    background: linear-gradient(135deg, #7c3aed 0%, #6366f1 50%, #818cf8 100%);
+                    border-radius: 20px;
+                    color: #ffffff;
+                    padding: 36px 40px;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    position: relative;
+                    overflow: hidden;
+                    box-shadow: 0 10px 30px rgba(124, 58, 237, 0.25);
+                    margin-bottom: 28px;
+                }
+                .teacher-banner::before {
+                    content: "";
+                    position: absolute;
+                    top: -30%;
+                    right: -8%;
+                    width: 280px;
+                    height: 280px;
+                    background: radial-gradient(circle, rgba(255,255,255,0.12) 0%, transparent 70%);
+                    border-radius: 50%;
+                    pointer-events: none;
+                }
+                .teacher-banner-content { z-index: 10; max-width: 60%; }
+                .teacher-banner-greeting {
+                    font-size: 13px; font-weight: 700; text-transform: uppercase;
+                    letter-spacing: 0.06em; color: rgba(255,255,255,0.85); margin-bottom: 6px;
+                }
+                .teacher-banner-title {
+                    font-size: 28px; font-weight: 900; line-height: 1.2; margin: 0 0 8px;
+                }
+                .teacher-banner-subtitle {
+                    font-size: 14px; color: rgba(255,255,255,0.8); margin: 0;
+                }
+
+                .teacher-stats-grid {
+                    display: grid;
+                    grid-template-columns: repeat(3, minmax(0, 1fr));
+                    gap: 16px;
+                    margin-bottom: 28px;
+                }
+                @media (max-width: 1024px) {
+                    .teacher-stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+                }
+                @media (max-width: 640px) {
+                    .teacher-stats-grid { grid-template-columns: 1fr; }
+                }
+                .teacher-stat-card {
+                    background: #ffffff;
+                    border: 1px solid #e2e8f0;
+                    border-radius: 16px;
+                    padding: 20px;
+                    display: flex;
+                    align-items: center;
+                    gap: 16px;
+                    text-decoration: none;
+                    color: inherit;
+                    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+                }
+                .teacher-stat-card:hover {
+                    transform: translateY(-3px);
+                    box-shadow: 0 12px 28px rgba(0,0,0,0.06);
+                    border-color: #c4b5fd;
+                }
+                .dark .teacher-stat-card {
+                    background: #1e293b;
+                    border-color: #334155;
+                }
+                .dark .teacher-stat-card:hover {
+                    border-color: #6366f1;
+                    box-shadow: 0 12px 28px rgba(0,0,0,0.2);
+                }
+                .teacher-stat-icon {
+                    width: 48px;
+                    height: 48px;
+                    border-radius: 14px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 22px;
+                    flex-shrink: 0;
+                }
+                .teacher-stat-info { min-width: 0; flex: 1; }
+                .teacher-stat-label {
+                    font-size: 12px; font-weight: 600; color: #64748b;
+                    margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.03em;
+                }
+                .dark .teacher-stat-label { color: #94a3b8; }
+                .teacher-stat-value {
+                    font-size: 26px; font-weight: 800; color: #0f172a; line-height: 1;
+                }
+                .dark .teacher-stat-value { color: #f1f5f9; }
+                .teacher-stat-sub {
+                    font-size: 11px; color: #94a3b8; margin-top: 2px;
+                }
+
+                .teacher-section-title {
+                    font-size: 18px;
+                    font-weight: 800;
+                    color: #0f172a;
+                    margin: 0 0 16px;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                }
+                .dark .teacher-section-title { color: #f1f5f9; }
+
+                .teacher-course-card {
+                    background: #ffffff;
+                    border: 1px solid #e2e8f0;
+                    border-radius: 14px;
+                    padding: 18px 20px;
+                    display: flex;
+                    align-items: center;
+                    gap: 14px;
+                    transition: all 0.2s;
+                }
+                .teacher-course-card:hover {
+                    box-shadow: 0 6px 20px rgba(0,0,0,0.04);
+                    border-color: #c4b5fd;
+                }
+                .dark .teacher-course-card {
+                    background: #1e293b;
+                    border-color: #334155;
+                }
+                .teacher-course-icon {
+                    width: 42px; height: 42px; border-radius: 12px;
+                    display: flex; align-items: center; justify-content: center;
+                    font-size: 18px; flex-shrink: 0;
+                }
+                .teacher-course-info { min-width: 0; flex: 1; }
+                .teacher-course-name {
+                    font-size: 14px; font-weight: 700; color: #0f172a;
+                    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+                }
+                .dark .teacher-course-name { color: #f1f5f9; }
+                .teacher-course-meta {
+                    font-size: 11px; color: #64748b; margin-top: 2px;
+                }
+                .dark .teacher-course-meta { color: #94a3b8; }
+                .teacher-course-badge {
+                    font-size: 11px; font-weight: 700; padding: 4px 12px;
+                    border-radius: 20px; background: #f0fdf4; color: #16a34a;
+                    white-space: nowrap;
+                }
+                .dark .teacher-course-badge {
+                    background: rgba(22, 163, 106, 0.15);
+                }
+
+                .teacher-submission-item {
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    padding: 12px 0;
+                    border-bottom: 1px solid #f1f5f9;
+                }
+                .teacher-submission-item:last-child { border-bottom: none; }
+                .dark .teacher-submission-item { border-color: #1e293b; }
+                .teacher-sub-avatar {
+                    width: 36px; height: 36px; border-radius: 10px;
+                    display: flex; align-items: center; justify-content: center;
+                    font-size: 14px; font-weight: 700; color: #fff; flex-shrink: 0;
+                }
+                .teacher-sub-info { min-width: 0; flex: 1; }
+                .teacher-sub-name {
+                    font-size: 13px; font-weight: 700; color: #0f172a;
+                }
+                .dark .teacher-sub-name { color: #f1f5f9; }
+                .teacher-sub-detail {
+                    font-size: 11px; color: #64748b; margin-top: 1px;
+                }
+                .dark .teacher-sub-detail { color: #94a3b8; }
+                .teacher-sub-time {
+                    font-size: 10px; color: #94a3b8; white-space: nowrap;
+                }
+
+                .teacher-no-profile {
+                    text-align: center;
+                    padding: 60px 20px;
+                }
+                .teacher-no-profile-icon {
+                    font-size: 48px; margin-bottom: 16px;
+                }
+                .teacher-no-profile h2 {
+                    font-size: 20px; font-weight: 800; color: #0f172a; margin: 0 0 8px;
+                }
+                .dark .teacher-no-profile h2 { color: #f1f5f9; }
+                .teacher-no-profile p {
+                    color: #64748b; font-size: 14px;
+                }
+            </style>
+
+            @if (! $teacher)
+                <section class="db-card teacher-no-profile">
+                    <div class="teacher-no-profile-icon">👨‍🏫</div>
+                    <h2>គណនីគ្រូបង្រៀនមិនទាន់ត្រូវបានភ្ជាប់</h2>
+                    <p>សូមទាក់ទងអ្នកគ្រប់គ្រងប្រព័ន្ធដើម្បីភ្ជាប់គណនីអ្នកប្រើប្រាស់របស់អ្នកជាមួយកំណត់ត្រាគ្រូបង្រៀន។</p>
+                </section>
+            @else
+                {{-- Welcome Banner --}}
+                <div class="teacher-banner">
+                    <div class="teacher-banner-content">
+                        <div class="teacher-banner-greeting">សួស្តី, {{ auth()->user()->name }}! 👋</div>
+                        <h1 class="teacher-banner-title">ផ្ទាំងគ្រប់គ្រងគ្រូបង្រៀន</h1>
+                        <p class="teacher-banner-subtitle">គ្រប់គ្រងវគ្គសិក្សា សិស្ស និងមាតិកាសិក្សារបស់អ្នក។</p>
+                    </div>
+                    <div style="z-index: 10;">
+                        <svg width="180" height="120" viewBox="0 0 180 120" fill="none">
+                            <circle cx="130" cy="60" r="40" fill="white" fill-opacity="0.1"/>
+                            <rect x="20" y="25" width="100" height="70" rx="8" fill="white" fill-opacity="0.08" stroke="white" stroke-opacity="0.15" stroke-width="1.5"/>
+                            <path d="M70 45 L85 65 L55 65 Z" fill="white" fill-opacity="0.2"/>
+                            <circle cx="40" cy="40" r="6" fill="#f59e0b"/>
+                            <circle cx="120" cy="85" r="5" fill="#10b981"/>
+                            <rect x="50" y="72" width="40" height="15" rx="3" fill="white" fill-opacity="0.12"/>
+                        </svg>
+                    </div>
+                </div>
+
+                {{-- Stats Grid --}}
+                <div class="teacher-stats-grid">
+                    <a href="{{ \App\Filament\Admin\Resources\Courses\CourseResource::getUrl('index') }}" class="teacher-stat-card">
+                        <div class="teacher-stat-icon" style="background: #ede9fe; color: #7c3aed;">📚</div>
+                        <div class="teacher-stat-info">
+                            <div class="teacher-stat-label">វគ្គសិក្សារបស់ខ្ញុំ</div>
+                            <div class="teacher-stat-value">{{ $myCourses->count() }}</div>
+                            <div class="teacher-stat-sub">My Courses</div>
+                        </div>
+                    </a>
+
+                    <a href="{{ \App\Filament\Admin\Resources\Courses\CourseResource::getUrl('create') }}" class="teacher-stat-card">
+                        <div class="teacher-stat-icon" style="background: #dbeafe; color: #2563eb;">➕</div>
+                        <div class="teacher-stat-info">
+                            <div class="teacher-stat-label">បង្កើតវគ្គសិក្សា</div>
+                            <div class="teacher-stat-value" style="font-size: 16px;">បង្កើតថ្មី</div>
+                            <div class="teacher-stat-sub">Create Course</div>
+                        </div>
+                    </a>
+
+                    <a href="{{ \App\Filament\Admin\Resources\ContentLessons\ContentLessonResource::getUrl('index') }}" class="teacher-stat-card">
+                        <div class="teacher-stat-icon" style="background: #fef3c7; color: #d97706;">📖</div>
+                        <div class="teacher-stat-info">
+                            <div class="teacher-stat-label">មាតិកាវគ្គសិក្សា</div>
+                            <div class="teacher-stat-value">{{ $myCourses->sum('content_lessons_count') }}</div>
+                            <div class="teacher-stat-sub">Course Content (Lessons)</div>
+                        </div>
+                    </a>
+
+                    <div class="teacher-stat-card">
+                        <div class="teacher-stat-icon" style="background: #f0fdf4; color: #16a34a;">👥</div>
+                        <div class="teacher-stat-info">
+                            <div class="teacher-stat-label">សិស្សក្នុងវគ្គសិក្សា</div>
+                            <div class="teacher-stat-value">{{ $totalStudents }}</div>
+                            <div class="teacher-stat-sub">Students</div>
+                        </div>
+                    </div>
+
+                    <a href="{{ \App\Filament\Admin\Resources\ContentAssignments\ContentAssignmentResource::getUrl('index') }}" class="teacher-stat-card">
+                        <div class="teacher-stat-icon" style="background: #fce7f3; color: #db2777;">📝</div>
+                        <div class="teacher-stat-info">
+                            <div class="teacher-stat-label">កិច្ចការ</div>
+                            <div class="teacher-stat-value">{{ $totalAssignments }}</div>
+                            <div class="teacher-stat-sub">Assignments</div>
+                        </div>
+                    </a>
+
+                    <a href="{{ \App\Filament\Admin\Resources\Exams\ExamResource::getUrl('index') }}" class="teacher-stat-card">
+                        <div class="teacher-stat-icon" style="background: #e0f2fe; color: #0284c7;">🧪</div>
+                        <div class="teacher-stat-info">
+                            <div class="teacher-stat-label">តេស្ត / ប្រឡង</div>
+                            <div class="teacher-stat-value">{{ $totalQuizzes }}</div>
+                            <div class="teacher-stat-sub">Quizzes / Exams</div>
+                        </div>
+                    </a>
+
+                    <a href="{{ \App\Filament\Admin\Resources\AssessmentGrades\AssessmentGradeResource::getUrl('index') }}" class="teacher-stat-card">
+                        <div class="teacher-stat-icon" style="background: #fef9c3; color: #ca8a04;">📊</div>
+                        <div class="teacher-stat-info">
+                            <div class="teacher-stat-label">សៀវភៅពិន្ទុ</div>
+                            <div class="teacher-stat-value">{{ $totalGrades }}</div>
+                            <div class="teacher-stat-sub">Gradebook</div>
+                        </div>
+                    </a>
+
+                    <a href="{{ \App\Filament\Admin\Resources\Attendances\AttendanceResource::getUrl('index') }}" class="teacher-stat-card">
+                        <div class="teacher-stat-icon" style="background: #ecfdf5; color: #059669;">✅</div>
+                        <div class="teacher-stat-info">
+                            <div class="teacher-stat-label">វត្តមាន</div>
+                            <div class="teacher-stat-value">{{ $totalAttendance }}</div>
+                            <div class="teacher-stat-sub">Attendance</div>
+                        </div>
+                    </a>
+
+                    <a href="{{ \App\Filament\Admin\Resources\Certificates\CertificateResource::getUrl('index') }}" class="teacher-stat-card">
+                        <div class="teacher-stat-icon" style="background: #fdf2f8; color: #e11d48;">🏆</div>
+                        <div class="teacher-stat-info">
+                            <div class="teacher-stat-label">វិញ្ញាបនបត្រ</div>
+                            <div class="teacher-stat-value">{{ $totalCertificates }}</div>
+                            <div class="teacher-stat-sub">Certificates</div>
+                        </div>
+                    </a>
+                </div>
+
+                {{-- Two Column Layout --}}
+                <div class="db-container">
+                    {{-- My Courses --}}
+                    <div>
+                        <div class="db-card">
+                            <h3 class="teacher-section-title">📚 វគ្គសិក្សារបស់ខ្ញុំ — My Courses</h3>
+                            <div style="display: grid; gap: 10px;">
+                                @forelse ($myCourses as $course)
+                                    <div class="teacher-course-card">
+                                        <div class="teacher-course-icon" style="background: #ede9fe; color: #7c3aed;">📘</div>
+                                        <div class="teacher-course-info">
+                                            <div class="teacher-course-name">{{ $course->course_name }}</div>
+                                            <div class="teacher-course-meta">
+                                                {{ $course->department?->department_name }} · {{ $course->academicYear?->year_name }} · {{ $course->semester?->semester_name }}
+                                            </div>
+                                        </div>
+                                        <span class="teacher-course-badge">{{ $course->content_lessons_count }} មេរៀន</span>
+                                    </div>
+                                @empty
+                                    <div style="text-align: center; padding: 30px; color: #94a3b8;">
+                                        <div style="font-size: 32px; margin-bottom: 8px;">📭</div>
+                                        <p>មិនមានវគ្គសិក្សាដែលបានចាត់តាំង។</p>
+                                    </div>
+                                @endforelse
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Right Sidebar --}}
+                    <div class="right-sidebar">
+                        {{-- Teacher Info --}}
+                        <div class="db-card">
+                            <h3 class="teacher-section-title">👤 ព័ត៌មានគ្រូ</h3>
+                            <div style="display: grid; gap: 8px; font-size: 13px;">
+                                <div style="display: flex; justify-content: space-between;">
+                                    <span style="color: #64748b;">ឈ្មោះ</span>
+                                    <span style="font-weight: 700;">{{ $teacher->first_name }} {{ $teacher->last_name }}</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between;">
+                                    <span style="color: #64748b;">នាយកដ្ឋាន</span>
+                                    <span style="font-weight: 700;">{{ $teacher->department?->department_name ?? '—' }}</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between;">
+                                    <span style="color: #64748b;">ឯកទេស</span>
+                                    <span style="font-weight: 700;">{{ $teacher->specialization ?? '—' }}</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between;">
+                                    <span style="color: #64748b;">ស្ថានភាព</span>
+                                    <span style="font-weight: 700; color: #16a34a;">{{ ucfirst($teacher->status) }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Recent Submissions --}}
+                        <div class="db-card">
+                            <h3 class="teacher-section-title">📬 ការដាក់ស្នើថ្មីៗ</h3>
+                            @forelse ($recentSubmissions as $sub)
+                                <div class="teacher-submission-item">
+                                    @php
+                                        $colors = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316'];
+                                        $color = $colors[$loop->index % count($colors)];
+                                        $initials = strtoupper(substr($sub->student?->first_name ?? 'S', 0, 1) . substr($sub->student?->last_name ?? 'T', 0, 1));
+                                    @endphp
+                                    <div class="teacher-sub-avatar" style="background: {{ $color }};">{{ $initials }}</div>
+                                    <div class="teacher-sub-info">
+                                        <div class="teacher-sub-name">{{ $sub->student?->first_name }} {{ $sub->student?->last_name }}</div>
+                                        <div class="teacher-sub-detail">{{ $sub->assignment?->lesson?->course?->course_name }}</div>
+                                    </div>
+                                    <div class="teacher-sub-time">{{ $sub->created_at?->diffForHumans() }}</div>
+                                </div>
+                            @empty
+                                <div style="text-align: center; padding: 20px; color: #94a3b8;">
+                                    <p style="font-size: 13px;">មិនមានការដាក់ស្នើថ្មីៗ។</p>
+                                </div>
+                            @endforelse
+                        </div>
+                    </div>
+                </div>
+            @endif
         @else
             {{-- Admin/Teacher Dashboard --}}
             <style>

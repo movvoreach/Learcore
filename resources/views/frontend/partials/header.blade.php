@@ -127,7 +127,7 @@
                     </a>
 
                     <div class="dropdown-menu dropdown-menu-end" role="menu" id="usermenu-dropdown" aria-labelledby="usermenu">
-                        <a class="dropdown-item" href="{{ route('frontend.account.dashboard') }}" title="ផ្ទៃតាប្លូ">
+                        <a class="dropdown-item" href="{{ url('/admin') }}" title="ផ្ទៃតាប្លូ">
                             <i aria-hidden="true" class="fas fa-tachometer-alt me-2"></i>
                             <span>ផ្ទៃតាប្លូ</span>
                         </a>

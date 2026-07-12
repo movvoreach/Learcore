@@ -17,6 +17,8 @@ class UserResource extends Resource
 {
     protected static ?string $model = User::class;
 
+    protected static bool $shouldRegisterNavigation = false;
+
     protected static string|BackedEnum|null $navigationIcon = '/Icons/users.png';
 
     protected static ?string $modelLabel = 'អ្នកប្រើប្រាស់';

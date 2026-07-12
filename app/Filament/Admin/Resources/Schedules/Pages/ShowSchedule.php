@@ -64,7 +64,7 @@ class ShowSchedule extends Page
     {
         $user = auth()->user();
 
-        abort_unless($user && $user->hasAnyRole(['super_admin', 'admin']), 403);
+        abort_unless($user && $user->hasAnyRole(['super_admin', 'admin', 'teacher']), 403);
 
         $this->getRecord()->students()->detach($studentId);
 
@@ -78,7 +78,7 @@ class ShowSchedule extends Page
     {
         $user = auth()->user();
 
-        abort_unless($user && $user->hasAnyRole(['super_admin', 'admin']), 403);
+        abort_unless($user && $user->hasAnyRole(['super_admin', 'admin', 'teacher']), 403);
 
         $this->validate([
             'studentId' => ['required', 'integer', 'exists:students,student_id'],
@@ -156,7 +156,7 @@ class ShowSchedule extends Page
             'studentOptions' => Student::query()
                 ->orderBy('student_code')
                 ->get(['student_id', 'student_code', 'first_name', 'last_name']),
-            'canManageScheduleStudents' => auth()->user()?->hasAnyRole(['super_admin', 'admin']) ?? false,
+            'canManageScheduleStudents' => auth()->user()?->hasAnyRole(['super_admin', 'admin', 'teacher']) ?? false,
             'totalStudents' => $students->count(),
         ];
     }

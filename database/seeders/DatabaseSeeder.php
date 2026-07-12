@@ -18,7 +18,8 @@ class DatabaseSeeder extends Seeder
     {
         app(PermissionRegistrar::class)->forgetCachedPermissions();
 
-        $permissions = [
+        // ── Admin / Global permissions ────────────────────────────
+        $adminPermissions = [
             'manage users',
             'manage roles',
             'manage academic structure',
@@ -27,10 +28,37 @@ class DatabaseSeeder extends Seeder
             'manage lessons',
             'manage assessments',
             'manage promotions',
-            'view student dashboard',
         ];
 
-        foreach ($permissions as $permission) {
+        // ── Student permissions ───────────────────────────────────
+        $studentPermissions = [
+            'view student dashboard',
+            'view my courses',
+            'view available courses',
+            'view assignments',
+            'view quizzes',
+            'view grades',
+            'view attendance',
+            'view certificates',
+        ];
+
+        // ── Teacher permissions ───────────────────────────────────
+        $teacherPermissions = [
+            'view teacher dashboard',
+            'view teacher courses',
+            'create courses',
+            'manage course content',
+            'view course students',
+            'manage assignments',
+            'manage quizzes',
+            'manage gradebook',
+            'manage attendance',
+            'view reports',
+        ];
+
+        $allPermissionNames = array_merge($adminPermissions, $studentPermissions, $teacherPermissions);
+
+        foreach ($allPermissionNames as $permission) {
             Permission::findOrCreate($permission, 'web');
         }
 
@@ -39,18 +67,13 @@ class DatabaseSeeder extends Seeder
         $teacher = Role::findOrCreate('teacher', 'web');
         $student = Role::findOrCreate('student', 'web');
 
-        $allPermissions = Permission::query()->whereIn('name', $permissions)->where('guard_name', 'web')->get();
+        $allPermissions = Permission::query()->whereIn('name', $allPermissionNames)->where('guard_name', 'web')->get();
 
         $superAdmin->syncPermissions($allPermissions);
         $admin->syncPermissions($allPermissions);
-        $teacher->syncPermissions(Permission::query()->whereIn('name', [
-            'manage courses',
-            'manage lessons',
-            'manage assessments',
-        ])->where('guard_name', 'web')->get());
-        $student->syncPermissions(Permission::query()->whereIn('name', [
-            'view student dashboard',
-        ])->where('guard_name', 'web')->get());
+
+        $teacher->syncPermissions(Permission::query()->whereIn('name', $teacherPermissions)->where('guard_name', 'web')->get());
+        $student->syncPermissions(Permission::query()->whereIn('name', $studentPermissions)->where('guard_name', 'web')->get());
 
         $user = User::query()->updateOrCreate(
             ['email' => 'test@example.com'],

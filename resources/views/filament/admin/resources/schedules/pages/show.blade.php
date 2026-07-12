@@ -793,7 +793,7 @@
         ">
         <div class="ss-toolbar">
           
-            @if(\App\Filament\Admin\Resources\Schedules\ScheduleResource::canCreate())
+            @if($canManageScheduleStudents)
                 <button class="ss-tool" type="button" title="បន្ថែម" x-on:click="showAddStudentModal = true; initStudentSelect()">
                    <i class="fa fa-plus-circle"></i>
                 </button>

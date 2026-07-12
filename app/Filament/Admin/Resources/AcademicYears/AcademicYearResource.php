@@ -19,6 +19,8 @@ class AcademicYearResource extends Resource
 {
     protected static ?string $model = AcademicYear::class;
 
+    protected static bool $shouldRegisterNavigation = false;
+
     protected static string|BackedEnum|null $navigationIcon = null;
 
     protected static ?string $modelLabel = 'ឆ្នាំសិក្សា';

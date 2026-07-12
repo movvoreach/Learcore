@@ -19,6 +19,8 @@ class EnrollmentResource extends Resource
 {
     protected static ?string $model = Enrollment::class;
 
+    protected static bool $shouldRegisterNavigation = false;
+
     protected static string|BackedEnum|null $navigationIcon = null;
 
     protected static ?string $modelLabel = 'ការចុះឈ្មោះចូលរៀន';

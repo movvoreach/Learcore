@@ -19,6 +19,8 @@ class SemesterResource extends Resource
 {
     protected static ?string $model = Semester::class;
 
+    protected static bool $shouldRegisterNavigation = false;
+
     protected static string|BackedEnum|null $navigationIcon = null;
 
     protected static ?string $modelLabel = 'ឆមាស';
