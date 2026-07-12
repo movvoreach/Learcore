@@ -374,12 +374,16 @@
         .learning-course-detail.course-workspace {
             min-height: calc(100vh - 82px);
             grid-template-columns: 455px minmax(0, 1fr);
+            align-items: start;
             background: #f4f7fd;
             transition: grid-template-columns .28s ease;
         }
 
         .course-workspace-sidebar {
-            height: calc(100vh - 82px);
+            position: sticky;
+            top: 70px;
+            height: calc(100vh - 70px);
+            max-height: calc(100vh - 70px);
             overflow-y: auto;
             border-right: 1px solid #dfe5ef;
             background: #fff;
@@ -1172,6 +1176,7 @@
             }
 
             .course-workspace-sidebar {
+                position: static;
                 height: auto;
                 max-height: 55vh;
                 border-right: 0;

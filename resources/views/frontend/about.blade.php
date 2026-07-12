@@ -1,164 +1,345 @@
 @php
     $learningLocale = session('learning_locale', 'km');
-    $aboutText = [
+
+    $aboutContent = [
         'km' => [
-            'eyebrow' => 'អំពីប្រព័ន្ធសិក្សា',
-            'title' => 'ប្រព័ន្ធគ្រប់គ្រងកម្មវិធីសិក្សា',
-            'intro' => 'យើងបង្កើតបទពិសោធន៍សិក្សាដែលងាយប្រើ ស្អាត និងជួយឱ្យសិស្សអាចចូលរៀនមេរៀនបានលឿន។',
-            'mission_title' => 'បេសកកម្ម',
-            'mission' => 'ផ្តល់វេទិកាសិក្សាដែលរៀបចំមេរៀន វគ្គសិក្សា និងការចូលរួមរបស់សិស្សឱ្យមានរបៀបរៀបរយ។',
-            'vision_title' => 'ចក្ខុវិស័យ',
-            'vision' => 'ធ្វើឱ្យការសិក្សាឌីជីថលមានភាពងាយស្រួល សមរម្យ និងអាចប្រើប្រាស់បានសម្រាប់គ្រប់គ្នា។',
-            'features_title' => 'មុខងារសំខាន់ៗ',
-            'features' => [
-                'គ្រប់គ្រងវគ្គសិក្សា និងមេរៀន',
-                'មើលមាតិកាវីដេអូ និងឯកសារ',
-                'តាមដានការសិក្សា និងការចូលរួម',
+            'title' => 'សេចក្ដីសង្ខេបអំពីប្រព័ន្ធ LearnCore LMS',
+            'date' => 'សៅរ៍, 11 កក្កដា 2026',
+            'author' => 'LearnCore LMS',
+            'views' => 'ទំព័រព័ត៌មាន',
+            'print' => 'បោះពុម្ព',
+            'email' => 'Email',
+            'banner' => 'ប្រព័ន្ធគ្រប់គ្រងកម្មវិធីសិក្សា LearnCore LMS',
+            'intro' => 'LearnCore LMS ជាប្រព័ន្ធគ្រប់គ្រងការសិក្សាឌីជីថល ដែលរៀបចំឡើងសម្រាប់គ្រប់គ្រងមុខវិជ្ជា មេរៀន សិស្ស និស្សិត គ្រូបង្រៀន ការវាយតម្លៃ និងការតាមដានការសិក្សា ឱ្យមានរបៀបរៀបរយ ងាយស្រួល និងមានប្រសិទ្ធភាព។',
+            'sections' => [
+                [
+                    'number' => '១.',
+                    'title' => 'គោលបំណងនៃប្រព័ន្ធ',
+                    'items' => [
+                        'ផ្តល់វេទិកាសិក្សាដែលអាចប្រើប្រាស់បានងាយស្រួល សម្រាប់សិស្ស និស្សិត និងគ្រូបង្រៀន។',
+                        'រៀបចំមុខវិជ្ជា មេរៀន ឯកសារ វីដេអូ និងសកម្មភាពសិក្សា នៅក្នុងកន្លែងតែមួយ។',
+                        'ជួយឱ្យអ្នកគ្រប់គ្រងអាចតាមដានស្ថានភាពវគ្គសិក្សា ការចូលរៀន និងលទ្ធផលសិក្សាបានច្បាស់លាស់។',
+                    ],
+                ],
+                [
+                    'number' => '២.',
+                    'title' => 'មុខងារសំខាន់ៗ',
+                    'items' => [
+                        'គ្រប់គ្រងមុខវិជ្ជា វគ្គសិក្សា មេរៀន និងប្រភេទមុខវិជ្ជា។',
+                        'បង្ហាញមេរៀនជាទម្រង់វីដេអូ ឯកសារ និងព័ត៌មានលម្អិតអំពីវគ្គសិក្សា។',
+                        'គ្រប់គ្រងគណនីសិស្ស គ្រូបង្រៀន និងអ្នកគ្រប់គ្រងតាមតួនាទី។',
+                        'តាមដានចំនួនមេរៀន រយៈពេលសិក្សា អ្នកចូលរួម តម្លៃ និងស្ថានភាពវគ្គសិក្សា។',
+                        'ផ្តល់ផ្ទាំងគ្រប់គ្រងសម្រាប់មើលព័ត៌មានសង្ខេប និងដំណើរការសិក្សា។',
+                    ],
+                ],
+                [
+                    'number' => '៣.',
+                    'title' => 'តួនាទីអ្នកប្រើប្រាស់',
+                    'items' => [
+                        'សិស្សអាចស្វែងរកមុខវិជ្ជា មើលព័ត៌មានវគ្គសិក្សា និងបន្តការសិក្សាតាមមេរៀន។',
+                        'គ្រូបង្រៀនអាចរៀបចំមាតិកា គ្រប់គ្រងមេរៀន និងតាមដានការចូលរួមរបស់សិស្ស។',
+                        'អ្នកគ្រប់គ្រងអាចគ្រប់គ្រងទិន្នន័យមូលដ្ឋាន អ្នកប្រើប្រាស់ កាលវិភាគ និងរបាយការណ៍។',
+                    ],
+                ],
+                [
+                    'number' => '៤.',
+                    'title' => 'ទិសដៅអភិវឌ្ឍន៍',
+                    'items' => [
+                        'បន្តធ្វើឱ្យប្រព័ន្ធមានល្បឿនលឿន ស្អាត និងងាយស្រួលប្រើប្រាស់លើទូរស័ព្ទ និងកុំព្យូទ័រ។',
+                        'ពង្រឹងការរៀបចំមាតិកាសិក្សា ការវាយតម្លៃ និងការតាមដានលទ្ធផល។',
+                        'គាំទ្រការសិក្សាឌីជីថលឱ្យកាន់តែមានគុណភាព និងអាចចូលប្រើបានសម្រាប់អ្នកសិក្សាទាំងអស់។',
+                    ],
+                ],
             ],
         ],
         'en' => [
-            'eyebrow' => 'About the learning system',
-            'title' => 'Learning Management System',
-            'intro' => 'We build a clean, simple learning experience that helps students open lessons and continue studying quickly.',
-            'mission_title' => 'Mission',
-            'mission' => 'Provide an organized platform for courses, lessons, and student participation.',
-            'vision_title' => 'Vision',
-            'vision' => 'Make digital learning easier, more useful, and more accessible for everyone.',
-            'features_title' => 'Key Features',
-            'features' => [
-                'Manage courses and lessons',
-                'View video and document content',
-                'Track learning and participation',
+            'title' => 'Brief Overview of LearnCore LMS',
+            'date' => 'Saturday, July 11, 2026',
+            'author' => 'LearnCore LMS',
+            'views' => 'Information page',
+            'print' => 'Print',
+            'email' => 'Email',
+            'banner' => 'LearnCore Learning Management System',
+            'intro' => 'LearnCore LMS is a digital learning management system for organizing courses, lessons, students, instructors, assessments, and learning progress in a clear and efficient way.',
+            'sections' => [
+                [
+                    'number' => '1.',
+                    'title' => 'System Objectives',
+                    'items' => [
+                        'Provide an easy learning platform for students and instructors.',
+                        'Organize courses, lessons, documents, videos, and learning activities in one place.',
+                        'Help administrators monitor courses, participation, and learning results.',
+                    ],
+                ],
+                [
+                    'number' => '2.',
+                    'title' => 'Main Features',
+                    'items' => [
+                        'Manage subjects, courses, lessons, and categories.',
+                        'Show lesson content, course details, videos, and documents.',
+                        'Manage student, instructor, and administrator accounts by role.',
+                        'Track lessons, duration, participants, price, and course status.',
+                        'Provide dashboards for summaries and learning activity.',
+                    ],
+                ],
+                [
+                    'number' => '3.',
+                    'title' => 'User Roles',
+                    'items' => [
+                        'Students can search courses, view details, and continue learning lessons.',
+                        'Instructors can prepare content, manage lessons, and monitor participation.',
+                        'Administrators can manage core data, users, schedules, and reports.',
+                    ],
+                ],
+                [
+                    'number' => '4.',
+                    'title' => 'Development Direction',
+                    'items' => [
+                        'Keep the system fast, clean, and easy to use on mobile and desktop.',
+                        'Improve learning content, assessment, and progress tracking.',
+                        'Support higher-quality digital learning for all learners.',
+                    ],
+                ],
             ],
         ],
-    ][$learningLocale] ?? [];
+    ];
+
+    $aboutText = $aboutContent[$learningLocale] ?? $aboutContent['km'];
 @endphp
 
 @extends('frontend.layouts.master')
 
-@section('title', $aboutText['title'].' | Moodle LMS')
+@section('title', $aboutText['title'].' | LearnCore LMS')
 
 @section('content')
-    <section class="learning-about-page">
-        <div class="learning-about-hero">
-            <span>{{ $aboutText['eyebrow'] }}</span>
-            <h1>{{ $aboutText['title'] }}</h1>
-            <p>{{ $aboutText['intro'] }}</p>
-        </div>
+    <section class="learning-about-article">
+        <div id="k2Container" class="itemView learning-about-k2">
+            <div class="itemHeader">
+                <h2 class="itemTitle">{{ $aboutText['title'] }}</h2>
 
-        <div class="learning-about-grid">
-            <article>
-                <i class="fas fa-bullseye"></i>
-                <h2>{{ $aboutText['mission_title'] }}</h2>
-                <p>{{ $aboutText['mission'] }}</p>
-            </article>
+                <div class="row-fluid itemToolbar">
+                    <span class="itemDateCreated">
+                        <i class="fa fa-calendar" aria-hidden="true"></i>&nbsp;{{ $aboutText['date'] }}
+                    </span>
 
-            <article>
-                <i class="fas fa-lightbulb"></i>
-                <h2>{{ $aboutText['vision_title'] }}</h2>
-                <p>{{ $aboutText['vision'] }}</p>
-            </article>
+                    <span class="itemAuthor">
+                        &nbsp;|&nbsp;
+                        <i class="fa fa-user" aria-hidden="true"></i>&nbsp;{{ $aboutText['author'] }}
+                    </span>
 
-            <article>
-                <i class="fas fa-layer-group"></i>
-                <h2>{{ $aboutText['features_title'] }}</h2>
-                <ul>
-                    @foreach($aboutText['features'] as $feature)
-                        <li>{{ $feature }}</li>
-                    @endforeach
-                </ul>
-            </article>
+                    <span class="itemHits">
+                        &nbsp;|&nbsp;
+                        <i class="fa fa-eye" aria-hidden="true"></i>&nbsp;{{ $aboutText['views'] }}
+                    </span>
+
+                    <span>
+                        &nbsp;|&nbsp;
+                        <button type="button" class="learning-about-tool" data-no-loading onclick="window.print()">
+                            <i class="fa fa-print" aria-hidden="true"></i>&nbsp;{{ $aboutText['print'] }}
+                        </button>
+                    </span>
+
+                    <span>
+                        &nbsp;|&nbsp;
+                        <a class="learning-about-tool" href="mailto:?subject={{ rawurlencode($aboutText['title']) }}" data-no-loading>
+                            <i class="fa fa-envelope" aria-hidden="true"></i>&nbsp;{{ $aboutText['email'] }}
+                        </a>
+                    </span>
+                </div>
+            </div>
+
+            <div class="itemBody">
+                <div class="itemFullText">
+                    <div class="learning-about-banner">
+                        <h2>{{ $aboutText['banner'] }}</h2>
+                    </div>
+
+                    <blockquote class="learning-about-summary">
+                        <p>{{ $aboutText['intro'] }}</p>
+                    </blockquote>
+
+                    <div class="learning-about-table">
+                        @foreach($aboutText['sections'] as $section)
+                            <article class="learning-about-row">
+                                <div class="learning-about-number">{{ $section['number'] }}</div>
+                                <div class="learning-about-copy">
+                                    <h2>{{ $section['title'] }}</h2>
+                                    <ul>
+                                        @foreach($section['items'] as $item)
+                                            <li>{{ $item }}</li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            </article>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
 @endsection
 
 @push('styles')
     <style>
-        .learning-about-page {
+        .learning-about-article {
             max-width: 1180px;
             margin: 0 auto;
-            padding: 72px 24px 96px;
+            padding: 56px 24px 86px;
+            font-family: 'Battambang', 'Khmer OS Siemreap', 'Khmer OS Battambang', Arial, sans-serif;
         }
 
-        .learning-about-hero {
-            max-width: 820px;
-            margin-bottom: 42px;
+        .learning-about-k2 {
+            color: #243447;
+            background: #fff;
         }
 
-        .learning-about-hero span {
-            color: #2563eb;
-            font-size: 14px;
-            font-weight: 900;
-            text-transform: uppercase;
+        .learning-about-k2 .itemHeader {
+            padding-bottom: 18px;
+            border-bottom: 1px solid #dfe7ee;
         }
 
-        .learning-about-hero h1 {
-            margin: 16px 0 18px;
-            color: #111827;
-            font-size: 44px;
-            line-height: 1.25;
-            font-weight: 900;
+        .learning-about-k2 .itemTitle {
+            margin: 0 0 12px;
+            color: #14324d;
+            font-size: 31px;
+            font-weight: 700;
+            line-height: 1.45;
         }
 
-        .learning-about-hero p {
-            margin: 0;
+        .learning-about-k2 .itemToolbar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 4px;
             color: #64748b;
-            font-size: 18px;
+            font-size: 14px;
             line-height: 1.8;
         }
 
-        .learning-about-grid {
+        .learning-about-k2 .itemToolbar i {
+            color: #0c8df0;
+        }
+
+        .learning-about-tool {
+            display: inline;
+            border: 0;
+            background: transparent;
+            color: #0c70bf;
+            padding: 0;
+            font: inherit;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .learning-about-tool:hover {
+            color: #005c9d;
+            text-decoration: underline;
+        }
+
+        .learning-about-k2 .itemBody {
+            padding-top: 26px;
+        }
+
+        .learning-about-banner {
+            padding: 14px 22px;
+            background: #0c8df0;
+            text-align: center;
+        }
+
+        .learning-about-banner h2 {
+            margin: 0;
+            color: #fff;
+            font-size: 25px;
+            font-weight: 700;
+            line-height: 1.6;
+            text-decoration: underline;
+        }
+
+        .learning-about-summary {
+            margin: 24px 0;
+            padding: 20px 24px;
+            border-left: 5px solid #0c8df0;
+            background: #f5fbff;
+        }
+
+        .learning-about-summary p {
+            margin: 0;
+            color: #334155;
+            font-size: 17px;
+            font-weight: 600;
+            line-height: 1.9;
+            text-align: justify;
+        }
+
+        .learning-about-table {
             display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
             gap: 18px;
         }
 
-        .learning-about-grid article {
-            min-height: 250px;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            background: #fff;
-            padding: 28px;
-            box-shadow: 0 14px 28px rgba(15, 23, 42, .05);
-        }
-
-        .learning-about-grid i {
-            width: 46px;
-            height: 46px;
+        .learning-about-row {
             display: grid;
-            place-items: center;
-            border-radius: 8px;
-            background: #eaf1ff;
-            color: #2563eb;
-            font-size: 20px;
+            grid-template-columns: 56px minmax(0, 1fr);
+            gap: 18px;
+            padding: 18px 0 20px;
+            border-bottom: 1px solid #e5edf5;
         }
 
-        .learning-about-grid h2 {
-            margin: 22px 0 12px;
-            color: #111827;
-            font-size: 22px;
-            font-weight: 900;
+        .learning-about-number {
+            color: #0c8df0;
+            font-size: 25px;
+            font-weight: 700;
+            line-height: 1.5;
+            text-align: right;
         }
 
-        .learning-about-grid p,
-        .learning-about-grid li {
-            color: #64748b;
-            font-size: 16px;
-            line-height: 1.75;
+        .learning-about-copy h2 {
+            margin: 0 0 12px;
+            color: #14324d;
+            font-size: 24px;
+            font-weight: 700;
+            line-height: 1.55;
+            text-align: justify;
         }
 
-        .learning-about-grid ul {
+        .learning-about-copy ul {
             margin: 0;
-            padding-left: 20px;
+            padding-left: 24px;
+            list-style-type: square;
         }
 
-        @media (max-width: 992px) {
-            .learning-about-grid {
-                grid-template-columns: 1fr;
+        .learning-about-copy li {
+            margin-bottom: 9px;
+            color: #475569;
+            font-size: 16px;
+            font-weight: 500;
+            line-height: 1.85;
+            text-align: justify;
+        }
+
+        @media (max-width: 767.98px) {
+            .learning-about-article {
+                padding: 34px 16px 58px;
             }
 
-            .learning-about-hero h1 {
-                font-size: 34px;
+            .learning-about-k2 .itemTitle {
+                font-size: 24px;
+            }
+
+            .learning-about-banner h2 {
+                font-size: 19px;
+            }
+
+            .learning-about-row {
+                grid-template-columns: 1fr;
+                gap: 6px;
+            }
+
+            .learning-about-number {
+                text-align: left;
+            }
+
+            .learning-about-copy h2 {
+                font-size: 20px;
             }
         }
     </style>

@@ -8,6 +8,8 @@ use App\Models\AssessmentResult;
 use App\Models\AssignmentSubmission;
 use App\Models\ContentAssignment;
 use App\Models\Course;
+use App\Models\AcademicYear;
+use App\Models\Department;
 use App\Models\DiscussionComment;
 use App\Models\DiscussionPost;
 use App\Models\Quiz;
@@ -38,27 +40,67 @@ class frontendController extends Controller
         return view('frontend.frontend', compact('courses'));
     }
 
-    public function courses()
+    public function courses(Request $request)
     {
+        $user = auth()->user();
+        $canManageCatalog = $user?->hasAnyRole(['super_admin', 'admin', 'teacher']) ?? false;
+
         $coursesQuery = Course::query()
-            ->visibleOnFrontend(auth()->user());
+            ->when(! $canManageCatalog, fn ($query) => $query->visibleOnFrontend($user))
+            ->when($request->filled('search'), function ($query) use ($request): void {
+                $search = trim((string) $request->input('search'));
+
+                $query->where(function ($query) use ($search): void {
+                    $query
+                        ->where('course_name', 'like', "%{$search}%")
+                        ->orWhere('course_code', 'like', "%{$search}%")
+                        ->orWhere('description', 'like', "%{$search}%")
+                        ->orWhereHas('instructor', function ($query) use ($search): void {
+                            $query
+                                ->where('first_name', 'like', "%{$search}%")
+                                ->orWhere('last_name', 'like', "%{$search}%")
+                                ->orWhereHas('user', fn ($query) => $query->where('name', 'like', "%{$search}%"));
+                        });
+                });
+            })
+            ->when($canManageCatalog && $request->filled('academic_year_id'), function ($query) use ($request): void {
+                $query->where('academic_year_id', $request->integer('academic_year_id'));
+            })
+            ->when($canManageCatalog && $request->filled('department_id'), function ($query) use ($request): void {
+                $query->where('department_id', $request->integer('department_id'));
+            });
 
         $courses = (clone $coursesQuery)
-            ->with(['category', 'instructor.user', 'academicYear'])
+            ->with(['category', 'department', 'instructor.user', 'academicYear'])
             ->withCount([
                 'contentLessons as lessons_count',
                 'enrollments as students_count',
             ])
             ->withSum('contentLessons as total_duration_minutes', 'duration_minutes')
             ->latest()
-            ->paginate(12);
+            ->paginate(12)
+            ->withQueryString();
 
         $categories = \App\Models\CourseCategory::whereHas(
             'courses',
-            fn ($query) => $query->visibleOnFrontend(auth()->user())
+            fn ($query) => $canManageCatalog ? $query : $query->visibleOnFrontend($user)
         )->get();
 
-        return view('frontend.courses', compact('courses', 'categories'));
+        $academicYears = $canManageCatalog
+            ? AcademicYear::query()->orderByDesc('year_name')->get()
+            : collect();
+
+        $departments = $canManageCatalog
+            ? Department::query()->orderBy('department_name')->get()
+            : collect();
+
+        return view('frontend.courses', compact(
+            'courses',
+            'categories',
+            'academicYears',
+            'departments',
+            'canManageCatalog'
+        ));
     }
 
     public function about()
@@ -66,9 +108,125 @@ class frontendController extends Controller
         return view('frontend.about');
     }
 
+    public function terms()
+    {
+        return view('frontend.terms');
+    }
+
+    public function faqs()
+    {
+        return view('frontend.faqs');
+    }
+
     public function programs()
     {
         return view('frontend.programs');
+    }
+
+    public function accountDashboard()
+    {
+        return $this->accountPage('dashboard');
+    }
+
+    public function accountProfile()
+    {
+        return $this->accountPage('profile');
+    }
+
+    public function accountEdit()
+    {
+        return $this->accountPage('edit');
+    }
+
+    public function accountGrades()
+    {
+        return $this->accountPage('grades');
+    }
+
+    public function accountSettings()
+    {
+        return $this->accountPage('settings');
+    }
+
+    public function accountNotifications()
+    {
+        return $this->accountPage('notifications');
+    }
+
+    public function accountCalendar()
+    {
+        return $this->accountPage('calendar');
+    }
+
+    private function accountPage(string $section)
+    {
+        $user = auth()->user();
+        $student = $user?->student()->with(['department', 'academicYear', 'semester'])->first();
+        $enrollments = $student
+            ? $student->enrollments()->with(['course', 'academicYear', 'semester'])->latest('enrollment_date')->limit(8)->get()
+            : collect();
+        $grades = $student
+            ? \App\Models\AssessmentGrade::query()
+                ->where('student_id', $student->student_id)
+                ->with(['exam', 'quiz', 'assignment'])
+                ->latest('graded_at')
+                ->limit(10)
+                ->get()
+            : collect();
+        $schedules = $student
+            ? $student->schedules()->with(['teacher.user', 'classRoom'])->orderBy('day')->orderBy('start_time')->limit(12)->get()
+            : collect();
+
+        $pageMap = [
+            'dashboard' => [
+                'title' => 'ផ្ទៃតាប្លូ',
+                'icon' => 'fas fa-tachometer-alt',
+                'description' => 'មើលសេចក្តីសង្ខេបគណនី វគ្គសិក្សា ពិន្ទុ និងកាលវិភាគរបស់អ្នក។',
+            ],
+            'profile' => [
+                'title' => 'មើលប្រវត្តិរូប',
+                'icon' => 'fa fa-user',
+                'description' => 'ព័ត៌មានគណនី និងព័ត៌មានសិស្សដែលបានរក្សាទុកក្នុងប្រព័ន្ធ។',
+            ],
+            'edit' => [
+                'title' => 'កែសម្រួលព័ត៌មាន',
+                'icon' => 'fa fa-cog',
+                'description' => 'ចូលទៅកាន់ទំព័រកែប្រែព័ត៌មានគណនីក្នុងផ្ទាំងគ្រប់គ្រង។',
+            ],
+            'grades' => [
+                'title' => 'ពិន្ទុ',
+                'icon' => 'fa fa-list-alt',
+                'description' => 'មើលពិន្ទុចុងក្រោយពីតេស្ត កិច្ចការ និងការវាយតម្លៃផ្សេងៗ។',
+            ],
+            'settings' => [
+                'title' => 'ការកំណត់',
+                'icon' => 'fa fa-cog',
+                'description' => 'ជម្រើសរហ័សសម្រាប់ភាសា សុវត្ថិភាព និងការគ្រប់គ្រងគណនី។',
+            ],
+            'notifications' => [
+                'title' => 'ការជូនដំណឹង',
+                'icon' => 'fa fa-paper-plane',
+                'description' => 'មើលសារជូនដំណឹង និងសកម្មភាពសំខាន់ៗពីប្រព័ន្ធ។',
+            ],
+            'calendar' => [
+                'title' => 'ប្រតិទិន',
+                'icon' => 'fa fa-calendar',
+                'description' => 'មើលកាលវិភាគរៀន និងពេលវេលាសកម្មភាពដែលពាក់ព័ន្ធ។',
+            ],
+        ];
+
+        abort_unless(isset($pageMap[$section]), 404);
+
+        return view('frontend.account-page', [
+            'section' => $section,
+            'page' => $pageMap[$section],
+            'pageMap' => $pageMap,
+            'user' => $user,
+            'student' => $student,
+            'enrollments' => $enrollments,
+            'grades' => $grades,
+            'schedules' => $schedules,
+        ]);
     }
 
     public function courseDetail(string $course = 'web-development')

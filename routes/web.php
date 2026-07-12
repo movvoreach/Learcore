@@ -18,7 +18,18 @@ Route::get('/', fn () => redirect()->route('login'));
 
 Route::get('/learning', [frontendController::class, 'index'])->name('dashboard');
 Route::get('/learning/about', [frontendController::class, 'about'])->name('frontend.about');
+Route::get('/learning/terms', [frontendController::class, 'terms'])->name('frontend.terms');
+Route::get('/learning/faqs', [frontendController::class, 'faqs'])->name('frontend.faqs');
 Route::get('/learning/programs', [frontendController::class, 'programs'])->name('frontend.programs');
+Route::middleware('auth')->prefix('/learning/account')->name('frontend.account.')->group(function (): void {
+    Route::get('/', [frontendController::class, 'accountDashboard'])->name('dashboard');
+    Route::get('/profile', [frontendController::class, 'accountProfile'])->name('profile');
+    Route::get('/edit', [frontendController::class, 'accountEdit'])->name('edit');
+    Route::get('/grades', [frontendController::class, 'accountGrades'])->name('grades');
+    Route::get('/settings', [frontendController::class, 'accountSettings'])->name('settings');
+    Route::get('/notifications', [frontendController::class, 'accountNotifications'])->name('notifications');
+    Route::get('/calendar', [frontendController::class, 'accountCalendar'])->name('calendar');
+});
 Route::get('/learning/language/{locale}', function (Request $request, string $locale) {
     if (! in_array($locale, ['km', 'en'], true)) {
         abort(404);

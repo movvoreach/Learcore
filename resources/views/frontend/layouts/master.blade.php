@@ -950,7 +950,7 @@
 
         .learning-course-grid {
             display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
+            grid-template-columns: repeat(3, minmax(0, 1fr));
             gap: 28px;
             padding-top: 60px;
         }
@@ -3478,19 +3478,6 @@
 
             $('#catalogSearch').on('input', applyCatalogFilters);
 
-            $('#catalogSort').on('click', function() {
-                const sortedCards = $catalogCards.get().sort(function(a, b) {
-                    const aRating = Number($(a).data('rating')) || 0;
-                    const bRating = Number($(b).data('rating')) || 0;
-
-                    return sortDescending ? bRating - aRating : aRating - bRating;
-                });
-
-                sortDescending = !sortDescending;
-                $catalogGrid.append(sortedCards);
-                $(this).find('span').text(sortDescending ? 'ពេញនិយមបំផុត' : 'តិចទៅច្រើន');
-                applyCatalogFilters();
-            });
 
             $('.learning-faq-question').on('click', function() {
                 const $item = $(this).closest('.learning-faq-item');

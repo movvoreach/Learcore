@@ -48,13 +48,8 @@
             href="{{ route('dashboard') }}"
             aria-label="Learning Management System home"
         >
-            <span class="learning-brand__icon">
-                <i class="fas fa-book-open"></i>
-            </span>
-
             <span class="learning-brand__text">
-                <strong>LearnCore <span>LMS</span></strong>
-                <small class="d-none d-md-inline-flex">{{ $learningText['brand'] }}</small>
+                <strong>{{ $learningText['brand'] }}</strong>
             </span>
         </a>
 
@@ -132,31 +127,31 @@
                     </a>
 
                     <div class="dropdown-menu dropdown-menu-end" role="menu" id="usermenu-dropdown" aria-labelledby="usermenu">
-                        <a class="dropdown-item" href="{{ route('filament.admin.pages.dashboard') }}" title="ផ្ទៃតាប្លូ">
+                        <a class="dropdown-item" href="{{ route('frontend.account.dashboard') }}" title="ផ្ទៃតាប្លូ">
                             <i aria-hidden="true" class="fas fa-tachometer-alt me-2"></i>
                             <span>ផ្ទៃតាប្លូ</span>
                         </a>
-                        <a class="dropdown-item" href="{{ route('filament.admin.pages.my-profile') }}" title="មើលប្រវត្តិរូប">
+                        <a class="dropdown-item" href="{{ route('frontend.account.profile') }}" title="មើលប្រវត្តិរូប">
                             <i aria-hidden="true" class="fa fa-user me-2"></i>
                             <span>មើលប្រវត្តិរូប</span>
                         </a>
-                        <a class="dropdown-item" href="{{ route('filament.admin.pages.my-profile') }}" title="កែសម្រួលព័ត៌មាន">
+                        <a class="dropdown-item" href="{{ route('frontend.account.edit') }}" title="កែសម្រួលព័ត៌មាន">
                             <i aria-hidden="true" class="fa fa-cog me-2"></i>
                             <span>កែសម្រួលព័ត៌មាន</span>
                         </a>
-                        <a class="dropdown-item" href="{{ route('filament.admin.pages.dashboard') }}" title="ពិន្ទុ">
+                        <a class="dropdown-item" href="{{ route('frontend.account.grades') }}" title="ពិន្ទុ">
                             <i aria-hidden="true" class="fa fa-list-alt me-2"></i>
                             <span>ពិន្ទុ</span>
                         </a>
-                        <a class="dropdown-item" href="{{ route('filament.admin.pages.my-profile') }}" title="ការកំណត់">
+                        <a class="dropdown-item" href="{{ route('frontend.account.settings') }}" title="ការកំណត់">
                             <i aria-hidden="true" class="fa fa-cog me-2"></i>
                             <span>ការកំណត់</span>
                         </a>
-                        <a class="dropdown-item" href="#" title="ការជូនដំណឹង">
+                        <a class="dropdown-item" href="{{ route('frontend.account.notifications') }}" title="ការជូនដំណឹង">
                             <i aria-hidden="true" class="fa fa-paper-plane me-2"></i>
                             <span>ការជូនដំណឹង</span>
                         </a>
-                        <a class="dropdown-item" href="#" title="ប្រតិទិន">
+                        <a class="dropdown-item" href="{{ route('frontend.account.calendar') }}" title="ប្រតិទិន">
                             <i aria-hidden="true" class="fa fa-calendar me-2"></i>
                             <span>ប្រតិទិន</span>
                         </a>
@@ -257,18 +252,111 @@
     </form>
 </nav>
 
-@push('styles')
+@once
     <style>
-        .learning-navbar {
-            background: #fff;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
-            border-bottom: 1px solid #eef2f6;
+        @font-face {
+            font-family: 'Battambang';
+            src: url('/fonts/Battambang-Regular.ttf') format('truetype');
+            font-weight: 400;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: 'Battambang';
+            src: url('/fonts/Battambang-Bold.ttf') format('truetype');
+            font-weight: 500;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        body.frontend-page .learning-navbar {
+            min-height: 70px;
+            align-items: stretch;
+            background: #0a6a76;
+            border-bottom: 0;
+            box-shadow: none;
+            backdrop-filter: none;
+        }
+
+        body.frontend-page .learning-navbar__inner {
+            max-width: none;
+            min-height: 70px;
+            padding: 0 36px;
+            background: #0a6a76;
+            font-family: 'Battambang', 'Khmer OS Siemreap', 'Khmer OS Battambang', Arial, sans-serif;
+        }
+
+        body.frontend-page .learning-brand {
+            color: #fff;
+        }
+
+        body.frontend-page .learning-brand:hover {
+            background: #075c68;
+            transform: none;
+        }
+
+        body.frontend-page .learning-brand__icon {
+            width: 42px;
+            height: 42px;
+            flex-basis: 42px;
+            border-radius: 0;
+            background: transparent;
+            color: #fff;
+            box-shadow: none;
+        }
+
+        body.frontend-page .learning-brand__text strong {
+            font-family: 'Battambang', sans-serif;
+            font-size: 18px;
+            font-weight: 600 !important;
+            color: #fff;
+        }
+
+        body.frontend-page .learning-navbar__inner > .learning-nav {
+            border: 0;
+            border-radius: 0;
+            background: transparent;
+            padding: 0;
+        }
+
+        body.frontend-page .learning-navbar__inner > .learning-nav .learning-nav__link {
+            min-height: 70px;
+            border-radius: 0;
+            color: #fff;
+            font-size: 18px;
+            font-weight: 400;
+        }
+
+        body.frontend-page .learning-navbar__inner > .learning-nav .learning-nav__link:hover,
+        body.frontend-page .learning-navbar__inner > .learning-nav .learning-nav__link.is-active {
+            background: #075c68;
+            color: #fff;
+            box-shadow: none;
+            transform: none;
+        }
+
+        body.frontend-page .learning-actions {
+            justify-content: flex-end;
+            gap: 0 !important;
         }
 
         .simplesearchform {
             position: relative;
             display: inline-flex;
             align-items: center;
+        }
+
+        body.frontend-page .simplesearchform .btn-open {
+            width: 48px;
+            height: 48px;
+            display: inline-grid;
+            place-items: center;
+            border: 0;
+            border-radius: 0;
+            color: #fff;
+            font-size: 18px;
+            background: transparent;
         }
         
         .simplesearchform #searchform-navbar {
@@ -278,9 +366,9 @@
             transform: translateY(-50%);
             z-index: 1050;
             background: #fff;
-            border-radius: 24px;
+            border-radius: 3px;
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-            border: 1px solid #e2e8f0;
+            border: 0;
             padding: 4px;
             width: 320px;
         }
@@ -289,7 +377,7 @@
             display: flex;
             align-items: center;
             background: #f8fafc;
-            border-radius: 20px;
+            border-radius: 0;
             padding: 2px 8px;
             width: 100%;
         }
@@ -307,64 +395,163 @@
         .simplesearchform .btn {
             border: 0;
             background: transparent;
-            color: #64748b;
+            color: #0b1a72;
             padding: 6px 10px;
             cursor: pointer;
             transition: color 0.2s ease, transform 0.2s ease;
         }
         
         .simplesearchform .btn:hover {
-            color: #237dbe;
+            color: #ffffff;
             transform: scale(1.05);
         }
 
-        .learning-language .dropdown-toggle,
-        .learning-user .dropdown-toggle {
-            color: #475569;
-            font-weight: 600;
-            font-size: 15px;
+        body.frontend-page .learning-language .dropdown-toggle,
+        body.frontend-page .learning-user .dropdown-toggle {
+            min-height: 70px;
+            padding: 0 16px;
+            border: 0;
+            border-radius: 0;
+            background: transparent;
+            color: #fff;
+            font-family: 'Battambang', 'Khmer OS Siemreap', 'Khmer OS Battambang', Arial, sans-serif;
+            font-weight: 700;
+            font-size: 20px;
+            line-height: 1;
             text-decoration: none;
-            transition: color 0.2s ease;
+            transition: background-color 0.2s ease, color 0.2s ease;
         }
 
-        .learning-language .dropdown-toggle:hover,
-        .learning-user .dropdown-toggle:hover {
-            color: #237dbe;
+        body.frontend-page .learning-language .dropdown-toggle:hover,
+        body.frontend-page .learning-language .dropdown-toggle.show,
+        body.frontend-page .learning-user .dropdown-toggle:hover,
+        body.frontend-page .learning-user .dropdown-toggle.show {
+            background: #075c68;
+            color: #fff;
         }
 
-        .learning-language .langdesc {
-            font-size: 14px;
+        body.frontend-page .learning-user .dropdown-toggle {
+            background: #087281;
         }
 
-        .dropdown-menu {
-            border: 1px solid #e2e8f0;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
-            border-radius: 8px;
-            padding: 6px;
+        body.frontend-page .learning-language .dropdown-toggle i {
+            font-size: 22px;
         }
 
-        .dropdown-item {
+        body.frontend-page .learning-language .langdesc {
+            font-size: 20px;
+            line-height: 1;
+        }
+
+        body.frontend-page .learning-user .dropdown-toggle img {
+            width: 36px;
+            height: 36px;
+            border: 0 !important;
+            box-shadow: none;
+            background: #fff;
+        }
+
+        body.frontend-page .learning-language .dropdown-menu,
+        body.frontend-page .learning-user .dropdown-menu {
+            min-width: 200px;
+            margin-top: 0;
+            border: 0;
+            border-radius: 4px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.16);
+            padding: 10px 0;
+            overflow: visible;
+        }
+
+        body.frontend-page .learning-language .dropdown-item,
+        body.frontend-page .learning-user .dropdown-item {
+            min-height: 46px;
             display: flex;
             align-items: center;
-            padding: 8px 16px;
-            font-size: 14px;
-            color: #475569;
-            border-radius: 6px;
+            gap: 10px;
+            padding: 7px 18px;
+            border-radius: 0;
+            color: #0b1a72;
+            font-family: 'Battambang', 'Khmer OS Siemreap', 'Khmer OS Battambang', Arial, sans-serif;
+            font-size: 16px;
+            font-weight: 400;
+            line-height: 1.45;
             transition: background-color 0.15s ease, color 0.15s ease;
         }
 
-        .dropdown-item:hover {
-            background-color: #f1f5f9;
-            color: #237dbe;
+        body.frontend-page .learning-language .dropdown-item:hover,
+        body.frontend-page .learning-user .dropdown-item:hover {
+            background-color: #f4f7fb;
+            color: #0b1a72;
+            transform: none;
         }
 
-        .dropdown-item.active, .dropdown-item:active {
-            background-color: #237dbe;
+        body.frontend-page .learning-language .dropdown-item.active,
+        body.frontend-page .learning-language .dropdown-item:active,
+        body.frontend-page .learning-user .dropdown-item.active,
+        body.frontend-page .learning-user .dropdown-item:active {
+            background-color: #0a6a76;
             color: #fff;
+            font-weight: 500;
+        }
+
+        body.frontend-page .learning-language .dropdown-toggle span,
+        body.frontend-page .learning-user .dropdown-toggle span,
+        body.frontend-page .learning-language .dropdown-item span,
+        body.frontend-page .learning-user .dropdown-item span {
+            font-weight: inherit;
         }
         
-        .dropdown-item i {
-            width: 20px;
+        body.frontend-page .learning-language .dropdown-item i,
+        body.frontend-page .learning-user .dropdown-item i {
+            width: 22px;
+            color: inherit;
+            font-size: 18px;
+            text-align: center;
+        }
+
+        body.frontend-page .learning-user .dropdown-divider {
+            margin: 6px 0;
+        }
+
+        body.frontend-page .learning-nav--mobile {
+            background: #0a6a76;
+            border: 0;
+            border-radius: 0;
+            margin-bottom: 0;
+            padding: 0 12px 10px;
+            width: 100%;
+        }
+
+        body.frontend-page .learning-nav--mobile .learning-nav__link {
+            color: #fff;
+            background: transparent;
+            box-shadow: none;
+        }
+
+        body.frontend-page .learning-nav--mobile .learning-nav__link.is-active,
+        body.frontend-page .learning-nav--mobile .learning-nav__link:hover {
+            background: #075c68;
+            color: #fff;
+            transform: none;
+        }
+
+        @media (max-width: 767.98px) {
+            body.frontend-page .learning-navbar__inner {
+                min-height: 62px;
+                padding: 0 12px;
+            }
+
+            body.frontend-page .learning-language .dropdown-toggle,
+            body.frontend-page .learning-user .dropdown-toggle {
+                min-height: 62px;
+                padding: 0 10px;
+                font-size: 16px;
+            }
+
+            body.frontend-page .learning-language .langdesc,
+            body.frontend-page .learning-user .dropdown-toggle span {
+                display: none !important;
+            }
         }
     </style>
-@endpush
+@endonce
