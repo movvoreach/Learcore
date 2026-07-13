@@ -63,6 +63,9 @@ class frontendController extends Controller
                         });
                 });
             })
+            ->when($request->filled('category_id'), function ($query) use ($request): void {
+                $query->where('course_category_id', $request->integer('category_id'));
+            })
             ->when($canManageCatalog && $request->filled('academic_year_id'), function ($query) use ($request): void {
                 $query->where('academic_year_id', $request->integer('academic_year_id'));
             })
@@ -131,6 +134,38 @@ class frontendController extends Controller
     public function accountProfile()
     {
         return $this->accountPage('profile');
+    }
+
+    public function updateProfile(Request $request)
+    {
+        $user = auth()->user();
+        $student = $user->student;
+
+        $validated = $request->validate([
+            'firstName' => ['required', 'string', 'max:255'],
+            'lastName' => ['required', 'string', 'max:255'],
+            'gender' => ['nullable', 'string', 'max:50'],
+            'avatar' => ['nullable', 'image', 'max:2048'],
+        ]);
+
+        $user->update([
+            'name' => trim($validated['firstName'] . ' ' . $validated['lastName']),
+        ]);
+
+        if ($request->hasFile('avatar')) {
+            $path = $request->file('avatar')->store('avatars', 'public');
+            $user->update(['avatar' => $path]);
+        }
+
+        if ($student) {
+            $student->update([
+                'first_name' => $validated['firstName'],
+                'last_name' => $validated['lastName'],
+                'gender' => $validated['gender'] ?? $student->gender,
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Profile updated successfully.');
     }
 
     public function accountEdit()
@@ -554,7 +589,10 @@ class frontendController extends Controller
             return (clone $query)->find((int) $matches[1]);
         }
 
-        $courseByCode = (clone $query)->where('course_code', $course)->first();
+        $courseByCode = (clone $query)
+            ->where('course_code', $course)
+            ->orWhereRaw('LOWER(course_code) = ?', [Str::lower($course)])
+            ->first();
 
         if ($courseByCode) {
             return $courseByCode;

@@ -32,6 +32,10 @@ class ContentSeeder extends Seeder
         }
 
         foreach ($courses as $course) {
+            if ($course->course_code === 'BUS-101') {
+                continue;
+            }
+
             $isWesternArt = ($course->course_code === 'ART-101' || $course->course_name === 'History of Western Art');
 
             // We seed 10 modules for all courses

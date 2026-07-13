@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ app()->getLocale() }}" dir="{{ $currentLanguage?->direction ?? 'ltr' }}">
 
 <head>
     <meta charset="utf-8">
@@ -731,64 +731,146 @@
         }
 
         .learning-programs {
-            background: #f8fafc;
+            overflow: hidden;
+            background:
+                linear-gradient(180deg, #ffffff 0%, #f8fafc 42%, #eef5ff 100%);
         }
 
         .learning-stats {
+            max-width: 1460px;
             display: grid;
             grid-template-columns: repeat(4, minmax(0, 1fr));
-            gap: 24px;
-            padding: 64px 34px 70px;
-            border-bottom: 1px solid #e5e7eb;
+            gap: 18px;
+            margin: 42px auto 0;
+            padding: 0 34px 34px;
+            border-bottom: 0;
             background: #fff;
-            box-shadow: 0 4px 12px rgba(15, 23, 42, .08);
+            box-shadow: none;
         }
 
         .learning-stat {
+            position: relative;
+            overflow: hidden;
+            min-height: 210px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 28px;
+            border: 1px solid rgba(203, 213, 225, .82);
+            border-radius: 8px;
+            background:
+                linear-gradient(145deg, rgba(255, 255, 255, .98), rgba(248, 250, 252, .92));
+            box-shadow: 0 18px 38px rgba(15, 23, 42, .08);
             text-align: center;
+            transition: transform .24s ease, box-shadow .24s ease, border-color .24s ease;
+        }
+
+        .learning-stat::after {
+            content: "";
+            position: absolute;
+            right: -38px;
+            bottom: -46px;
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            background: rgba(20, 93, 255, .07);
+        }
+
+        .learning-stat:hover {
+            transform: translateY(-5px);
+            border-color: rgba(20, 93, 255, .28);
+            box-shadow: 0 24px 48px rgba(15, 23, 42, .12);
+        }
+
+        .learning-stat-icon {
+            width: 46px;
+            height: 46px;
+            display: grid;
+            place-items: center;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 19px;
+            box-shadow: 0 12px 22px rgba(15, 23, 42, .14);
+        }
+
+        .learning-stat-icon--students {
+            background: linear-gradient(135deg, #2563eb, #06b6d4);
+        }
+
+        .learning-stat-icon--courses {
+            background: linear-gradient(135deg, #ff7a1a, #f59e0b);
+        }
+
+        .learning-stat-icon--staff {
+            background: linear-gradient(135deg, #7c3aed, #db2777);
+        }
+
+        .learning-stat-icon--progress {
+            background: linear-gradient(135deg, #16a34a, #14b8a6);
         }
 
         .learning-stat strong {
             display: block;
-            color: #183ebc;
-            font-size: 62px;
+            color: #0f172a;
+            font-size: 54px;
             line-height: 1;
             font-weight: 900;
             white-space: nowrap;
         }
 
-        .learning-stat span {
+        .learning-stat > span:not(.learning-stat-icon) {
             display: block;
-            margin-top: 12px;
+            margin-top: 14px;
             color: #0f172a;
-            font-size: 19px;
+            font-size: 18px;
             font-weight: 900;
+            text-align: left;
         }
 
         .learning-stat small {
             display: block;
             margin-top: 8px;
-            color: #94a3b8;
-            font-size: 16px;
+            color: #64748b;
+            font-size: 14px;
             font-weight: 700;
+            text-align: left;
         }
 
         .learning-programs__inner {
             max-width: 1520px;
             margin: 0 auto;
-            padding: 96px 34px 88px;
+            padding: 86px 34px 96px;
         }
 
         .learning-section-head {
             max-width: 850px;
-            margin: 0 auto 58px;
+            margin: 0 auto 52px;
             text-align: center;
+        }
+
+        .learning-section-eyebrow {
+            min-height: 32px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+            padding: 0 16px;
+            border: 1px solid rgba(20, 93, 255, .15);
+            border-radius: 999px;
+            background: #eaf1ff;
+            color: #145dff;
+            font-size: 13px;
+            font-weight: 900;
+            letter-spacing: .04em;
+            text-transform: uppercase;
         }
 
         .learning-section-head h2 {
             margin: 0;
             color: #07152f;
-            font-size: 38px;
+            font-size: 42px;
             line-height: 1.35;
             font-weight: 900;
         }
@@ -804,35 +886,75 @@
         .learning-program-grid {
             display: grid;
             grid-template-columns: repeat(4, minmax(0, 1fr));
-            gap: 28px;
+            gap: 22px;
         }
 
         .learning-program-card {
-            min-height: 250px;
+            position: relative;
+            overflow: hidden;
+            min-height: 300px;
             display: flex;
             flex-direction: column;
-            padding: 30px;
-            border: 1px solid #dfe5ee;
-            border-radius: 18px;
-            background: #fff;
-            box-shadow: 0 3px 9px rgba(15, 23, 42, .10);
+            padding: 28px;
+            border: 1px solid rgba(203, 213, 225, .86);
+            border-radius: 8px;
+            background:
+                linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+            box-shadow: 0 16px 34px rgba(15, 23, 42, .08);
             transition: transform .28s ease, box-shadow .28s ease, border-color .28s ease;
         }
 
+        .learning-program-card::before {
+            content: "";
+            position: absolute;
+            inset: 0 0 auto;
+            height: 4px;
+            background: linear-gradient(90deg, #145dff, #06b6d4);
+            opacity: .85;
+        }
+
+        .learning-program-card:nth-child(2)::before {
+            background: linear-gradient(90deg, #ff5b00, #f59e0b);
+        }
+
+        .learning-program-card:nth-child(3)::before {
+            background: linear-gradient(90deg, #8b35ff, #06b6d4);
+        }
+
+        .learning-program-card:nth-child(4)::before {
+            background: linear-gradient(90deg, #ec1680, #ff7a1a);
+        }
+
         .learning-program-card:hover {
-            transform: translateY(-8px);
+            transform: translateY(-7px);
             border-color: rgba(24, 62, 188, .22);
-            box-shadow: 0 18px 40px rgba(15, 23, 42, .14);
+            box-shadow: 0 24px 52px rgba(15, 23, 42, .14);
+        }
+
+        .learning-program-year {
+            width: max-content;
+            min-height: 28px;
+            display: inline-flex;
+            align-items: center;
+            margin-bottom: 18px;
+            padding: 0 11px;
+            border-radius: 999px;
+            background: #f1f5f9;
+            color: #475569;
+            font-size: 12px;
+            font-weight: 900;
+            text-transform: uppercase;
         }
 
         .learning-program-icon {
-            width: 60px;
-            height: 60px;
+            width: 66px;
+            height: 66px;
             display: grid;
             place-items: center;
-            margin-bottom: 24px;
-            border-radius: 14px;
-            font-size: 27px;
+            margin-bottom: 26px;
+            border-radius: 8px;
+            font-size: 28px;
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .64);
         }
 
         .learning-program-icon--blue {
@@ -858,31 +980,43 @@
         .learning-program-card h3 {
             margin: 0;
             color: #07152f;
-            font-size: 18px;
+            font-size: 20px;
             line-height: 1.45;
             font-weight: 900;
         }
 
         .learning-program-card p {
-            margin: 10px 0 22px;
+            margin: 12px 0 24px;
             color: #64748b;
-            font-size: 14px;
-            line-height: 1.7;
+            font-size: 15px;
+            line-height: 1.75;
             font-weight: 600;
         }
 
         .learning-program-card a {
-            display: flex;
+            min-height: 46px;
+            display: inline-flex;
             align-items: center;
-            justify-content: space-between;
-            gap: 14px;
+            justify-content: center;
+            gap: 10px;
+            width: max-content;
+            max-width: 100%;
             margin-top: auto;
-            padding-top: 18px;
-            border-top: 1px solid #edf1f6;
+            padding: 0 18px;
+            border: 1px solid rgba(20, 93, 255, .18);
+            border-radius: 8px;
+            background: #fff;
             color: #145dff;
-            font-size: 14px;
+            font-size: 15px;
             font-weight: 900;
             text-decoration: none;
+            transition: background .2s ease, color .2s ease, border-color .2s ease;
+        }
+
+        .learning-program-card a:hover {
+            border-color: #145dff;
+            background: #145dff;
+            color: #fff;
         }
 
         .learning-program-card a i {
@@ -2923,7 +3057,13 @@
 
             .learning-stats {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
-                padding: 44px 16px;
+                margin-top: 0;
+                padding: 44px 16px 28px;
+            }
+
+            .learning-stat {
+                min-height: 190px;
+                padding: 24px;
             }
 
             .learning-programs__inner {
@@ -3137,6 +3277,15 @@
             .learning-course-grid,
             .learning-catalog-grid {
                 grid-template-columns: 1fr;
+            }
+
+            .learning-stats {
+                gap: 14px;
+                padding-top: 28px;
+            }
+
+            .learning-stat {
+                min-height: 172px;
             }
 
             .learning-stat strong {

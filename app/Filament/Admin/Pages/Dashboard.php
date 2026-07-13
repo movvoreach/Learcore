@@ -44,6 +44,16 @@ class Dashboard extends BaseDashboard
 
     protected string $view = 'filament.admin.pages.dashboard';
 
+    public static function getNavigationLabel(): string
+    {
+        return __('admin.nav.dashboard');
+    }
+
+    public function getTitle(): string|Htmlable
+    {
+        return __('admin.nav.dashboard');
+    }
+
     public static function getNavigationIcon(): string|BackedEnum|Htmlable|null
     {
         return new HtmlString('<img src="'.e(asset('Icons/dashbords.png')).'" alt="" class="fi-sidebar-item-icon" />');

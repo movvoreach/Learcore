@@ -269,6 +269,165 @@
             color: #f1f5f9;
         }
 
+        .ss-modal-backdrop {
+            position: fixed;
+            inset: 0;
+            z-index: 60;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            overflow-y: auto;
+            background: rgba(0, 0, 0, .48);
+            padding: 42px 20px;
+        }
+
+        .ss-modal {
+            width: min(980px, 100%);
+            border-radius: 4px;
+            background: #fff;
+            color: #3f4566;
+            box-shadow: 0 18px 40px rgba(0, 0, 0, .22);
+        }
+
+        .ss-modal-head,
+        .ss-modal-foot {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-height: 62px;
+            padding: 0 18px;
+            border-bottom: 1px solid #e3e5ef;
+        }
+
+        .ss-modal-foot {
+            justify-content: flex-end;
+            gap: 10px;
+            border-top: 1px solid #e3e5ef;
+            border-bottom: 0;
+        }
+
+        .ss-modal-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 0;
+            font-size: 19px;
+            font-weight: 400;
+        }
+
+        .ss-modal-plus {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #3f4566;
+            font-size: 17px;
+            line-height: 1;
+        }
+
+        .ss-modal-close {
+            border: 0;
+            background: transparent;
+            color: #777;
+            font-size: 28px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .ss-modal-body {
+            padding: 24px 18px 26px;
+        }
+
+        .ss-modal-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        .ss-modal-field--full {
+            grid-column: 1 / -1;
+        }
+
+        .ss-modal-label {
+            display: block;
+            margin-bottom: 5px;
+            color: #59617e;
+            font-size: 14px;
+        }
+
+        .ss-required {
+            color: #f3132e;
+        }
+
+        .ss-modal-input {
+            width: 100%;
+            min-height: 42px;
+            border: 1px solid #cfd4ec;
+            border-radius: 3px;
+            background: #fff;
+            padding: 8px 12px;
+            color: #59617e;
+            font: inherit;
+            box-shadow: none;
+        }
+
+        textarea.ss-modal-input {
+            min-height: 94px;
+            resize: vertical;
+        }
+
+        .ss-modal-error {
+            margin-top: 5px;
+            color: #dc2626;
+            font-size: 13px;
+        }
+
+        .ss-modal-submit,
+        .ss-modal-cancel {
+            min-height: 42px;
+            border: 0;
+            border-radius: 3px;
+            padding: 0 18px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .ss-modal-submit {
+            background: #5866f5;
+            color: #fff;
+        }
+
+        .ss-modal-cancel {
+            background: #eef0f7;
+            color: #59617e;
+        }
+
+        .dark .ss-modal {
+            background: #1e293b;
+            color: #f1f5f9;
+            border: 1px solid #334155;
+        }
+
+        .dark .ss-modal-head,
+        .dark .ss-modal-foot {
+            border-color: #334155;
+        }
+
+        .dark .ss-modal-label {
+            color: #cbd5e1;
+        }
+
+        .dark .ss-modal-input {
+            background: #0f172a;
+            border-color: #334155;
+            color: #e2e8f0;
+        }
+
+        @media (max-width: 768px) {
+            .ss-modal-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
         /* Hide default Filament header actions globally on this page */
         .fi-header-actions,
         .fi-ac-actions,
@@ -278,7 +437,149 @@
         }
     </style>
 
-    <div class="enrollments-list-show">
+    <div class="enrollments-list-show"
+         x-data="{
+            showCreateEnrollmentModal: @js($showCreateEnrollmentModal),
+            openEnrollmentModal() {
+                this.showCreateEnrollmentModal = true;
+                this.$nextTick(() => {
+                    if (this.$refs.enrollmentDateInput && ! this.$refs.enrollmentDateInput.value) {
+                        this.$refs.enrollmentDateInput.value = new Date().toISOString().slice(0, 10);
+                    }
+
+                    this.initEnrollmentSelects();
+                    this.filterEnrollmentDepartmentFields();
+                    this.filterEnrollmentSemesters();
+                });
+            },
+            closeEnrollmentModal() {
+                this.showCreateEnrollmentModal = false;
+            },
+            initEnrollmentSelects() {
+                if (! window.jQuery || ! window.jQuery.fn.select2 || ! this.$refs.enrollmentModal) {
+                    return;
+                }
+
+                [
+                    this.$refs.enrollmentDepartmentSelect,
+                    this.$refs.enrollmentStudentSelect,
+                    this.$refs.enrollmentCourseSelect,
+                    this.$refs.enrollmentAcademicYearSelect,
+                    this.$refs.enrollmentSemesterSelect,
+                    this.$refs.enrollmentStatusSelect,
+                ].filter(Boolean).forEach((element) => {
+                    const select = window.jQuery(element);
+
+                    if (select.hasClass('select2-hidden-accessible')) {
+                        select.select2('destroy');
+                    }
+
+                    select.select2({
+                        theme: 'bootstrap4',
+                        width: '100%',
+                        placeholder: element.dataset.placeholder || '',
+                        dropdownParent: window.jQuery(this.$refs.enrollmentModal),
+                        allowClear: element.dataset.allowClear === 'true',
+                    });
+                });
+
+                window.jQuery(this.$refs.enrollmentDepartmentSelect)
+                    .off('change.enrollmentModal')
+                    .on('change.enrollmentModal', () => this.filterEnrollmentDepartmentFields());
+
+                window.jQuery(this.$refs.enrollmentAcademicYearSelect)
+                    .off('change.enrollmentModal')
+                    .on('change.enrollmentModal', () => this.filterEnrollmentSemesters());
+            },
+            filterSelectByDepartment(selectElement, departmentId) {
+                if (! selectElement) {
+                    return;
+                }
+
+                let selectedIsVisible = true;
+
+                Array.from(selectElement.options).forEach((option) => {
+                    if (! option.value) {
+                        option.hidden = false;
+                        option.disabled = false;
+                        return;
+                    }
+
+                    const visible = ! departmentId || option.dataset.department === departmentId;
+                    option.hidden = ! visible;
+                    option.disabled = ! visible;
+
+                    if (option.selected && ! visible) {
+                        selectedIsVisible = false;
+                    }
+                });
+
+                if (! selectedIsVisible) {
+                    selectElement.value = '';
+                }
+
+                if (window.jQuery && window.jQuery.fn.select2) {
+                    window.jQuery(selectElement).trigger('change.select2');
+                }
+            },
+            filterEnrollmentDepartmentFields() {
+                const departmentId = this.$refs.enrollmentDepartmentSelect?.value || '';
+
+                this.filterSelectByDepartment(this.$refs.enrollmentStudentSelect, departmentId);
+                this.filterSelectByDepartment(this.$refs.enrollmentCourseSelect, departmentId);
+            },
+            filterEnrollmentSemesters() {
+                if (! this.$refs.enrollmentSemesterSelect) {
+                    return;
+                }
+
+                const yearId = this.$refs.enrollmentAcademicYearSelect?.value || '';
+                const semesterSelect = this.$refs.enrollmentSemesterSelect;
+                let selectedIsVisible = true;
+
+                Array.from(semesterSelect.options).forEach((option) => {
+                    if (! option.value) {
+                        option.hidden = false;
+                        return;
+                    }
+
+                    const visible = ! yearId || option.dataset.year === yearId;
+                    option.hidden = ! visible;
+                    option.disabled = ! visible;
+
+                    if (option.selected && ! visible) {
+                        selectedIsVisible = false;
+                    }
+                });
+
+                semesterSelect.disabled = ! yearId;
+
+                if (! selectedIsVisible) {
+                    semesterSelect.value = '';
+                }
+
+                if (window.jQuery && window.jQuery.fn.select2) {
+                    window.jQuery(semesterSelect).trigger('change.select2');
+                }
+            },
+            nullableInt(value) {
+                return value ? parseInt(value, 10) : null;
+            },
+            async submitEnrollment() {
+                $wire.showCreateEnrollmentModal = true;
+                $wire.enrollmentDepartmentId = this.nullableInt(this.$refs.enrollmentDepartmentSelect?.value);
+                $wire.enrollmentStudentId = this.nullableInt(this.$refs.enrollmentStudentSelect?.value);
+                $wire.enrollmentCourseId = this.nullableInt(this.$refs.enrollmentCourseSelect?.value);
+                $wire.enrollmentAcademicYearId = this.nullableInt(this.$refs.enrollmentAcademicYearSelect?.value);
+                $wire.enrollmentSemesterId = this.nullableInt(this.$refs.enrollmentSemesterSelect?.value);
+                $wire.enrollmentDate = this.$refs.enrollmentDateInput?.value || null;
+                $wire.enrollmentStatus = this.$refs.enrollmentStatusSelect?.value || 'studying';
+                $wire.enrollmentNote = this.$refs.enrollmentNoteInput?.value || null;
+                await $wire.createEnrollment();
+            },
+         }"
+         x-init="$nextTick(() => { if (showCreateEnrollmentModal) openEnrollmentModal() })"
+         x-on:close-create-enrollment-modal.window="closeEnrollmentModal()">
         <div class="ss-toolbar">
             <div class="ss-filters-group">
                 <div class="ss-select2-wrap" wire:ignore x-data="{
@@ -368,7 +669,7 @@
             
             <div class="ss-actions-group" style="display: flex; gap: 6px;">
                 @if (\App\Filament\Admin\Resources\Enrollments\EnrollmentResource::canCreate())
-                    <button class="ss-tool" type="button" title="ចុះឈ្មោះចូលរៀន" wire:click="mountAction('create')">
+                    <button class="ss-tool" type="button" title="ចុះឈ្មោះចូលរៀន" x-on:click="openEnrollmentModal()">
                         <i class="fa fa-plus-circle"></i>
                     </button>
                 @endif
@@ -386,6 +687,121 @@
                 {{ $this->table }}
             </div>
         </div>
+
+        @if (\App\Filament\Admin\Resources\Enrollments\EnrollmentResource::canCreate())
+            <div class="ss-modal-backdrop"
+                 x-show="showCreateEnrollmentModal"
+                 x-transition.opacity
+                 x-cloak
+                 x-on:keydown.escape.window="closeEnrollmentModal()">
+                <form class="ss-modal"
+                      x-ref="enrollmentModal"
+                      x-on:submit.prevent="submitEnrollment()"
+                      x-on:click.outside="closeEnrollmentModal()"
+                      x-show="showCreateEnrollmentModal"
+                      x-transition>
+                    <div class="ss-modal-head">
+                        <h3 class="ss-modal-title">
+                            <span class="ss-modal-plus"><i class="fa-solid fas fa-user-plus"></i></span>
+                            ចុះឈ្មោះចូលរៀន
+                        </h3>
+                        <button class="ss-modal-close" type="button" x-on:click="closeEnrollmentModal()">×</button>
+                    </div>
+
+                    <div class="ss-modal-body">
+                        <div class="ss-modal-grid">
+                            <div class="ss-modal-field--full">
+                                <label class="ss-modal-label" for="enrollment-department-id">ដេប៉ាតឺម៉ង់</label>
+                                <select id="enrollment-department-id" class="ss-modal-input" x-ref="enrollmentDepartmentSelect" data-placeholder="ជ្រើសរើសដេប៉ាតឺម៉ង់" data-allow-clear="true">
+                                    <option value="">ជ្រើសរើសដេប៉ាតឺម៉ង់</option>
+                                    @foreach(\App\Models\Department::query()->orderBy('department_code')->orderBy('department_name')->get() as $department)
+                                        <option value="{{ $department->department_id }}" @selected((int) $enrollmentDepartmentId === (int) $department->department_id)>
+                                            {{ trim(($department->department_code ?? '').' - '.$department->department_name, ' -') }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('enrollmentDepartmentId') <div class="ss-modal-error">{{ $message }}</div> @enderror
+                            </div>
+
+                            <div>
+                                <label class="ss-modal-label" for="enrollment-student-id">និស្សិត <span class="ss-required">*</span></label>
+                                <select id="enrollment-student-id" class="ss-modal-input" x-ref="enrollmentStudentSelect" data-placeholder="ជ្រើសរើសនិស្សិត">
+                                    <option value="">ជ្រើសរើសនិស្សិត</option>
+                                    @foreach(\App\Models\Student::query()->orderBy('student_code')->orderBy('first_name')->get() as $student)
+                                        @php($studentName = trim(($student->student_code ?? '').' - '.($student->first_name ?? '').' '.($student->last_name ?? '')))
+                                        <option value="{{ $student->student_id }}" data-department="{{ $student->department_id }}" @selected((int) $enrollmentStudentId === (int) $student->student_id)>{{ $studentName }}</option>
+                                    @endforeach
+                                </select>
+                                @error('enrollmentStudentId') <div class="ss-modal-error">{{ $message }}</div> @enderror
+                            </div>
+
+                            <div>
+                                <label class="ss-modal-label" for="enrollment-course-id">វគ្គសិក្សា <span class="ss-required">*</span></label>
+                                <select id="enrollment-course-id" class="ss-modal-input" x-ref="enrollmentCourseSelect" data-placeholder="ជ្រើសរើសវគ្គសិក្សា">
+                                    <option value="">ជ្រើសរើសវគ្គសិក្សា</option>
+                                    @foreach(\App\Models\Course::query()->orderBy('course_name')->get() as $course)
+                                        <option value="{{ $course->course_id }}" data-department="{{ $course->department_id }}" @selected((int) $enrollmentCourseId === (int) $course->course_id)>{{ $course->course_name }}</option>
+                                    @endforeach
+                                </select>
+                                @error('enrollmentCourseId') <div class="ss-modal-error">{{ $message }}</div> @enderror
+                            </div>
+
+                            <div>
+                                <label class="ss-modal-label" for="enrollment-academic-year-id">ឆ្នាំសិក្សា</label>
+                                <select id="enrollment-academic-year-id" class="ss-modal-input" x-ref="enrollmentAcademicYearSelect" data-placeholder="ជ្រើសរើសឆ្នាំសិក្សា" data-allow-clear="true">
+                                    <option value="">ជ្រើសរើសឆ្នាំសិក្សា</option>
+                                    @foreach(\App\Models\AcademicYear::query()->orderByDesc('start_date')->orderBy('year_name')->get() as $academicYear)
+                                        <option value="{{ $academicYear->academic_year_id }}" @selected((int) $enrollmentAcademicYearId === (int) $academicYear->academic_year_id)>{{ $academicYear->year_name }}</option>
+                                    @endforeach
+                                </select>
+                                @error('enrollmentAcademicYearId') <div class="ss-modal-error">{{ $message }}</div> @enderror
+                            </div>
+
+                            <div>
+                                <label class="ss-modal-label" for="enrollment-semester-id">ឆមាស</label>
+                                <select id="enrollment-semester-id" class="ss-modal-input" x-ref="enrollmentSemesterSelect" data-placeholder="ជ្រើសរើសឆមាស" data-allow-clear="true" @disabled(blank($enrollmentAcademicYearId))>
+                                    <option value="">ជ្រើសរើសឆមាស</option>
+                                    @foreach(\App\Models\Semester::query()->orderBy('start_date')->get() as $semester)
+                                        <option value="{{ $semester->semester_id }}" data-year="{{ $semester->academic_year_id }}" @selected((int) $enrollmentSemesterId === (int) $semester->semester_id)>{{ $semester->semester_name }}</option>
+                                    @endforeach
+                                </select>
+                                @error('enrollmentSemesterId') <div class="ss-modal-error">{{ $message }}</div> @enderror
+                            </div>
+
+                            <div>
+                                <label class="ss-modal-label" for="enrollment-date">ថ្ងៃចុះឈ្មោះ</label>
+                                <input id="enrollment-date" class="ss-modal-input" type="date" x-ref="enrollmentDateInput" value="{{ $enrollmentDate }}">
+                                @error('enrollmentDate') <div class="ss-modal-error">{{ $message }}</div> @enderror
+                            </div>
+
+                            <div>
+                                <label class="ss-modal-label" for="enrollment-status">ស្ថានភាព <span class="ss-required">*</span></label>
+                                <select id="enrollment-status" class="ss-modal-input" x-ref="enrollmentStatusSelect" data-placeholder="ជ្រើសរើសស្ថានភាព">
+                                    <option value="studying" @selected($enrollmentStatus === 'studying')>កំពុងសិក្សា</option>
+                                    <option value="completed" @selected($enrollmentStatus === 'completed')>បានបញ្ចប់</option>
+                                    <option value="cancelled" @selected($enrollmentStatus === 'cancelled')>បានបោះបង់</option>
+                                </select>
+                                @error('enrollmentStatus') <div class="ss-modal-error">{{ $message }}</div> @enderror
+                            </div>
+
+                            <div class="ss-modal-field--full">
+                                <label class="ss-modal-label" for="enrollment-note">កំណត់សម្គាល់</label>
+                                <textarea id="enrollment-note" class="ss-modal-input" x-ref="enrollmentNoteInput">{{ $enrollmentNote }}</textarea>
+                                @error('enrollmentNote') <div class="ss-modal-error">{{ $message }}</div> @enderror
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="ss-modal-foot">
+                        <button class="ss-modal-cancel" type="button" x-on:click="closeEnrollmentModal()">បោះបង់</button>
+                        <button class="ss-modal-submit" type="submit" wire:loading.attr="disabled" wire:target="createEnrollment">
+                            <span wire:loading.remove wire:target="createEnrollment">រក្សាទុក</span>
+                            <span wire:loading wire:target="createEnrollment">កំពុងរក្សាទុក...</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        @endif
     </div>
 
     <script>
@@ -398,3 +814,4 @@
         })();
     </script>
 </x-filament-panels::page>
+

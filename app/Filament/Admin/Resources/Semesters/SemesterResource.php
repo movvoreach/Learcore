@@ -2,7 +2,6 @@
 
 namespace App\Filament\Admin\Resources\Semesters;
 
-use App\Filament\Admin\Resources\Semesters\Pages\CreateSemester;
 use App\Filament\Admin\Resources\Semesters\Pages\EditSemester;
 use App\Filament\Admin\Resources\Semesters\Pages\ListSemesters;
 use App\Filament\Admin\Resources\Semesters\Schemas\SemesterForm;
@@ -50,7 +49,6 @@ class SemesterResource extends Resource
     {
         return [
             'index' => ListSemesters::route('/'),
-            'create' => CreateSemester::route('/create'),
             'edit' => EditSemester::route('/{record}/edit'),
         ];
     }

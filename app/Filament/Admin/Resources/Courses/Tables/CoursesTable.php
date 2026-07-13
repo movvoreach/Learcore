@@ -7,6 +7,7 @@ use App\Filament\Admin\Pages\CourseStudents;
 use App\Filament\Admin\Pages\StudentCourse;
 use App\Models\Course;
 use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -23,7 +24,7 @@ class CoursesTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn (Builder $query): Builder => $query->with(['academicYear', 'category', 'department', 'semester']))
+            ->modifyQueryUsing(fn (Builder $query): Builder => $query->with(['academicYear', 'category', 'department', 'semester', 'courseAssignments.teacher']))
             ->columns([
                 TextColumn::make('course_code')
                     ->label('Course Code')
@@ -128,24 +129,48 @@ class CoursesTable
                 ? StudentCourse::getUrl(['course' => $record->course_id])
                 : null)
             ->recordActions([
-                Action::make('view_students')
-                    ->label('View Students')
-                    ->icon(Heroicon::OutlinedUsers)
-                    ->color('info')
-                    ->url(fn (Course $record): string => CourseStudents::getUrl(['course' => $record->course_id]))
-                    ->visible(fn (): bool => ! auth()->user()?->isStudent()),
+                ActionGroup::make([
+                    Action::make('view_students')
+                        ->label('View Students')
+                        ->icon(Heroicon::OutlinedUsers)
+                        ->color('info')
+                        ->url(fn (Course $record): string => CourseStudents::getUrl(['course' => $record->course_id])),
 
-                Action::make('view_lessons')
-                    ->label('View Lessons')
-                    ->icon(Heroicon::OutlinedBookOpen)
-                    ->color('success')
-                    ->url(fn (Course $record): string => CourseLessons::getUrl(['course' => $record->course_id]))
-                    ->visible(fn (): bool => ! auth()->user()?->isStudent()),
+                    Action::make('view_lessons')
+                        ->label('View Lessons')
+                        ->icon(Heroicon::OutlinedBookOpen)
+                        ->color('success')
+                        ->url(fn (Course $record): string => CourseLessons::getUrl(['course' => $record->course_id])),
 
-                EditAction::make()
-                    ->visible(fn (): bool => ! auth()->user()?->isStudent()),
+                    Action::make('assign_teacher')
+                        ->label('Assign Teacher')
+                        ->icon(Heroicon::OutlinedAcademicCap)
+                        ->color('warning')
+                        ->extraAttributes(function (Course $record): array {
+                            $assignment = $record->courseAssignments->first();
 
-                DeleteAction::make()
+                            return [
+                                'data-open-assign-teacher' => '1',
+                                'data-course-id' => (string) $record->course_id,
+                                'data-course-name' => $record->course_name,
+                                'data-course-department-id' => (string) ($record->department_id ?? ''),
+                                'data-teacher-department-id' => (string) ($assignment?->teacher?->department_id ?? ''),
+                                'data-teacher-id' => (string) ($assignment?->teacher_id ?? ''),
+                            ];
+                        }),
+
+                    EditAction::make()
+                        ->label('កែសម្រួល'),
+
+                    DeleteAction::make()
+                        ->label('លុប'),
+                ])
+                    ->label('មុខងារ')
+                    ->icon(null)
+                    ->button()
+                    ->color('primary')
+                    ->dropdownWidth('14rem')
+                    ->extraAttributes(['class' => 'lc-course-actions'])
                     ->visible(fn (): bool => ! auth()->user()?->isStudent()),
             ])
             ->toolbarActions([

@@ -2,7 +2,6 @@
 
 namespace App\Filament\Admin\Resources\AcademicYears;
 
-use App\Filament\Admin\Resources\AcademicYears\Pages\CreateAcademicYear;
 use App\Filament\Admin\Resources\AcademicYears\Pages\EditAcademicYear;
 use App\Filament\Admin\Resources\AcademicYears\Pages\ListAcademicYears;
 use App\Filament\Admin\Resources\AcademicYears\Schemas\AcademicYearForm;
@@ -50,7 +49,6 @@ class AcademicYearResource extends Resource
     {
         return [
             'index' => ListAcademicYears::route('/'),
-            'create' => CreateAcademicYear::route('/create'),
             'edit' => EditAcademicYear::route('/{record}/edit'),
         ];
     }

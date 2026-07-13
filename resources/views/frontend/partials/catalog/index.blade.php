@@ -2,6 +2,10 @@
     $canManageCatalog = $canManageCatalog ?? (auth()->user()?->hasAnyRole(['super_admin', 'admin', 'teacher']) ?? false);
     $academicYears = $academicYears ?? collect();
     $departments = $departments ?? collect();
+    $selectedCategoryId = request()->integer('category_id') ?: null;
+    $selectedCategory = $selectedCategoryId
+        ? ($categories->firstWhere('course_category_id', $selectedCategoryId) ?? \App\Models\CourseCategory::find($selectedCategoryId))
+        : null;
 @endphp
 
 @push('styles')
@@ -15,8 +19,14 @@
         {{-- Hero Header --}}
         <div class="learning-catalog-hero reveal-item">
             <div class="learning-catalog-hero__text">
-                <h2>បញ្ជីមុខវិជ្ជាសិក្សា</h2>
-                <p>ស្វែងរកមុខវិជ្ជា ចែកតាមឆ្នាំសិក្សា និងជ្រើសរើសមេរៀនដែលសមស្របបំផុតសម្រាប់ការរៀនរបស់អ្នក។</p>
+                @if($selectedCategory)
+                    <span class="learning-catalog-kicker">
+                        <i class="fas fa-folder-open"></i>
+                        {{ $selectedCategory->category_name }}
+                    </span>
+                @endif
+                <h2>{{ $selectedCategory ? $selectedCategory->category_name : 'បញ្ជីមុខវិជ្ជាសិក្សា' }}</h2>
+                <p>{{ $selectedCategory ? ($selectedCategory->description ?: 'មុខវិជ្ជាទាំងអស់ក្នុងប្រភេទនេះ ត្រូវបានរៀបចំឲ្យងាយស្រួលសម្រាប់ស្វែងរក និងចូលរៀន។') : 'ស្វែងរកមុខវិជ្ជា ចែកតាមឆ្នាំសិក្សា និងជ្រើសរើសមេរៀនដែលសមស្របបំផុតសម្រាប់ការរៀនរបស់អ្នក។' }}</p>
             </div>
             <div class="learning-catalog-hero__stats">
                 <div class="catalog-stat">
@@ -30,9 +40,35 @@
             </div>
         </div>
 
+        <div class="learning-category-strip reveal-item">
+            <div class="learning-category-strip__summary">
+                <span class="learning-category-strip__icon">
+                    <i class="fas fa-layer-group"></i>
+                </span>
+                <div>
+                    <strong>{{ $selectedCategory ? $selectedCategory->category_name : 'ប្រភេទមុខវិជ្ជាទាំងអស់' }}</strong>
+                    <span>កំពុងបង្ហាញ {{ $courses->total() }} មុខវិជ្ជា</span>
+                </div>
+            </div>
+
+            <div class="learning-category-pills" aria-label="Course categories">
+                <a href="{{ route('frontend.courses') }}" class="learning-category-pill {{ $selectedCategory ? '' : 'is-active' }}">
+                    ទាំងអស់
+                </a>
+                @foreach($categories as $category)
+                    <a href="{{ route('frontend.courses', ['category_id' => $category->course_category_id]) }}" class="learning-category-pill {{ (int) $selectedCategoryId === (int) $category->course_category_id ? 'is-active' : '' }}">
+                        {{ $category->category_name }}
+                    </a>
+                @endforeach
+            </div>
+        </div>
+
         @if($canManageCatalog)
         {{-- Toolbar --}}
         <form class="learning-catalog-toolbar reveal-item bg-white border rounded-3 shadow-sm" action="{{ route('frontend.courses') }}" method="GET">
+            @if($selectedCategoryId)
+                <input type="hidden" name="category_id" value="{{ $selectedCategoryId }}">
+            @endif
             <label class="learning-catalog-search">
                 <i class="fas fa-search"></i>
                 <input type="search" id="catalogSearch" class="form-control border-0 shadow-none" name="search" value="{{ request('search') }}" placeholder="ស្វែងរកតាមឈ្មោះមុខវិជ្ជា ឬគ្រូបង្រៀន..." autocomplete="off">
@@ -168,7 +204,7 @@
                     <select class="learning-sidebar-select catalog-select2 form-control" id="catalogSidebarCategoryFilter" data-filter-kind="type" data-placeholder="ជ្រើសរើសប្រភេទមុខវិជ្ជា">
                         <option value="all">គ្រប់ប្រភេទមុខវិជ្ជា</option>
                         @foreach($categories as $category)
-                            <option value="cat-{{ $category->course_category_id }}">
+                            <option value="cat-{{ $category->course_category_id }}" @selected((int) $selectedCategoryId === (int) $category->course_category_id)>
                                 {{ $category->category_name }}
                             </option>
                         @endforeach
@@ -358,6 +394,23 @@
             font-weight: 900;
         }
 
+        .learning-catalog-kicker {
+            width: max-content;
+            max-width: 100%;
+            min-height: 34px;
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            margin-bottom: 14px;
+            padding: 0 14px;
+            border: 1px solid rgba(240, 77, 0, .16);
+            border-radius: 999px;
+            background: #fff7ed;
+            color: var(--catalog-brand-dark);
+            font-size: 13px;
+            font-weight: 900;
+        }
+
         .learning-catalog-hero__text p {
             max-width: 680px;
             margin: 12px 0 0;
@@ -405,6 +458,95 @@
         /* ═══════════════════════════════════════════
            CATALOG — Toolbar
            ═══════════════════════════════════════════ */
+        .learning-category-strip {
+            display: grid;
+            grid-template-columns: minmax(260px, .72fr) minmax(0, 1.28fr);
+            gap: 18px;
+            align-items: center;
+            margin-top: 22px;
+            padding: 18px;
+            border: 1px solid rgba(226, 232, 240, .95);
+            border-radius: 18px;
+            background: #fff;
+            box-shadow: var(--catalog-shadow-sm);
+        }
+
+        .learning-category-strip__summary {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            min-width: 0;
+        }
+
+        .learning-category-strip__icon {
+            width: 48px;
+            height: 48px;
+            display: grid;
+            place-items: center;
+            flex: 0 0 48px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, var(--catalog-brand), #f97316);
+            color: #fff;
+            box-shadow: 0 12px 22px rgba(240, 77, 0, .18);
+        }
+
+        .learning-category-strip__summary strong,
+        .learning-category-strip__summary span {
+            display: block;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .learning-category-strip__summary strong {
+            color: var(--catalog-ink);
+            font-size: 17px;
+            font-weight: 900;
+        }
+
+        .learning-category-strip__summary span {
+            margin-top: 3px;
+            color: var(--catalog-muted);
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .learning-category-pills {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 2px;
+            scrollbar-width: thin;
+        }
+
+        .learning-category-pill {
+            min-height: 38px;
+            display: inline-flex;
+            align-items: center;
+            flex: 0 0 auto;
+            padding: 0 15px;
+            border: 1px solid var(--catalog-line);
+            border-radius: 999px;
+            background: #f8fafc;
+            color: #475569;
+            font-size: 13px;
+            font-weight: 900;
+            text-decoration: none;
+            white-space: nowrap;
+            transition: background .18s ease, color .18s ease, border-color .18s ease, transform .18s ease;
+        }
+
+        .learning-category-pill:hover,
+        .learning-category-pill.is-active {
+            border-color: rgba(240, 77, 0, .28);
+            background: #fff7ed;
+            color: var(--catalog-brand-dark);
+            text-decoration: none;
+            transform: translateY(-1px);
+        }
+
         .learning-catalog-toolbar {
             display: flex;
             align-items: center;
@@ -1457,6 +1599,15 @@
 
             .learning-catalog-hero__text h2 {
                 font-size: 30px;
+            }
+
+            .learning-category-strip {
+                grid-template-columns: 1fr;
+                align-items: start;
+            }
+
+            .learning-category-pills {
+                justify-content: flex-start;
             }
 
             .learning-catalog-toolbar {

@@ -11,6 +11,7 @@
         'calendar' => route('frontend.account.calendar'),
     ];
 
+    $isProfilePage = $section === 'profile';
     $displayName = $student
         ? trim(($student->first_name ?? '').' '.($student->last_name ?? '')) ?: $user->name
         : $user->name;
@@ -21,8 +22,9 @@
 @section('title', $page['title'].' | LearnCore LMS')
 
 @section('content')
-    <section class="learning-account-page">
-        <div class="learning-account-shell">
+    <section class="learning-account-page {{ $isProfilePage ? 'learning-account-page--profile' : '' }}">
+        <div class="learning-account-shell {{ $isProfilePage ? 'learning-account-shell--profile' : '' }}">
+            @unless($isProfilePage)
             <aside class="learning-account-sidebar">
                 <div class="learning-account-user">
                     <img src="{{ $user->avatar ?: asset('backend/dist/img/avatar.png') }}" alt="{{ $displayName }}">
@@ -39,8 +41,10 @@
                     @endforeach
                 </nav>
             </aside>
+            @endunless
 
             <main class="learning-account-main">
+                @if($section !== 'profile')
                 <header class="learning-account-hero">
                     <span class="learning-account-icon">
                         <i class="{{ $page['icon'] }}"></i>
@@ -50,6 +54,7 @@
                         <p>{{ $page['description'] }}</p>
                     </div>
                 </header>
+                @endif
 
                 @if($section === 'dashboard')
                     <div class="learning-account-stats">
@@ -130,10 +135,27 @@
 
 @push('styles')
     <style>
+        @if($isProfilePage)
+        .learning-navbar,
+        .learning-footer {
+            display: none !important;
+        }
+
+        .frontend-main {
+            padding-top: 0 !important;
+        }
+        @endif
+
         .learning-account-page {
             max-width: 1240px;
             margin: 0 auto;
             padding: 42px 24px 86px;
+        }
+
+        .learning-account-page--profile {
+            max-width: none;
+            padding: 0 0 72px;
+            background: #fff;
         }
 
         .learning-account-shell {
@@ -141,6 +163,14 @@
             grid-template-columns: 280px minmax(0, 1fr);
             gap: 24px;
             align-items: start;
+        }
+
+        .learning-account-shell--profile {
+            display: block;
+        }
+
+        .learning-account-shell--profile .learning-account-main {
+            display: block;
         }
 
         .learning-account-sidebar,

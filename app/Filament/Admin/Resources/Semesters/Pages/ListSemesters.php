@@ -3,21 +3,9 @@
 namespace App\Filament\Admin\Resources\Semesters\Pages;
 
 use App\Filament\Admin\Resources\Semesters\SemesterResource;
-use App\Models\AcademicYear;
 use App\Models\Semester;
-use Filament\Actions\Action;
-use Filament\Actions\CreateAction;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ListRecords;
-use Filament\Schemas\Components\Section;
-use Filament\Support\Enums\Width;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\ValidationException;
 
 class ListSemesters extends ListRecords
 {
@@ -29,119 +17,76 @@ class ListSemesters extends ListRecords
 
     protected string $view = 'filament.admin.resources.semesters.pages.list-semesters';
 
+    public ?int $semesterAcademicYearId = null;
+    public ?string $semesterName = null;
+    public ?string $semesterStartDate = null;
+    public ?string $semesterEndDate = null;
+    public bool $semesterIsActive = true;
+    public bool $showCreateSemesterModal = false;
+
     public function getMaxContentWidth(): ?string
     {
         return 'full';
     }
 
+    public function openCreateSemesterModal(): void
+    {
+        $this->resetCreateSemesterForm();
+        $this->showCreateSemesterModal = true;
+    }
+
+    public function closeCreateSemesterModal(): void
+    {
+        $this->showCreateSemesterModal = false;
+        $this->resetValidation();
+    }
+
+    public function createSemester(): void
+    {
+        $data = $this->validate([
+            'semesterAcademicYearId' => ['required', 'integer', 'exists:academic_years,academic_year_id'],
+            'semesterName' => ['required', 'string', 'max:100'],
+            'semesterStartDate' => ['required', 'date', 'before_or_equal:semesterEndDate'],
+            'semesterEndDate' => ['required', 'date', 'after_or_equal:semesterStartDate'],
+            'semesterIsActive' => ['boolean'],
+        ], [], [
+            'semesterAcademicYearId' => 'ឆ្នាំសិក្សា',
+            'semesterName' => 'ឈ្មោះឆមាស',
+            'semesterStartDate' => 'ថ្ងៃចាប់ផ្តើម',
+            'semesterEndDate' => 'ថ្ងៃបញ្ចប់',
+            'semesterIsActive' => 'កំពុងប្រើប្រាស់',
+        ]);
+
+        Semester::query()->create([
+            'academic_year_id' => $data['semesterAcademicYearId'],
+            'semester_name' => $data['semesterName'],
+            'start_date' => $data['semesterStartDate'],
+            'end_date' => $data['semesterEndDate'],
+            'is_active' => $data['semesterIsActive'],
+        ]);
+
+        $this->showCreateSemesterModal = false;
+        $this->resetCreateSemesterForm();
+        $this->dispatch('close-create-semester-modal');
+
+        Notification::make()
+            ->success()
+            ->title('ឆមាសត្រូវបានបង្កើតដោយជោគជ័យ!')
+            ->send();
+    }
+
     protected function getHeaderActions(): array
     {
-        return [
-            CreateAction::make()
-                ->icon('heroicon-m-plus')
-                ->hiddenLabel()
-                ->tooltip('បញ្ចូលឆមាស'),
-            Action::make('create_semesters_group')
-                ->label('បង្កើតឆមាសជាក្រុម')
-                ->icon('heroicon-o-squares-plus')
-                ->modalHeading('បង្កើតឆមាសជាក្រុម')
-                ->modalDescription('ជ្រើសឆ្នាំសិក្សា ហើយបញ្ចូលឆមាសច្រើនក្នុង modal តែមួយ។')
-                ->modalSubmitActionLabel('រក្សាទុកឆមាស')
-                ->modalWidth(Width::ExtraLarge)
-                ->form([
-                    Select::make('academic_year_id')
-                        ->label('ឆ្នាំសិក្សា')
-                        ->options(fn (): array => AcademicYear::query()
-                            ->orderByDesc('start_date')
-                            ->orderBy('year_name')
-                            ->pluck('year_name', 'academic_year_id')
-                            ->all())
-                        ->searchable()
-                        ->preload()
-                        ->required(),
-                    Repeater::make('semesters')
-                        ->label('បញ្ជីឆមាស')
-                        ->schema([
-                            TextInput::make('semester_name')
-                                ->label('ឈ្មោះឆមាស')
-                                ->placeholder('ឆមាសទី 1')
-                                ->required()
-                                ->maxLength(100),
-                            DatePicker::make('start_date')
-                                ->label('ថ្ងៃចាប់ផ្តើម')
-                                ->native(false)
-                                ->displayFormat('d/m/Y')
-                                ->required()
-                                ->beforeOrEqual('end_date'),
-                            DatePicker::make('end_date')
-                                ->label('ថ្ងៃបញ្ចប់')
-                                ->native(false)
-                                ->displayFormat('d/m/Y')
-                                ->required()
-                                ->afterOrEqual('start_date'),
-                            Toggle::make('is_active')
-                                ->label('កំពុងប្រើប្រាស់'),
-                        ])
-                        ->default([
-                            ['semester_name' => 'ឆមាសទី 1', 'is_active' => true],
-                            ['semester_name' => 'ឆមាសទី 2', 'is_active' => false],
-                        ])
-                        ->columns(2)
-                        ->addActionLabel('បន្ថែមឆមាស')
-                        ->reorderableWithButtons()
-                        ->minItems(1)
-                        ->required(),
-                ])
-                ->action(function (array $data): void {
-                    $semesters = collect($data['semesters'] ?? [])
-                        ->map(fn (array $semester): array => [
-                            ...$semester,
-                            'semester_name' => trim((string) ($semester['semester_name'] ?? '')),
-                        ])
-                        ->filter(fn (array $semester): bool => filled($semester['semester_name']))
-                        ->values();
+        return [];
+    }
 
-                    $duplicateNames = $semesters
-                        ->pluck('semester_name')
-                        ->duplicates()
-                        ->unique()
-                        ->values();
-
-                    if ($duplicateNames->isNotEmpty()) {
-                        throw ValidationException::withMessages([
-                            'semesters' => 'ឈ្មោះឆមាសស្ទួន: '.$duplicateNames->implode(', '),
-                        ]);
-                    }
-
-                    [$createdCount, $updatedCount] = DB::transaction(function () use ($data, $semesters): array {
-                        $createdCount = 0;
-                        $updatedCount = 0;
-
-                        foreach ($semesters as $semester) {
-                            $record = Semester::updateOrCreate(
-                                [
-                                    'academic_year_id' => $data['academic_year_id'],
-                                    'semester_name' => $semester['semester_name'],
-                                ],
-                                [
-                                    'start_date' => $semester['start_date'],
-                                    'end_date' => $semester['end_date'],
-                                    'is_active' => (bool) ($semester['is_active'] ?? false),
-                                ],
-                            );
-
-                            $record->wasRecentlyCreated ? $createdCount++ : $updatedCount++;
-                        }
-
-                        return [$createdCount, $updatedCount];
-                    });
-
-                    Notification::make()
-                        ->success()
-                        ->title("បានរក្សាទុកឆមាស {$semesters->count()} កំណត់ត្រា")
-                        ->body("បង្កើតថ្មី {$createdCount} និងកែប្រែ {$updatedCount}")
-                        ->send();
-                }),
-        ];
+    private function resetCreateSemesterForm(): void
+    {
+        $this->semesterAcademicYearId = null;
+        $this->semesterName = null;
+        $this->semesterStartDate = now()->toDateString();
+        $this->semesterEndDate = now()->toDateString();
+        $this->semesterIsActive = true;
+        $this->resetValidation();
     }
 }

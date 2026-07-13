@@ -24,6 +24,10 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->bind(\Filament\Support\Contracts\LoadingIndicator::class, \App\Support\CustomLoadingIndicator::class);
         $this->app->bind(\Filament\Auth\Http\Responses\Contracts\LoginResponse::class, \App\Http\Responses\FilamentLoginResponse::class);
+        $this->app->extend('translation.loader', fn ($loader, $app) => new \App\Translation\DatabaseTranslationLoader(
+            $loader,
+            $app->make(\App\Services\Localization\LocalizationService::class),
+        ));
     }
 
     /**

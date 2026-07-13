@@ -19,6 +19,8 @@ use App\Filament\Admin\Resources\AcademicYears\AcademicYearResource;
 use App\Filament\Admin\Resources\Semesters\SemesterResource;
 use App\Filament\Admin\Resources\StudentPromotions\StudentPromotionResource;
 use App\Filament\Admin\Resources\ActivityLogResource;
+use App\Filament\Admin\Resources\Languages\LanguageResource;
+use App\Filament\Admin\Resources\Translations\TranslationResource;
 use App\Filament\Admin\Resources\AssessmentGrades\AssessmentGradeResource;
 use App\Filament\Admin\Resources\AssessmentQuestions\AssessmentQuestionResource;
 use App\Filament\Admin\Resources\AssessmentResults\AssessmentResultResource;
@@ -73,27 +75,27 @@ use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 class AdminPanelProvider extends PanelProvider
 {
-    private const GROUP_USERS = 'គ្រប់គ្រងអ្នកប្រើប្រាស់';
+    private const GROUP_USERS = 'groups.users';
 
-    private const GROUP_ACADEMIC = 'គ្រប់គ្រងការសិក្សា';
+    private const GROUP_ACADEMIC = 'groups.academic';
 
-    private const GROUP_STUDENTS = 'គ្រប់គ្រងនិស្សិត';
+    private const GROUP_STUDENTS = 'groups.students';
 
-    private const GROUP_TEACHERS = 'គ្រប់គ្រងគ្រូបង្រៀន';
+    private const GROUP_TEACHERS = 'groups.teachers';
 
-    private const GROUP_CONTENT = 'មាតិកាសិក្សា';
+    private const GROUP_CONTENT = 'groups.content';
 
-    private const GROUP_ASSESSMENT = 'ការវាយតម្លៃ';
+    private const GROUP_ASSESSMENT = 'groups.assessment';
 
-    private const GROUP_COMMUNICATION = 'ការទំនាក់ទំនង';
+    private const GROUP_COMMUNICATION = 'groups.communication';
 
-    private const GROUP_FINANCE = 'ហិរញ្ញវត្ថុ';
+    private const GROUP_FINANCE = 'groups.finance';
 
-    private const GROUP_REPORTS = 'របាយការណ៍';
+    private const GROUP_REPORTS = 'groups.reports';
 
-    private const GROUP_SETTINGS = 'ការកំណត់';
+    private const GROUP_SETTINGS = 'groups.settings';
 
-    private const GROUP_API = 'ចំណុចប្រទាក់កម្មវិធី';
+    private const GROUP_API = 'groups.api';
 
     public function panel(Panel $panel): Panel
     {
@@ -155,6 +157,11 @@ class AdminPanelProvider extends PanelProvider
                     ->icon('heroicon-o-globe-alt')
                     ->url('/learning'),
             ])
+
+            ->renderHook(
+                PanelsRenderHook::GLOBAL_SEARCH_AFTER,
+                fn (): HtmlString => new HtmlString(view('filament.admin.partials.language-switcher')->render()),
+            )
 
             ->renderHook(
                 PanelsRenderHook::SCRIPTS_AFTER,
@@ -349,14 +356,14 @@ HTML);
     private function lmsNavigationGroups(): array
     {
         return [
-            NavigationGroup::make(self::GROUP_USERS),
-            NavigationGroup::make(self::GROUP_ACADEMIC),
-            NavigationGroup::make(self::GROUP_STUDENTS),
-            NavigationGroup::make(self::GROUP_TEACHERS),
-            NavigationGroup::make(self::GROUP_CONTENT),
-            NavigationGroup::make(self::GROUP_ASSESSMENT),
-            NavigationGroup::make(self::GROUP_REPORTS)->collapsed(),
-            NavigationGroup::make(self::GROUP_SETTINGS),
+            NavigationGroup::make($this->adminLabel(self::GROUP_USERS)),
+            NavigationGroup::make($this->adminLabel(self::GROUP_ACADEMIC)),
+            NavigationGroup::make($this->adminLabel(self::GROUP_STUDENTS)),
+            NavigationGroup::make($this->adminLabel(self::GROUP_TEACHERS)),
+            NavigationGroup::make($this->adminLabel(self::GROUP_CONTENT)),
+            NavigationGroup::make($this->adminLabel(self::GROUP_ASSESSMENT)),
+            NavigationGroup::make($this->adminLabel(self::GROUP_REPORTS))->collapsed(),
+            NavigationGroup::make($this->adminLabel(self::GROUP_SETTINGS)),
         ];
     }
 
@@ -369,51 +376,51 @@ HTML);
             // ==========================================
             // Student-Only Navigation Items
             // ==========================================
-            NavigationItem::make('My Courses')
+            NavigationItem::make($this->adminLabel('nav.my_courses'))
                 ->icon(new HtmlString('<img src="'.e(asset('Icons/courses.png')).'" alt="" class="fi-sidebar-item-icon" />'))
                 ->url(fn (): string => KhmerDashboard::getUrl())
                 ->isActiveWhen(fn (): bool => request()->routeIs('filament.admin.pages.dashboard') && !request()->has('tab'))
                 ->visible(fn (): bool => auth()->user()?->isStudent() ?? false)
                 ->sort(10),
 
-            NavigationItem::make('Available Courses')
+            NavigationItem::make($this->adminLabel('nav.available_courses'))
                 ->icon(new HtmlString('<img src="'.e(asset('Icons/course.png')).'" alt="" class="fi-sidebar-item-icon" />'))
                 ->url(fn (): string => KhmerDashboard::getUrl())
                 ->visible(fn (): bool => auth()->user()?->isStudent() ?? false)
                 ->sort(20),
 
-            NavigationItem::make('Schedule')
+            NavigationItem::make($this->adminLabel('nav.schedule'))
                 ->icon(new HtmlString('<img src="'.e(asset('Icons/schedule.png')).'" alt="" class="fi-sidebar-item-icon" />'))
                 ->url(fn (): string => ScheduleResource::getUrl('index'))
                 ->isActiveWhen(fn (): bool => request()->routeIs(ScheduleResource::getRouteBaseName().'.*'))
                 ->visible(fn (): bool => auth()->user()?->isStudent() ?? false)
                 ->sort(30),
 
-            NavigationItem::make('Assignments')
+            NavigationItem::make($this->adminLabel('nav.assignments'))
                 ->icon(Heroicon::OutlinedClipboardDocumentCheck)
                 ->url(fn (): string => KhmerDashboard::getUrl())
                 ->visible(fn (): bool => auth()->user()?->isStudent() ?? false)
                 ->sort(40),
 
-            NavigationItem::make('Quizzes / Exams')
+            NavigationItem::make($this->adminLabel('nav.quizzes_exams'))
                 ->icon(Heroicon::OutlinedQuestionMarkCircle)
                 ->url(fn (): string => KhmerDashboard::getUrl())
                 ->visible(fn (): bool => auth()->user()?->isStudent() ?? false)
                 ->sort(50),
 
-            NavigationItem::make('Grades')
+            NavigationItem::make($this->adminLabel('nav.grades'))
                 ->icon(Heroicon::OutlinedListBullet)
                 ->url(fn (): string => KhmerDashboard::getUrl())
                 ->visible(fn (): bool => auth()->user()?->isStudent() ?? false)
                 ->sort(60),
 
-            NavigationItem::make('Attendance')
+            NavigationItem::make($this->adminLabel('nav.attendance'))
                 ->icon(Heroicon::OutlinedCalendarDays)
                 ->url(fn (): string => KhmerDashboard::getUrl())
                 ->visible(fn (): bool => auth()->user()?->isStudent() ?? false)
                 ->sort(70),
 
-            NavigationItem::make('Certificates')
+            NavigationItem::make($this->adminLabel('nav.certificates'))
                 ->icon(Heroicon::OutlinedAcademicCap)
                 ->url(fn (): string => KhmerDashboard::getUrl())
                 ->visible(fn (): bool => auth()->user()?->isStudent() ?? false)
@@ -422,7 +429,7 @@ HTML);
             // ==========================================
             // Teacher-Only Navigation Items
             // ==========================================
-            NavigationItem::make('My Courses')
+            NavigationItem::make($this->adminLabel('nav.my_courses'))
                 ->icon(new HtmlString('<img src="'.e(asset('Icons/courses.png')).'" alt="" class="fi-sidebar-item-icon" />'))
                 ->url(fn (): string => CourseResource::getUrl('index'))
                 ->isActiveWhen(fn (): bool => request()->routeIs(CourseResource::getRouteBaseName().'.*') && !request()->routeIs(CourseResource::getRouteBaseName().'.create'))
@@ -430,56 +437,56 @@ HTML);
                 ->sort(10),
 
 
-            NavigationItem::make('Course Content')
+            NavigationItem::make($this->adminLabel('nav.course_content'))
                 ->icon(new HtmlString('<img src="'.e(asset('Icons/ducs.png')).'" alt="" class="fi-sidebar-item-icon" />'))
                 ->url(fn (): string => ContentLessonResource::getUrl('index'))
                 ->isActiveWhen(fn (): bool => request()->routeIs(ContentLessonResource::getRouteBaseName().'.*') || request()->routeIs(ContentChapterResource::getRouteBaseName().'.*') || request()->routeIs(ContentVideoResource::getRouteBaseName().'.*') || request()->routeIs(ContentDocumentResource::getRouteBaseName().'.*'))
                 ->visible(fn (): bool => auth()->user()?->isTeacher() ?? false)
                 ->sort(30),
 
-            NavigationItem::make('Students')
+            NavigationItem::make($this->adminLabel('nav.students'))
                 ->icon(new HtmlString('<img src="'.e(asset('Icons/students.png')).'" alt="" class="fi-sidebar-item-icon" />'))
                 ->url(fn (): string => StudentResource::getUrl('index'))
                 ->isActiveWhen(fn (): bool => request()->routeIs(StudentResource::getRouteBaseName().'.*'))
                 ->visible(fn (): bool => auth()->user()?->isTeacher() ?? false)
                 ->sort(40),
 
-            NavigationItem::make('Assignments')
+            NavigationItem::make($this->adminLabel('nav.assignments'))
                 ->icon(Heroicon::OutlinedClipboardDocumentCheck)
                 ->url(fn (): string => ContentAssignmentResource::getUrl('index'))
                 ->isActiveWhen(fn (): bool => request()->routeIs(ContentAssignmentResource::getRouteBaseName().'.*') || request()->routeIs(AssignmentSubmissionResource::getRouteBaseName().'.*'))
                 ->visible(fn (): bool => auth()->user()?->isTeacher() ?? false)
                 ->sort(50),
 
-            NavigationItem::make('Quizzes / Exams')
+            NavigationItem::make($this->adminLabel('nav.quizzes_exams'))
                 ->icon(Heroicon::OutlinedQuestionMarkCircle)
                 ->url(fn (): string => QuizResource::getUrl('index'))
                 ->isActiveWhen(fn (): bool => request()->routeIs(QuizResource::getRouteBaseName().'.*') || request()->routeIs(ExamResource::getRouteBaseName().'.*') || request()->routeIs(QuestionBankResource::getRouteBaseName().'.*'))
                 ->visible(fn (): bool => auth()->user()?->isTeacher() ?? false)
                 ->sort(60),
 
-            NavigationItem::make('Gradebook')
+            NavigationItem::make($this->adminLabel('nav.gradebook'))
                 ->icon(Heroicon::OutlinedCheckBadge)
                 ->url(fn (): string => AssessmentGradeResource::getUrl('index'))
                 ->isActiveWhen(fn (): bool => request()->routeIs(AssessmentGradeResource::getRouteBaseName().'.*'))
                 ->visible(fn (): bool => auth()->user()?->isTeacher() ?? false)
                 ->sort(70),
 
-            NavigationItem::make('Attendance')
+            NavigationItem::make($this->adminLabel('nav.attendance'))
                 ->icon(new HtmlString('<img src="'.e(asset('Icons/presence.png')).'" alt="" class="fi-sidebar-item-icon" />'))
                 ->url(fn (): string => AttendanceResource::getUrl('index'))
                 ->isActiveWhen(fn (): bool => request()->routeIs(AttendanceResource::getRouteBaseName().'.*'))
                 ->visible(fn (): bool => auth()->user()?->isTeacher() ?? false)
                 ->sort(80),
 
-            NavigationItem::make('Schedule')
+            NavigationItem::make($this->adminLabel('nav.schedule'))
                 ->icon(new HtmlString('<img src="'.e(asset('Icons/schedule.png')).'" alt="" class="fi-sidebar-item-icon" />'))
                 ->url(fn (): string => ScheduleResource::getUrl('index'))
                 ->isActiveWhen(fn (): bool => request()->routeIs(ScheduleResource::getRouteBaseName().'.*'))
                 ->visible(fn (): bool => auth()->user()?->isTeacher() ?? false)
                 ->sort(85),
 
-            NavigationItem::make('Reports')
+            NavigationItem::make($this->adminLabel('nav.reports'))
                 ->icon(Heroicon::OutlinedUsers)
                 ->url(fn (): string => StudentReport::getUrl())
                 ->isActiveWhen(fn (): bool => request()->routeIs(StudentReport::getRouteName()))
@@ -489,73 +496,80 @@ HTML);
             // ==========================================
             // Admin Navigation Items
             // ==========================================
-            $this->resourceNavItem('អ្នកប្រើប្រាស់', self::GROUP_USERS, 10, asset('Icons/users.png'), UserResource::class),
-            $this->resourceNavItem('តួនាទី', self::GROUP_USERS, 20, asset('Icons/roles.png'), RoleResource::class),
-            $this->resourceNavItem('សិទ្ធិ', self::GROUP_USERS, 30,  asset('Icons/permission.png'), PermissionResource::class),
+            $this->resourceNavItem($this->adminLabel('nav.users'), self::GROUP_USERS, 10, asset('Icons/users.png'), UserResource::class),
+            $this->resourceNavItem($this->adminLabel('nav.roles'), self::GROUP_USERS, 20, asset('Icons/roles.png'), RoleResource::class),
+            $this->resourceNavItem($this->adminLabel('nav.permissions'), self::GROUP_USERS, 30,  asset('Icons/permission.png'), PermissionResource::class),
 
-            $this->resourceNavItem('មហាវិទ្យាល័យ', self::GROUP_ACADEMIC, 10, asset('Icons/faculty.png'), FacultyResource::class),
-            $this->resourceNavItem('ដេប៉ាតឺម៉ង់', self::GROUP_ACADEMIC, 20, asset('Icons/department.png'), DepartmentResource::class),
-            $this->resourceNavItem('ឆ្នាំសិក្សា', self::GROUP_ACADEMIC, 30, asset('Icons/yearacademic.png'), AcademicYearResource::class),
-            $this->resourceNavItem('ឆមាស', self::GROUP_ACADEMIC, 40, asset('Icons/semester.png'), SemesterResource::class),
+            $this->resourceNavItem($this->adminLabel('nav.faculties'), self::GROUP_ACADEMIC, 10, asset('Icons/faculty.png'), FacultyResource::class),
+            $this->resourceNavItem($this->adminLabel('nav.departments'), self::GROUP_ACADEMIC, 20, asset('Icons/department.png'), DepartmentResource::class),
+            $this->resourceNavItem($this->adminLabel('nav.academic_years'), self::GROUP_ACADEMIC, 30, asset('Icons/yearacademic.png'), AcademicYearResource::class),
+            $this->resourceNavItem($this->adminLabel('nav.semesters'), self::GROUP_ACADEMIC, 40, asset('Icons/semester.png'), SemesterResource::class),
 
-            $this->resourceNavItem('គ្រូបង្រៀន', self::GROUP_TEACHERS, 10, asset('Icons/teacher.png'), TeacherResource::class),
-            $this->resourceNavItem('ចាត់តាំងវគ្គសិក្សា', self::GROUP_TEACHERS, 20, asset('Icons/teacherasign.png'), CourseAssignmentResource::class),
-            $this->resourceNavItem('កាលវិភាគសិក្សា', self::GROUP_TEACHERS, 35, asset('Icons/schedule.png'), ScheduleResource::class),
+            $this->resourceNavItem($this->adminLabel('nav.teachers'), self::GROUP_TEACHERS, 10, asset('Icons/teacher.png'), TeacherResource::class),
+            $this->resourceNavItem($this->adminLabel('nav.course_assignments'), self::GROUP_TEACHERS, 20, asset('Icons/teacherasign.png'), CourseAssignmentResource::class),
+            $this->resourceNavItem($this->adminLabel('nav.class_schedules'), self::GROUP_TEACHERS, 35, asset('Icons/schedule.png'), ScheduleResource::class),
 
-            $this->resourceNavItem('ប្រភេទវគ្គសិក្សា', self::GROUP_CONTENT, 10, asset('Icons/course.png'), CourseCategoryResource::class),
-            $this->resourceNavItem('វគ្គសិក្សា', self::GROUP_CONTENT, 15, asset('Icons/courses.png'), CourseResource::class),
-            $this->resourceNavItem('ថ្នាក់រៀន', self::GROUP_CONTENT, 18, asset('Icons/course.png'), ClassRoomResource::class),
-            $this->resourceNavItem('ជំពូក', self::GROUP_CONTENT, 20, asset('Icons/content-chapters.png'), ContentChapterResource::class),
-            $this->resourceNavItem('មេរៀន', self::GROUP_CONTENT, 30, asset('Icons/ducs.png'), ContentLessonResource::class),
-            $this->resourceNavItem('វីដេអូ', self::GROUP_CONTENT, 40, Heroicon::OutlinedVideoCamera, ContentVideoResource::class),
-            $this->resourceNavItem('ឯកសារ', self::GROUP_CONTENT, 50, Heroicon::OutlinedDocumentText, ContentDocumentResource::class),
-            $this->resourceNavItem('កិច្ចការ', self::GROUP_CONTENT, 60, Heroicon::OutlinedClipboardDocumentCheck, ContentAssignmentResource::class),
-            $this->resourceNavItem('ធនធាន', self::GROUP_CONTENT, 70, Heroicon::OutlinedFolderOpen, ContentResourceResource::class),
+            $this->resourceNavItem($this->adminLabel('nav.course_categories'), self::GROUP_CONTENT, 10, asset('Icons/course.png'), CourseCategoryResource::class),
+            $this->resourceNavItem($this->adminLabel('nav.courses'), self::GROUP_CONTENT, 15, asset('Icons/courses.png'), CourseResource::class),
+            $this->resourceNavItem($this->adminLabel('nav.class_rooms'), self::GROUP_CONTENT, 18, asset('Icons/course.png'), ClassRoomResource::class),
+            $this->resourceNavItem($this->adminLabel('nav.chapters'), self::GROUP_CONTENT, 20, asset('Icons/content-chapters.png'), ContentChapterResource::class),
+            $this->resourceNavItem($this->adminLabel('nav.lessons'), self::GROUP_CONTENT, 30, asset('Icons/ducs.png'), ContentLessonResource::class),
+            $this->resourceNavItem($this->adminLabel('nav.videos'), self::GROUP_CONTENT, 40, Heroicon::OutlinedVideoCamera, ContentVideoResource::class),
+            $this->resourceNavItem($this->adminLabel('nav.documents'), self::GROUP_CONTENT, 50, Heroicon::OutlinedDocumentText, ContentDocumentResource::class),
+            $this->resourceNavItem($this->adminLabel('nav.assignments'), self::GROUP_CONTENT, 60, Heroicon::OutlinedClipboardDocumentCheck, ContentAssignmentResource::class),
+            $this->resourceNavItem($this->adminLabel('nav.resources'), self::GROUP_CONTENT, 70, Heroicon::OutlinedFolderOpen, ContentResourceResource::class),
 
-            $this->resourceNavItem('និស្សិត', self::GROUP_STUDENTS, 10, asset('Icons/students.png'), StudentResource::class),
-            $this->resourceNavItem('ការចុះឈ្មោះ', self::GROUP_STUDENTS, 20, asset('Icons/enrollments.png'), EnrollmentResource::class),
-            $this->resourceNavItem('វត្តមាន', self::GROUP_STUDENTS, 30, asset('Icons/presence.png'), AttendanceResource::class),
-            $this->resourceNavItem('ការឡើងថ្នាក់', self::GROUP_STUDENTS, 40, asset('Icons/students.png'), StudentPromotionResource::class),
+            $this->resourceNavItem($this->adminLabel('nav.students'), self::GROUP_STUDENTS, 10, asset('Icons/students.png'), StudentResource::class),
+            $this->resourceNavItem($this->adminLabel('nav.enrollments'), self::GROUP_STUDENTS, 20, asset('Icons/enrollments.png'), EnrollmentResource::class),
+            $this->resourceNavItem($this->adminLabel('nav.attendance'), self::GROUP_STUDENTS, 30, asset('Icons/presence.png'), AttendanceResource::class),
+            $this->resourceNavItem($this->adminLabel('nav.promotions'), self::GROUP_STUDENTS, 40, asset('Icons/students.png'), StudentPromotionResource::class),
 
-            $this->resourceNavItem('តេស្តខ្លី', self::GROUP_ASSESSMENT, 10, Heroicon::OutlinedQuestionMarkCircle, QuizResource::class),
-            $this->resourceNavItem('ធនាគារសំណួរ', self::GROUP_ASSESSMENT, 20, Heroicon::OutlinedCircleStack, QuestionBankResource::class),
-            $this->resourceNavItem('សំណួរ', self::GROUP_ASSESSMENT, 30, Heroicon::OutlinedListBullet, AssessmentQuestionResource::class),
-            $this->resourceNavItem('ការប្រឡង', self::GROUP_ASSESSMENT, 50, Heroicon::OutlinedPencilSquare, ExamResource::class, fn (): bool => request()->routeIs(ExamResource::getRouteBaseName().'.*') && request()->query('view') !== 'schedule'),
-            $this->resourceNavItem('កាលវិភាគប្រឡង', self::GROUP_ASSESSMENT, 60, Heroicon::OutlinedCalendarDays, ExamResource::class, fn (): bool => request()->routeIs(ExamResource::getRouteBaseName().'.*') && request()->query('view') === 'schedule', ['view' => 'schedule']),
-            $this->resourceNavItem('បេក្ខជនប្រឡង', self::GROUP_ASSESSMENT, 70, Heroicon::OutlinedUserGroup, ExamCandidateResource::class),
-            $this->resourceNavItem('ការដាក់ស្នើ', self::GROUP_ASSESSMENT, 80, Heroicon::OutlinedInboxStack, ExamSubmissionResource::class),
-            $this->resourceNavItem('Assignment Submissions', self::GROUP_ASSESSMENT, 85, Heroicon::OutlinedInboxArrowDown, AssignmentSubmissionResource::class),
-            $this->resourceNavItem('ការដាក់ពិន្ទុ', self::GROUP_ASSESSMENT, 90, Heroicon::OutlinedCheckBadge, AssessmentGradeResource::class),
-            $this->resourceNavItem('លទ្ធផល', self::GROUP_ASSESSMENT, 100, Heroicon::OutlinedTrophy, AssessmentResultResource::class),
-            $this->resourceNavItem('វឌ្ឍនភាពនិស្សិត', self::GROUP_ASSESSMENT, 110, Heroicon::OutlinedChartBar, StudentProgressResource::class),
-            $this->resourceNavItem('វិញ្ញាបនបត្រ', self::GROUP_ASSESSMENT, 120, Heroicon::OutlinedDocumentCheck, CertificateResource::class),
+            $this->resourceNavItem($this->adminLabel('nav.quizzes'), self::GROUP_ASSESSMENT, 10, Heroicon::OutlinedQuestionMarkCircle, QuizResource::class),
+            $this->resourceNavItem($this->adminLabel('nav.question_banks'), self::GROUP_ASSESSMENT, 20, Heroicon::OutlinedCircleStack, QuestionBankResource::class),
+            $this->resourceNavItem($this->adminLabel('nav.questions'), self::GROUP_ASSESSMENT, 30, Heroicon::OutlinedListBullet, AssessmentQuestionResource::class),
+            $this->resourceNavItem($this->adminLabel('nav.exams'), self::GROUP_ASSESSMENT, 50, Heroicon::OutlinedPencilSquare, ExamResource::class, fn (): bool => request()->routeIs(ExamResource::getRouteBaseName().'.*') && request()->query('view') !== 'schedule'),
+            $this->resourceNavItem($this->adminLabel('nav.exam_schedule'), self::GROUP_ASSESSMENT, 60, Heroicon::OutlinedCalendarDays, ExamResource::class, fn (): bool => request()->routeIs(ExamResource::getRouteBaseName().'.*') && request()->query('view') === 'schedule', ['view' => 'schedule']),
+            $this->resourceNavItem($this->adminLabel('nav.exam_candidates'), self::GROUP_ASSESSMENT, 70, Heroicon::OutlinedUserGroup, ExamCandidateResource::class),
+            $this->resourceNavItem($this->adminLabel('nav.submissions'), self::GROUP_ASSESSMENT, 80, Heroicon::OutlinedInboxStack, ExamSubmissionResource::class),
+            $this->resourceNavItem($this->adminLabel('nav.assignment_submissions'), self::GROUP_ASSESSMENT, 85, Heroicon::OutlinedInboxArrowDown, AssignmentSubmissionResource::class),
+            $this->resourceNavItem($this->adminLabel('nav.grading'), self::GROUP_ASSESSMENT, 90, Heroicon::OutlinedCheckBadge, AssessmentGradeResource::class),
+            $this->resourceNavItem($this->adminLabel('nav.results'), self::GROUP_ASSESSMENT, 100, Heroicon::OutlinedTrophy, AssessmentResultResource::class),
+            $this->resourceNavItem($this->adminLabel('nav.student_progress'), self::GROUP_ASSESSMENT, 110, Heroicon::OutlinedChartBar, StudentProgressResource::class),
+            $this->resourceNavItem($this->adminLabel('nav.certificates'), self::GROUP_ASSESSMENT, 120, Heroicon::OutlinedDocumentCheck, CertificateResource::class),
 
-            $this->pageNavItem('របាយការណ៍និស្សិត', self::GROUP_REPORTS, 10, Heroicon::OutlinedUsers, StudentReport::class),
-            $this->pageNavItem('របាយការណ៍វត្តមាន', self::GROUP_REPORTS, 20, Heroicon::OutlinedCalendarDateRange, AttendanceReport::class),
-            $this->pageNavItem('របាយការណ៍ប្រឡង', self::GROUP_REPORTS, 30, Heroicon::OutlinedDocumentCheck, ExamReport::class),
-            $this->pageNavItem('របាយការណ៍ហិរញ្ញវត្ថុ', self::GROUP_REPORTS, 40, Heroicon::OutlinedBanknotes, FinanceReport::class),
-            $this->pageNavItem('កំណត់ត្រាសកម្មភាព', self::GROUP_REPORTS, 50, Heroicon::OutlinedQueueList, ActivityReport::class),
+            $this->pageNavItem($this->adminLabel('nav.student_reports'), self::GROUP_REPORTS, 10, Heroicon::OutlinedUsers, StudentReport::class),
+            $this->pageNavItem($this->adminLabel('nav.attendance_reports'), self::GROUP_REPORTS, 20, Heroicon::OutlinedCalendarDateRange, AttendanceReport::class),
+            $this->pageNavItem($this->adminLabel('nav.exam_reports'), self::GROUP_REPORTS, 30, Heroicon::OutlinedDocumentCheck, ExamReport::class),
+            $this->pageNavItem($this->adminLabel('nav.finance_reports'), self::GROUP_REPORTS, 40, Heroicon::OutlinedBanknotes, FinanceReport::class),
+            $this->pageNavItem($this->adminLabel('nav.activity_logs'), self::GROUP_REPORTS, 50, Heroicon::OutlinedQueueList, ActivityReport::class),
+            $this->resourceNavItem($this->adminLabel('nav.languages'), self::GROUP_SETTINGS, 10, Heroicon::OutlinedLanguage, LanguageResource::class),
+            $this->resourceNavItem($this->adminLabel('nav.translations'), self::GROUP_SETTINGS, 20, Heroicon::OutlinedLanguage, TranslationResource::class),
         ];
     }
 
-    private function navItem(string $label, string $group, int $sort, string|BackedEnum|null $icon, string|Closure|null $url = null): NavigationItem
+    private function adminLabel(string $key): Closure
+    {
+        return fn (): string => __("admin.{$key}");
+    }
+
+    private function navItem(string|Closure $label, string $group, int $sort, string|BackedEnum|null $icon, string|Closure|null $url = null): NavigationItem
     {
         return NavigationItem::make($label)
-            ->group($group)
+            ->group($this->adminLabel($group))
             ->icon($icon)
             ->sort($sort)
             ->url($url ?? '#')
             ->visible(fn (): bool => auth()->user()?->hasAnyRole(['super_admin', 'admin']) ?? false);
     }
 
-    private function resourceNavItem(string $label, string $group, int $sort, string|BackedEnum|null $icon, string $resource, ?Closure $isActiveWhen = null, array $urlParameters = []): NavigationItem
+    private function resourceNavItem(string|Closure $label, string $group, int $sort, string|BackedEnum|null $icon, string $resource, ?Closure $isActiveWhen = null, array $urlParameters = []): NavigationItem
     {
         return $this->navItem($label, $group, $sort, $icon, fn (): string => $resource::getUrl(parameters: $urlParameters))
             ->visible(fn (): bool => $this->canShowResourceNavItem($resource))
             ->isActiveWhen($isActiveWhen ?? fn (): bool => request()->routeIs($resource::getRouteBaseName().'.*'));
     }
 
-    private function pageNavItem(string $label, string $group, int $sort, string|BackedEnum|null $icon, string $page): NavigationItem
+    private function pageNavItem(string|Closure $label, string $group, int $sort, string|BackedEnum|null $icon, string $page): NavigationItem
     {
         return $this->navItem($label, $group, $sort, $icon, fn (): string => $page::getUrl())
             ->isActiveWhen(fn (): bool => request()->routeIs($page::getRouteName()));

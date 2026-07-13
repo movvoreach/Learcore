@@ -1272,15 +1272,87 @@
 @push('scripts')
     <script>
         $(function() {
-            $('.js-course-sidebar-close').on('click', function() {
+            // Function to open the specified panel
+            const openWorkspacePanel = function(panel) {
+                const $targetTab = $(`[data-workspace-panel="${panel}"]`);
+
+                if (! $targetTab.length) {
+                    return;
+                }
+
+                $('[data-workspace-panel]').removeClass('is-active');
+                $targetTab.addClass('is-active');
+                $('[data-workspace-panel-content]').removeClass('is-active');
+                $(`[data-workspace-panel-content="${panel}"]`).addClass('is-active');
+
+                // Update active state in sidebar topic links
+                $('.js-workspace-topic-link').removeClass('is-active');
+                $(`.js-workspace-topic-link[data-panel="${panel}"]`).addClass('is-active');
+            };
+
+            // AJAX loader function
+            const loadLessonViaAjax = function(url, pushState = true) {
+                const $main = $('.course-workspace-main');
+                // Premium micro-animation: fade out
+                $main.animate({ opacity: 0.35 }, 150, function() {
+                    fetch(url)
+                        .then(response => {
+                            if (!response.ok) throw new Error('Response error');
+                            return response.text();
+                        })
+                        .then(html => {
+                            const parser = new DOMParser();
+                            const doc = parser.parseFromString(html, 'text/html');
+
+                            // Swap workspace main content
+                            const newMain = doc.querySelector('.course-workspace-main');
+                            if (newMain) {
+                                $main.html(newMain.innerHTML);
+                            }
+
+                            // Swap sidebar
+                            const newSidebar = doc.querySelector('.course-workspace-sidebar');
+                            if (newSidebar) {
+                                $('.course-workspace-sidebar').html(newSidebar.innerHTML);
+                            } else {
+                                const newDetailSidebar = doc.querySelector('.course-detail-sidebar');
+                                if (newDetailSidebar) {
+                                    $('.course-detail-sidebar').html(newDetailSidebar.innerHTML);
+                                }
+                            }
+
+                            // Update Page Title
+                            document.title = doc.title;
+
+                            // Update address bar
+                            if (pushState) {
+                                window.history.pushState(null, '', url);
+                            }
+
+                            // Activate correct panel tab if specified
+                            const panel = new URLSearchParams(window.location.search).get('panel') || 'video';
+                            openWorkspacePanel(panel);
+
+                            // Premium fade-in animation
+                            $main.animate({ opacity: 1 }, 150);
+                        })
+                        .catch(error => {
+                            console.error('AJAX loading failed:', error);
+                            window.location.href = url;
+                        });
+                });
+            };
+
+            // Event delegation for sidebar toggle controls
+            $(document).on('click', '.js-course-sidebar-close', function() {
                 $('.course-workspace').addClass('is-course-sidebar-hidden');
             });
 
-            $('.js-course-sidebar-open').on('click', function() {
+            $(document).on('click', '.js-course-sidebar-open', function() {
                 $('.course-workspace').removeClass('is-course-sidebar-hidden');
             });
 
-            $('.js-course-module-toggle').on('click', function() {
+            $(document).on('click', '.js-course-module-toggle', function() {
                 const $button = $(this);
                 const $lessons = $('#' + $button.attr('aria-controls'));
                 const isOpen = $button.attr('aria-expanded') === 'true';
@@ -1291,7 +1363,7 @@
                 $lessons.toggleClass('is-collapsed', isOpen);
             });
 
-            $('.js-course-more-toggle').on('click', function(event) {
+            $(document).on('click', '.js-course-more-toggle', function(event) {
                 event.stopPropagation();
 
                 const $wrap = $(this).closest('.course-workspace-more');
@@ -1315,24 +1387,8 @@
                 }
             });
 
-            const openWorkspacePanel = function(panel) {
-                const $targetTab = $(`[data-workspace-panel="${panel}"]`);
-
-                if (! $targetTab.length) {
-                    return;
-                }
-
-                $('[data-workspace-panel]').removeClass('is-active');
-                $targetTab.addClass('is-active');
-                $('[data-workspace-panel-content]').removeClass('is-active');
-                $(`[data-workspace-panel-content="${panel}"]`).addClass('is-active');
-
-                // Update active state in sidebar topic links
-                $('.js-workspace-topic-link').removeClass('is-active');
-                $(`.js-workspace-topic-link[data-panel="${panel}"]`).addClass('is-active');
-            };
-
-            $('[data-workspace-panel]').on('click', function() {
+            // Tab switching panel
+            $(document).on('click', '[data-workspace-panel]', function() {
                 const panel = $(this).data('workspace-panel');
                 openWorkspacePanel(panel);
 
@@ -1342,26 +1398,36 @@
                 window.history.pushState(null, '', url.toString());
             });
 
-            // Prevent reload when clicking sidebar topic links pointing to the current lesson
-            $('.js-workspace-topic-link').on('click', function(event) {
+            // Intercept clicks on lesson and topic links
+            $(document).on('click', '.course-workspace-lesson-link, .course-lesson-node > a, .js-workspace-topic-link', function(event) {
                 const url = new URL(this.href);
                 const currentUrl = new URL(window.location.href);
 
-                if (url.pathname === currentUrl.pathname) {
+                // If it is a topic link pointing to the current lesson (same pathname)
+                if ($(this).hasClass('js-workspace-topic-link') && url.pathname === currentUrl.pathname) {
                     event.preventDefault();
-                    
                     const panel = $(this).data('panel') || url.searchParams.get('panel');
                     if (panel) {
                         openWorkspacePanel(panel);
-                        
-                        // Update URL search parameters without reloading
                         window.history.pushState(null, '', this.href);
                     }
+                    return;
+                }
+
+                // If it points to a lesson/page inside our workspace (same origin and contains "/lessons/")
+                if (url.origin === currentUrl.origin && url.pathname.includes('/lessons/')) {
+                    event.preventDefault();
+                    loadLessonViaAjax(this.href, true);
                 }
             });
 
-            const initialPanel = new URLSearchParams(window.location.search).get('panel');
+            // Listen for browser back/forward buttons (popstate)
+            window.addEventListener('popstate', function() {
+                loadLessonViaAjax(window.location.href, false);
+            });
 
+            // Initial panel activation on page load
+            const initialPanel = new URLSearchParams(window.location.search).get('panel');
             if (initialPanel) {
                 openWorkspacePanel(initialPanel);
             }

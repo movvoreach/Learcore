@@ -336,12 +336,13 @@
             display: flex;
             align-items: flex-start;
             justify-content: center;
+            overflow-y: auto;
             background: rgba(0, 0, 0, .48);
             padding: 42px 20px;
         }
 
         .ss-modal {
-            width: min(900px, 100%);
+            width: min(640px, 100%);
             border-radius: 4px;
             background: #fff;
             color: #3f4566;
@@ -360,10 +361,17 @@
         .ss-modal-title {
             display: flex;
             align-items: center;
-            gap: 7px;
+            gap: 8px;
             margin: 0;
             font-size: 19px;
             font-weight: 400;
+        }
+
+        .ss-modal-description {
+            margin: 4px 0 0;
+            color: #7a819f;
+            font-size: 13px;
+            line-height: 1.6;
         }
 
         .ss-modal-plus {
@@ -387,7 +395,6 @@
 
         .ss-modal-body {
             padding: 24px 18px 26px;
-            border-bottom: 1px solid #e3e5ef;
         }
 
         .ss-modal-label {
@@ -403,7 +410,7 @@
 
         .ss-modal-input {
             width: 100%;
-            height: 42px;
+            min-height: 42px;
             border: 1px solid #cfd4ec;
             border-radius: 3px;
             background: #fff;
@@ -412,6 +419,10 @@
             font: inherit;
             box-shadow: none;
             transition: border-color .15s ease, box-shadow .15s ease, color .15s ease;
+        }
+
+        .ss-modal-field {
+            display: block;
         }
 
         .ss-select2-wrap .select2-container {
@@ -442,10 +453,25 @@
             height: 40px;
         }
 
+        .select2-container--bootstrap4 .select2-search--dropdown .select2-search__field,
+        .select2-container--default .select2-search--dropdown .select2-search__field {
+            min-height: 42px;
+            border: 1px solid #cfd4ec !important;
+            border-radius: 3px !important;
+            background: #fff !important;
+            color: #59617e;
+            padding: 8px 12px;
+            font-family: "Battambang", "Noto Sans Khmer", "Khmer OS Siemreap", ui-sans-serif, system-ui, sans-serif;
+            box-shadow: none !important;
+            transition: border-color .15s ease, box-shadow .15s ease, color .15s ease;
+        }
+
         .ss-modal-input:focus,
         .ss-modal-input.ss-input-active,
         .ss-select2-wrap .select2-container--open .select2-selection,
-        .ss-select2-wrap .select2-container--focus .select2-selection {
+        .ss-select2-wrap .select2-container--focus .select2-selection,
+        .select2-container--bootstrap4 .select2-search--dropdown .select2-search__field:focus,
+        .select2-container--default .select2-search--dropdown .select2-search__field:focus {
             outline: 0 !important;
             border-color: #4f5ef7 !important;
             color: #4f5ef7 !important;
@@ -471,41 +497,46 @@
             font-size: 13px;
         }
 
-        .ss-modal-add-row {
-            display: flex;
-            justify-content: center;
-            margin-top: 19px;
-        }
-
         .ss-modal-add {
             display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 6px;
-            min-width: 136px;
-            height: 46px;
+            min-width: 142px;
+            min-height: 42px;
             border: 0;
-            background: #28c64f;
+            border-radius: 3px;
+            background: #5866f5;
             color: #fff;
-            font-size: 16px;
-            font-weight: 600;
+            padding: 0 18px;
+            font-size: 14px;
+            font-weight: 500;
             cursor: pointer;
+            transition: background-color .15s ease;
+        }
+
+        .ss-modal-add:hover {
+            background: #4351e6;
         }
 
         .ss-modal-foot {
             display: flex;
+            align-items: center;
             justify-content: flex-end;
-            padding: 18px;
+            gap: 10px;
+            min-height: 62px;
+            padding: 0 18px;
+            border-top: 1px solid #e3e5ef;
         }
 
         .ss-modal-cancel {
-            min-width: 112px;
-            height: 46px;
+            min-height: 42px;
             border: 0;
-            background: #2d2d39;
-            color: #fff;
-            font-size: 16px;
-            font-weight: 600;
+            border-radius: 3px;
+            background: #eef0f7;
+            color: #59617e;
+            padding: 0 18px;
+            font-size: 14px;
             cursor: pointer;
         }
 
@@ -841,47 +872,49 @@
                       x-show="showAddStudentModal"
                       x-transition>
                     <div class="ss-modal-head">
-                        <h3 class="ss-modal-title">
-                            <span class="ss-modal-plus"><i class="fa-solid fas fa-user-plus"></i></span>
-                            បញ្ចូលនិស្សិត
-                        </h3>
+                        <div>
+                            <h3 class="ss-modal-title">
+                                <span class="ss-modal-plus"><i class="fa-solid fas fa-user-plus"></i></span>
+                                បញ្ចូលនិស្សិត
+                            </h3>
+                            <p class="ss-modal-description">ស្វែងរកនិស្សិតតាមឈ្មោះ ឬ អត្តលេខ ដើម្បីបញ្ចូលទៅក្នុងកាលវិភាគនេះ។</p>
+                        </div>
                         <button class="ss-modal-close" type="button" x-on:click="showAddStudentModal = false">×</button>
                     </div>
 
                     <div class="ss-modal-body">
-                        <label class="ss-modal-label" for="schedule-student-code">
-                            ជ្រើសរើសនិស្សិត <span class="ss-required">*</span>
-                        </label>
-                        <div class="ss-select2-wrap" wire:ignore>
-                            <select id="schedule-student-code"
-                                    class="ss-modal-input"
-                                    x-ref="studentSelect"
-                                    x-init="initStudentSelect()">
-                                <option value="">ស្វែងរកតាមឈ្មោះ ឬ អត្តលេខ...</option>
-                                @foreach($studentOptions as $studentOption)
-                                    @php
-                                        $optionName = trim(($studentOption->first_name ?? '').' '.($studentOption->last_name ?? ''));
-                                        $optionLabel = trim(($studentOption->student_code ?? '').' - '.$optionName);
-                                    @endphp
-                                    <option value="{{ $studentOption->student_id }}">{{ $optionLabel }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        @error('studentId')
-                            <div class="ss-modal-error">{{ $message }}</div>
-                        @enderror
-
-                        <div class="ss-modal-add-row">
-                            <button class="ss-modal-add" type="submit" wire:loading.attr="disabled" wire:target="addStudentByCode">
-                                <i class="fa fa-plus-circle"></i>
-                                <span wire:loading.remove wire:target="addStudentByCode">ចុះឈ្មោះសិស្ស</span>
-                              
-                            </button>
+                        <div class="ss-modal-field">
+                            <label class="ss-modal-label" for="schedule-student-code">
+                                ជ្រើសរើសនិស្សិត <span class="ss-required">*</span>
+                            </label>
+                            <div class="ss-select2-wrap" wire:ignore>
+                                <select id="schedule-student-code"
+                                        class="ss-modal-input"
+                                        x-ref="studentSelect"
+                                        x-init="initStudentSelect()">
+                                    <option value="">ស្វែងរកតាមឈ្មោះ ឬ អត្តលេខ...</option>
+                                    @foreach($studentOptions as $studentOption)
+                                        @php
+                                            $optionName = trim(($studentOption->first_name ?? '').' '.($studentOption->last_name ?? ''));
+                                            $optionLabel = trim(($studentOption->student_code ?? '').' - '.$optionName);
+                                        @endphp
+                                        <option value="{{ $studentOption->student_id }}">{{ $optionLabel }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            @error('studentId')
+                                <div class="ss-modal-error">{{ $message }}</div>
+                            @enderror
                         </div>
                     </div>
 
                     <div class="ss-modal-foot">
                         <button class="ss-modal-cancel" type="button" x-on:click="showAddStudentModal = false">បោះបង់</button>
+                        <button class="ss-modal-add" type="submit" wire:loading.attr="disabled" wire:target="addStudentByCode">
+                            <i class="fa fa-plus-circle"></i>
+                            <span wire:loading.remove wire:target="addStudentByCode">ចុះឈ្មោះសិស្ស</span>
+                            <span wire:loading wire:target="addStudentByCode">កំពុងរក្សាទុក...</span>
+                        </button>
                     </div>
                 </form>
             </div>

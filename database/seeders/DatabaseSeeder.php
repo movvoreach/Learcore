@@ -75,6 +75,8 @@ class DatabaseSeeder extends Seeder
         $teacher->syncPermissions(Permission::query()->whereIn('name', $teacherPermissions)->where('guard_name', 'web')->get());
         $student->syncPermissions(Permission::query()->whereIn('name', $studentPermissions)->where('guard_name', 'web')->get());
 
+        $this->call(LocalizationSeeder::class);
+
         $user = User::query()->updateOrCreate(
             ['email' => 'test@example.com'],
             [
@@ -91,5 +93,6 @@ class DatabaseSeeder extends Seeder
         $this->call(ContentSeeder::class);
         $this->call(AllFeaturesSeeder::class);
         $this->call(HistoryWesternArtQuizSeeder::class);
+        $this->call(KhmerBusinessCommunicationSeeder::class);
     }
 }

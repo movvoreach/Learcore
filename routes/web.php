@@ -10,6 +10,7 @@ use App\Models\Student;
 use App\Models\StudentProgress;
 use App\Http\Controllers\Admin\ReportExportController;
 use App\Http\Controllers\frontend\frontendController;
+use App\Http\Controllers\frontend\LanguageController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -24,21 +25,15 @@ Route::get('/learning/programs', [frontendController::class, 'programs'])->name(
 Route::middleware('auth')->prefix('/learning/account')->name('frontend.account.')->group(function (): void {
     Route::get('/', [frontendController::class, 'accountDashboard'])->name('dashboard');
     Route::get('/profile', [frontendController::class, 'accountProfile'])->name('profile');
+    Route::post('/profile', [frontendController::class, 'updateProfile'])->name('profile.update');
     Route::get('/edit', [frontendController::class, 'accountEdit'])->name('edit');
     Route::get('/grades', [frontendController::class, 'accountGrades'])->name('grades');
     Route::get('/settings', [frontendController::class, 'accountSettings'])->name('settings');
     Route::get('/notifications', [frontendController::class, 'accountNotifications'])->name('notifications');
     Route::get('/calendar', [frontendController::class, 'accountCalendar'])->name('calendar');
 });
-Route::get('/learning/language/{locale}', function (Request $request, string $locale) {
-    if (! in_array($locale, ['km', 'en'], true)) {
-        abort(404);
-    }
-
-    $request->session()->put('learning_locale', $locale);
-
-    return redirect()->back();
-})->name('frontend.language');
+Route::get('/learning/language/{locale}', [LanguageController::class, 'switch'])->name('frontend.language');
+Route::middleware('auth')->get('/admin/language/{locale}', [LanguageController::class, 'switch'])->name('admin.language');
 Route::get('/learningavailable', [frontendController::class, 'courses'])->name('frontend.learningavailable');
 Route::get('/learning/courses', [frontendController::class, 'courses'])->name('frontend.courses');
 Route::post('/learning/courses/{course}/discussion', [frontendController::class, 'storeCourseDiscussion'])
