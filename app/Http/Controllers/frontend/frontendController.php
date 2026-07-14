@@ -111,6 +111,31 @@ class frontendController extends Controller
         return view('frontend.about');
     }
 
+    public function welcomeSpeech()
+    {
+        return view('frontend.about.welcome-speech');
+    }
+
+    public function generalInfo()
+    {
+        return view('frontend.about.general-info');
+    }
+
+    public function visionMissionGoal()
+    {
+        return view('frontend.about.vision-mission-goal');
+    }
+
+    public function servicesRecreation()
+    {
+        return view('frontend.about.services-recreation');
+    }
+
+    public function alumni()
+    {
+        return view('frontend.about.alumni');
+    }
+
     public function terms()
     {
         return view('frontend.terms');

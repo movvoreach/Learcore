@@ -102,6 +102,12 @@
         'courses',
         'course_categories',
         'about',
+        'about_system',
+        'welcome_speech',
+        'general_info',
+        'vision_mission_goal',
+        'services_recreation',
+        'alumni',
         'more',
         'instructors',
         'contact',
@@ -264,11 +270,7 @@
                 </a>
             @endif
 
-            @if($isAdmin)
-                <a href="{{ $adminDashboardUrl }}" class="learning-nav__link {{ request()->is('admin*') ? 'is-active' : '' }}">
-                    {{ $learningText['admin_dashboard'] }}
-                </a>
-            @endif
+
 
             @unless($isTeacher || $isAdmin)
                 <div class="nav-item dropdown learning-categories">
@@ -296,9 +298,19 @@
                 </div>
             @endunless
 
-            <a href="{{ route('frontend.about') }}" class="learning-nav__link {{ request()->routeIs('frontend.about') ? 'is-active' : '' }}">
-                {{ $learningText['about'] }}
-            </a>
+            <div class="nav-item dropdown learning-about">
+                <a class="learning-nav__link dropdown-toggle {{ request()->routeIs('frontend.about*') ? 'is-active' : '' }}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    {{ $learningText['about'] }}
+                </a>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item {{ request()->routeIs('frontend.about') ? 'active' : '' }}" href="{{ route('frontend.about') }}">{{ $learningText['about_system'] }}</a>
+                    <a class="dropdown-item {{ request()->routeIs('frontend.about.welcome-speech') ? 'active' : '' }}" href="{{ route('frontend.about.welcome-speech') }}">{{ $learningText['welcome_speech'] }}</a>
+                    <a class="dropdown-item {{ request()->routeIs('frontend.about.general-info') ? 'active' : '' }}" href="{{ route('frontend.about.general-info') }}">{{ $learningText['general_info'] }}</a>
+                    <a class="dropdown-item {{ request()->routeIs('frontend.about.vision-mission-goal') ? 'active' : '' }}" href="{{ route('frontend.about.vision-mission-goal') }}">{{ $learningText['vision_mission_goal'] }}</a>
+                    <a class="dropdown-item {{ request()->routeIs('frontend.about.services-recreation') ? 'active' : '' }}" href="{{ route('frontend.about.services-recreation') }}">{{ $learningText['services_recreation'] }}</a>
+                    <a class="dropdown-item {{ request()->routeIs('frontend.about.alumni') ? 'active' : '' }}" href="{{ route('frontend.about.alumni') }}">{{ $learningText['alumni'] }}</a>
+                </div>
+            </div>
 
             <div class="nav-item dropdown learning-more">
                 <a class="learning-nav__link dropdown-toggle {{ request()->routeIs('frontend.faqs') ? 'is-active' : '' }}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -423,11 +435,7 @@
                     <i class="fas fa-plus-circle"></i><span>{{ $learningText['create_course'] }}</span>
                 </a>
             @endif
-            @if($isAdmin)
-                <a href="{{ $adminDashboardUrl }}" class="learning-nav__link {{ request()->is('admin*') ? 'is-active' : '' }}">
-                    <i class="fas fa-tachometer-alt"></i><span>{{ $learningText['admin_dashboard'] }}</span>
-                </a>
-            @endif
+
             @unless($isTeacher || $isAdmin)
                 <a href="{{ $categoryUrl }}" class="learning-nav__link {{ request()->filled('category_id') ? 'is-active' : '' }}">
                     <i class="fas fa-layer-group"></i><span>{{ $learningText['course_categories'] }}</span>
@@ -441,6 +449,21 @@
             @endunless
             <a href="{{ route('frontend.about') }}" class="learning-nav__link {{ request()->routeIs('frontend.about') ? 'is-active' : '' }}">
                 <i class="fas fa-info-circle"></i><span>{{ $learningText['about'] }}</span>
+            </a>
+            <a href="{{ route('frontend.about.welcome-speech') }}" class="learning-nav__link learning-nav__link--sub {{ request()->routeIs('frontend.about.welcome-speech') ? 'is-active' : '' }}">
+                <i class="fas fa-comment-dots"></i><span>{{ $learningText['welcome_speech'] }}</span>
+            </a>
+            <a href="{{ route('frontend.about.general-info') }}" class="learning-nav__link learning-nav__link--sub {{ request()->routeIs('frontend.about.general-info') ? 'is-active' : '' }}">
+                <i class="fas fa-university"></i><span>{{ $learningText['general_info'] }}</span>
+            </a>
+            <a href="{{ route('frontend.about.vision-mission-goal') }}" class="learning-nav__link learning-nav__link--sub {{ request()->routeIs('frontend.about.vision-mission-goal') ? 'is-active' : '' }}">
+                <i class="fas fa-bullseye"></i><span>{{ $learningText['vision_mission_goal'] }}</span>
+            </a>
+            <a href="{{ route('frontend.about.services-recreation') }}" class="learning-nav__link learning-nav__link--sub {{ request()->routeIs('frontend.about.services-recreation') ? 'is-active' : '' }}">
+                <i class="fas fa-swimming-pool"></i><span>{{ $learningText['services_recreation'] }}</span>
+            </a>
+            <a href="{{ route('frontend.about.alumni') }}" class="learning-nav__link learning-nav__link--sub {{ request()->routeIs('frontend.about.alumni') ? 'is-active' : '' }}">
+                <i class="fas fa-user-graduate"></i><span>{{ $learningText['alumni'] }}</span>
             </a>
             <a href="{{ $instructorsUrl }}" class="learning-nav__link">
                 <i class="fas fa-chalkboard-teacher"></i><span>{{ $learningText['instructors'] }}</span>

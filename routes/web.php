@@ -19,6 +19,11 @@ Route::get('/', fn () => redirect()->route('login'));
 
 Route::get('/learning', [frontendController::class, 'index'])->name('dashboard');
 Route::get('/learning/about', [frontendController::class, 'about'])->name('frontend.about');
+Route::get('/learning/about/welcome-speech', [frontendController::class, 'welcomeSpeech'])->name('frontend.about.welcome-speech');
+Route::get('/learning/about/general-info', [frontendController::class, 'generalInfo'])->name('frontend.about.general-info');
+Route::get('/learning/about/vision-mission-goal', [frontendController::class, 'visionMissionGoal'])->name('frontend.about.vision-mission-goal');
+Route::get('/learning/about/services-recreation', [frontendController::class, 'servicesRecreation'])->name('frontend.about.services-recreation');
+Route::get('/learning/about/alumni', [frontendController::class, 'alumni'])->name('frontend.about.alumni');
 Route::get('/learning/terms', [frontendController::class, 'terms'])->name('frontend.terms');
 Route::get('/learning/faqs', [frontendController::class, 'faqs'])->name('frontend.faqs');
 Route::get('/learning/programs', [frontendController::class, 'programs'])->name('frontend.programs');

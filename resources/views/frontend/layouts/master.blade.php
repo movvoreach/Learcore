@@ -2548,80 +2548,176 @@
         }
 
         .learning-cta-band {
-            min-height: 495px;
+            min-height: 540px;
             display: flex;
             align-items: center;
-            background:
-                radial-gradient(circle, rgba(255, 255, 255, .20) 1px, transparent 1px),
-                linear-gradient(135deg, #ff6800 0%, #ff8c00 100%);
-            background-size: 25px 25px, cover;
-            color: #fff;
+            justify-content: center;
+            background: linear-gradient(135deg, #090d16 0%, #0f172a 40%, #1e1b4b 70%, #2e1065 100%);
+            position: relative;
+            overflow: hidden;
+            padding: 80px 24px;
+        }
+
+        /* Ambient Glow Blobs in the background */
+        .learning-cta-band::before,
+        .learning-cta-band::after {
+            content: '';
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.25;
+            z-index: 1;
+            pointer-events: none;
+        }
+        .learning-cta-band::before {
+            background: #d97706;
+            top: -50px;
+            left: 10%;
+            animation: lc-float-blob-1 12s infinite alternate ease-in-out;
+        }
+        .learning-cta-band::after {
+            background: #4f46e5;
+            bottom: -50px;
+            right: 10%;
+            animation: lc-float-blob-2 15s infinite alternate ease-in-out;
+        }
+
+        @keyframes lc-float-blob-1 {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(40px, 30px) scale(1.15); }
+        }
+        @keyframes lc-float-blob-2 {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(-30px, -40px) scale(1.1); }
         }
 
         .learning-cta-band__inner {
             width: 100%;
-            max-width: 900px;
+            max-width: 860px;
             margin: 0 auto;
-            padding: 70px 24px;
+            padding: 55px 40px;
             text-align: center;
+            background: rgba(30, 41, 59, 0.45);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 28px;
+            box-shadow: 
+                0 4px 30px rgba(0, 0, 0, 0.3),
+                inset 0 1px 1px rgba(255, 255, 255, 0.1);
+            position: relative;
+            z-index: 2;
         }
 
         .learning-cta-icon {
-            width: 66px;
-            height: 66px;
-            display: grid;
-            place-items: center;
-            margin: 0 auto 26px;
-            color: rgba(255, 255, 255, .76);
-            font-size: 45px;
+            width: 76px;
+            height: 76px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.25);
+            border-radius: 50%;
+            color: #fbbf24;
+            font-size: 32px;
+            text-shadow: 0 0 15px rgba(245, 158, 11, 0.6);
+            box-shadow: 
+                0 0 20px rgba(245, 158, 11, 0.15),
+                inset 0 0 12px rgba(245, 158, 11, 0.1);
+            animation: lc-pulse-glow 3s infinite ease-in-out;
+        }
+
+        @keyframes lc-pulse-glow {
+            0%, 100% { transform: translateY(0) scale(1); box-shadow: 0 0 20px rgba(245, 158, 11, 0.15); }
+            50% { transform: translateY(-5px) scale(1.05); box-shadow: 0 0 30px rgba(245, 158, 11, 0.35); }
         }
 
         .learning-cta-band h2 {
             margin: 0;
-            color: #fff;
-            font-size: 38px;
-            line-height: 1.35;
-            font-weight: 900;
+            background: linear-gradient(135deg, #ffffff 30%, #fef08a 70%, #fbbf24 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 36px;
+            line-height: 1.4;
+            font-weight: 850;
+            letter-spacing: -0.01em;
         }
 
         .learning-cta-band p {
-            max-width: 780px;
-            margin: 28px auto 34px;
-            color: rgba(255, 255, 255, .90);
-            font-size: 17px;
-            line-height: 1.9;
-            font-weight: 700;
+            max-width: 660px;
+            margin: 20px auto 36px;
+            color: #94a3b8;
+            font-size: 16px;
+            line-height: 1.8;
+            font-weight: 450;
         }
 
         .learning-cta-band__actions {
             display: flex;
             justify-content: center;
             flex-wrap: wrap;
-            gap: 18px;
+            gap: 16px;
         }
 
         .learning-cta-band__actions a {
-            min-height: 44px;
+            min-height: 48px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 9px;
-            padding: 0 24px;
-            border: 1px solid rgba(255, 255, 255, .34);
-            border-radius: 13px;
-            background: rgba(255, 255, 255, .12);
-            color: #fff;
+            gap: 10px;
+            padding: 0 28px;
+            border-radius: 14px;
             font-size: 15px;
-            font-weight: 900;
+            font-weight: 700;
             text-decoration: none;
-            transition: background .2s ease, transform .2s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .learning-cta-band__actions a:hover {
-            transform: translateY(-2px);
-            background: rgba(255, 255, 255, .20);
-            color: #fff;
+        /* Primary action button (Join Now) */
+        .learning-cta-band__actions a:first-child {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            color: #0f172a;
+            box-shadow: 0 10px 20px -10px rgba(245, 158, 11, 0.5);
+            border: 1px solid #fbbf24;
+        }
+
+        .learning-cta-band__actions a:first-child:hover {
+            background: linear-gradient(135deg, #fcd34d 0%, #fbbf24 100%);
+            transform: translateY(-3px);
+            box-shadow: 
+                0 15px 25px -10px rgba(245, 158, 11, 0.65),
+                0 0 15px rgba(245, 158, 11, 0.2);
+            color: #0f172a;
             text-decoration: none;
+        }
+
+        /* Secondary action button (View Courses) */
+        .learning-cta-band__actions a:last-child {
+            background: rgba(255, 255, 255, 0.04);
+            color: #f1f5f9;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .learning-cta-band__actions a:last-child:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-3px);
+            box-shadow: 0 15px 25px -10px rgba(0, 0, 0, 0.3);
+            color: #ffffff;
+            text-decoration: none;
+        }
+
+        .learning-cta-band__actions a i {
+            font-size: 14px;
+            transition: transform 0.2s ease;
+        }
+
+        .learning-cta-band__actions a:hover i {
+            transform: scale(1.2);
         }
 
         .learning-services {

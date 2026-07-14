@@ -167,15 +167,56 @@ class AdminPanelProvider extends PanelProvider
                 PanelsRenderHook::SCRIPTS_AFTER,
                 function (): HtmlString {
                     $user = auth()->user();
+                    $locale = app()->getLocale();
+                    
+                    $welcomeText = match($locale) {
+                        'km' => 'សូមស្វាគមន៍',
+                        'fr' => 'Bienvenue',
+                        'zh' => '欢迎',
+                        default => 'Welcome',
+                    };
+
                     $nameText = $user ? e($user->name) : 'Guest';
+                    
                     $roleText = 'Administrator';
                     if ($user) {
                         if ($user->hasRole('student')) {
-                            $roleText = 'Student';
+                            $roleText = match($locale) {
+                                'km' => 'សិស្ស',
+                                'fr' => 'Étudiant',
+                                'zh' => '学生',
+                                default => 'Student',
+                            };
                         } elseif ($user->hasRole('teacher')) {
-                            $roleText = 'Teacher';
+                            $roleText = match($locale) {
+                                'km' => 'គ្រូបង្រៀន',
+                                'fr' => 'Enseignant',
+                                'zh' => '教师',
+                                default => 'Teacher',
+                            };
+                        } else {
+                            $roleText = match($locale) {
+                                'km' => 'អ្នកគ្រប់គ្រង',
+                                'fr' => 'Administrateur',
+                                'zh' => '管理员',
+                                default => 'Administrator',
+                            };
                         }
+                    } else {
+                        $nameText = match($locale) {
+                            'km' => 'ភ្ញៀវ',
+                            'fr' => 'Invité',
+                            'zh' => '访客',
+                            default => 'Guest',
+                        };
                     }
+
+                    $searchPlaceholder = match($locale) {
+                        'km' => 'ស្វែងរកវគ្គសិក្សា មេរៀន ការប្រឡងខ្លី...',
+                        'fr' => 'Rechercher des cours, leçons, quiz...',
+                        'zh' => '搜索课程、课时、测验...',
+                        default => 'Search courses, lessons, quizzes...',
+                    };
 
                     return new HtmlString(<<<HTML
                     <script>
@@ -258,7 +299,7 @@ class AdminPanelProvider extends PanelProvider
                                     const infoDiv = document.createElement('div');
                                     infoDiv.className = 'lc-user-info-wrapper';
                                     infoDiv.innerHTML = `
-                                        <span class="lc-user-name">{$nameText}</span>
+                                        <span class="lc-user-name">{$welcomeText}, {$nameText}</span>
                                         <span class="lc-user-role">{$roleText}</span>
                                     `;
                                     trigger.appendChild(infoDiv);
@@ -275,7 +316,7 @@ class AdminPanelProvider extends PanelProvider
                                 
                                 const searchInput = document.querySelector('.fi-global-search-field input');
                                 if (searchInput) {
-                                    searchInput.placeholder = 'Search courses, lessons, quizzes...';
+                                    searchInput.placeholder = '{$searchPlaceholder}';
                                 }
                             }
 
@@ -342,6 +383,7 @@ HTML);
                 SubstituteBindings::class,
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
+                \App\Http\Middleware\SetLocale::class,
             ])
             ->maxContentWidth(Width::Full)
             ->authMiddleware([
