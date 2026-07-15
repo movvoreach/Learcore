@@ -113,7 +113,6 @@ class ScheduleAttendanceSheet extends Page
             'teacher',
             'classRoom.course.semester',
             'classRoom.academicYear',
-            'students',
         ]);
 
         $startDate = Carbon::parse($this->startDate ?: now()->startOfMonth()->toDateString());
@@ -122,18 +121,15 @@ class ScheduleAttendanceSheet extends Page
         $dates = collect(range(0, $daysCount - 1))
             ->map(fn (int $offset): Carbon => $startDate->copy()->addDays($offset));
 
-        $directStudents = $schedule->students()
-            ->orderBy('student_code')
-            ->get();
-
         $enrollments = Enrollment::query()
             ->where('class_room_id', $schedule->class_id)
             ->with('student')
             ->orderBy('enrollment_date')
             ->get();
 
-        $students = $directStudents
-            ->merge($enrollments->pluck('student')->filter())
+        $students = $enrollments
+            ->pluck('student')
+            ->filter()
             ->unique('student_id')
             ->values();
 

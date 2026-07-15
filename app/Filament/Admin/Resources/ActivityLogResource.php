@@ -23,8 +23,8 @@ class ActivityLogResource extends Resource
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-document-magnifying-glass';
     protected static string|\UnitEnum|null $navigationGroup = 'ការកំណត់';
     protected static ?string $navigationLabel = 'សកម្មភាពអ្នកប្រើប្រាស់';
-    protected static ?string $modelLabel = 'Activity Log';
-    protected static ?string $pluralModelLabel = 'សកម្មភាពអ្នកប្រើប្រាស់';
+    protected static ?string $modelLabel = 'Audit Log';
+    protected static ?string $pluralModelLabel = 'Audit Logs';
 
     public static function canAccess(): bool
     {
@@ -61,7 +61,15 @@ class ActivityLogResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('action')
                     ->label('សកម្មភាព')
+                    ->badge()
                     ->searchable(),
+                Tables\Columns\TextColumn::make('model_label')
+                    ->label('Module')
+                    ->searchable(['model_type'])
+                    ->sortable(query: fn (Builder $query, string $direction): Builder => $query->orderBy('model_type', $direction)),
+                Tables\Columns\TextColumn::make('model_id')
+                    ->label('Record')
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('description')
                     ->label('បរិយាយ')
                     ->state(function (ActivityLog $record): string {
@@ -112,7 +120,7 @@ class ActivityLogResource extends Resource
                 \Filament\Actions\ViewAction::make(),
             ])
             ->defaultSort('created_at', 'desc')
-            ->description('Records from user_activity');
+            ->description('Audit trail for logins, logouts, created, updated, and deleted records.');
     }
 
     public static function getRelations(): array

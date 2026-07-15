@@ -14,6 +14,8 @@ use App\Models\DiscussionComment;
 use App\Models\DiscussionPost;
 use App\Models\Quiz;
 use App\Models\Student;
+use App\Services\PageService;
+use App\Services\StudentCourseProgressService;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -149,6 +151,15 @@ class frontendController extends Controller
     public function programs()
     {
         return view('frontend.programs');
+    }
+
+    public function page(string $slug)
+    {
+        $page = PageService::publishedBySlug($slug);
+
+        abort_unless($page, 404);
+
+        return view('frontend.pages.show', compact('page'));
     }
 
     public function accountDashboard()
@@ -376,6 +387,10 @@ class frontendController extends Controller
                 ->get()
                 ->keyBy('content_assignment_id')
             : collect();
+
+        if ($student && $courseRecord && $lessonRecord) {
+            app(StudentCourseProgressService::class)->markLessonViewed($student, $courseRecord, $lessonRecord);
+        }
 
         return view('frontend.lesson', [
             'course' => $course,

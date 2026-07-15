@@ -248,6 +248,294 @@
             line-height: 1.35;
         }
 
+        .enrollment-summary-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 14px;
+            margin: 0 0 18px;
+            color: #59617e;
+            font-size: 14px;
+            flex-wrap: wrap;
+        }
+
+        .enrollment-table-wrap {
+            overflow-x: auto;
+            border: 1px solid #d6dceb;
+            border-radius: 6px;
+            background: #fff;
+        }
+
+        .enrollment-table {
+            width: 100%;
+            min-width: 1240px;
+            border-collapse: collapse;
+            border: 0;
+            background: #fff;
+            color: #26324d;
+            font-size: 14px;
+        }
+
+        .enrollment-table th {
+            border: 0;
+            border-right: 1px solid #cfd6e8;
+            border-bottom: 1px solid #b9c3dd;
+            background: #dde3ff;
+            padding: 14px 12px;
+            color: #222b46;
+            text-align: left;
+            vertical-align: top;
+            font-weight: 800;
+            line-height: 1.55;
+            font-size: 14px;
+        }
+
+        .enrollment-table td {
+            border: 0;
+            border-right: 1px solid #d9deea;
+            border-bottom: 1px solid #d9deea;
+            padding: 14px 12px;
+            vertical-align: middle;
+            line-height: 1.65;
+            font-size: 14px;
+        }
+
+        .enrollment-table th:last-child,
+        .enrollment-table td:last-child {
+            border-right: 0;
+        }
+
+        .enrollment-table tbody tr:last-child td {
+            border-bottom: 0;
+        }
+
+        .enrollment-table tbody tr:nth-child(even) {
+            background: #fbfcff;
+        }
+
+        .enrollment-table tbody tr:hover {
+            background: #f4f7ff;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .enrollment-link {
+            color: #4459f0;
+            font-weight: 800;
+            text-decoration: none;
+        }
+
+        .enrollment-link:hover {
+            color: #2738bc;
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+
+        .muted {
+            color: #5f6b84;
+            font-size: 12px;
+            line-height: 1.55;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 82px;
+            min-height: 28px;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-weight: 800;
+        }
+
+        .status-studying {
+            background: #e0f2fe;
+            color: #075985;
+        }
+
+        .status-completed {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-cancelled {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .action-row {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .action-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 34px;
+            min-height: 34px;
+            border: 0;
+            border-radius: 4px;
+            color: #fff;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 800;
+            transition: background .15s ease, transform .15s ease, box-shadow .15s ease;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-1px);
+            filter: brightness(.96);
+        }
+
+        .action-btn-green {
+            min-width: 112px;
+            background: #22c55e;
+            box-shadow: 0 6px 14px rgba(34, 197, 94, .18);
+        }
+
+        .action-btn-blue {
+            background: #5865f2;
+            box-shadow: 0 6px 14px rgba(88, 101, 242, .18);
+        }
+
+        .w90 {
+            width: 104px;
+            min-height: 34px;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 800;
+        }
+
+        .action-btn-red {
+            background: #ef233c;
+            box-shadow: 0 6px 14px rgba(239, 35, 60, .18);
+        }
+
+        .row-menu {
+            position: relative;
+            display: inline-flex;
+        }
+
+        .row-menu-panel {
+            position: absolute;
+            top: calc(100% + 6px);
+            right: 0;
+            z-index: 30;
+            width: 210px;
+            border: 1px solid #e1e5f0;
+            border-radius: 3px;
+            background: #fff;
+            box-shadow: 0 14px 30px rgba(15, 23, 42, .16);
+            text-align: left;
+            overflow: hidden;
+        }
+
+        .row-menu-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            width: 100%;
+            min-height: 42px;
+            border: 0;
+            background: #fff;
+            color: #334155;
+            padding: 9px 12px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .row-menu-item:hover {
+            background: #f4f6ff;
+            color: #2738bc;
+        }
+
+        .row-menu-item span {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .row-menu-separator {
+            height: 1px;
+            margin: 0;
+            border: 0;
+            background: #e5e7eb;
+        }
+
+        .enrollment-pagination {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            border-top: 1px solid #e0e5f1;
+            padding: 14px 0 0;
+            color: #4d5872;
+            font-size: 13px;
+            margin-top: 16px;
+        }
+
+        .pagination {
+            display: flex;
+            align-items: center;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .page-item {
+            margin-left: -1px;
+        }
+
+        .page-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 38px;
+            min-height: 34px;
+            border: 1px solid #cfd6e6;
+            background: #fff;
+            color: #34405b;
+            text-decoration: none;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        .page-item:first-child .page-link {
+            border-top-left-radius: 5px;
+            border-bottom-left-radius: 5px;
+        }
+
+        .page-item:last-child .page-link {
+            border-top-right-radius: 5px;
+            border-bottom-right-radius: 5px;
+        }
+
+        .page-item.active .page-link {
+            border-color: #5865f2;
+            background: #5865f2;
+            color: #fff;
+        }
+
+        .page-item.disabled .page-link {
+            cursor: not-allowed;
+            background: #f8fafc;
+            color: #98a2b3;
+        }
+
+        .empty-state {
+            padding: 42px 18px;
+            color: #68738a;
+            text-align: center;
+            font-size: 15px;
+        }
+
         /* Dark mode compatibility */
         .dark .ss-toolbar {
             background: #1e293b;
@@ -396,9 +684,28 @@
             color: #fff;
         }
 
+        .ss-modal-submit-green {
+            background: #22c55e;
+            box-shadow: 0 8px 18px rgba(34, 197, 94, .2);
+        }
+
         .ss-modal-cancel {
             background: #eef0f7;
             color: #59617e;
+        }
+
+        .ss-modal-cancel-dark {
+            width: 100px;
+            background: #1f2937;
+            color: #fff;
+        }
+
+        .quick-enroll-modal {
+            width: min(760px, 100%);
+        }
+
+        .quick-enroll-modal .ss-modal-grid > div:not(.quick-enroll-field) {
+            display: none;
         }
 
         .dark .ss-modal {
@@ -440,16 +747,20 @@
     <div class="enrollments-list-show"
          x-data="{
             showCreateEnrollmentModal: @js($showCreateEnrollmentModal),
-            openEnrollmentModal() {
+            openEnrollmentModal(courseId = null, classRoomId = null, academicYearId = null, semesterId = null) {
+                $wire.enrollmentCourseId = courseId;
+                $wire.enrollmentClassRoomId = classRoomId;
+                $wire.enrollmentAcademicYearId = academicYearId;
+                $wire.enrollmentSemesterId = semesterId;
+                $wire.enrollmentStudentCode = '';
+                $wire.enrollmentStudentId = null;
                 this.showCreateEnrollmentModal = true;
                 this.$nextTick(() => {
-                    if (this.$refs.enrollmentDateInput && ! this.$refs.enrollmentDateInput.value) {
-                        this.$refs.enrollmentDateInput.value = new Date().toISOString().slice(0, 10);
+                    if (this.$refs.enrollmentQuickCourseSelect && courseId) {
+                        this.$refs.enrollmentQuickCourseSelect.value = courseId;
                     }
 
-                    this.initEnrollmentSelects();
-                    this.filterEnrollmentDepartmentFields();
-                    this.filterEnrollmentSemesters();
+                    this.initQuickEnrollmentSelects();
                 });
             },
             closeEnrollmentModal() {
@@ -565,20 +876,41 @@
             nullableInt(value) {
                 return value ? parseInt(value, 10) : null;
             },
+            initQuickEnrollmentSelects() {
+                if (! window.jQuery || ! window.jQuery.fn.select2 || ! this.$refs.enrollmentModal) {
+                    this.$refs.enrollmentQuickStudentSelect?.focus();
+                    return;
+                }
+
+                [
+                    this.$refs.enrollmentQuickStudentSelect,
+                    this.$refs.enrollmentQuickCourseSelect,
+                ].filter(Boolean).forEach((element) => {
+                    const select = window.jQuery(element);
+
+                    if (select.hasClass('select2-hidden-accessible')) {
+                        select.select2('destroy');
+                    }
+
+                    select.select2({
+                        theme: 'bootstrap4',
+                        width: '100%',
+                        placeholder: element.dataset.placeholder || '',
+                        dropdownParent: window.jQuery(this.$refs.enrollmentModal),
+                        allowClear: false,
+                    });
+                });
+
+                window.jQuery(this.$refs.enrollmentQuickStudentSelect).trigger('change.select2').select2('open');
+            },
             async submitEnrollment() {
                 $wire.showCreateEnrollmentModal = true;
-                $wire.enrollmentDepartmentId = this.nullableInt(this.$refs.enrollmentDepartmentSelect?.value);
-                $wire.enrollmentStudentId = this.nullableInt(this.$refs.enrollmentStudentSelect?.value);
-                $wire.enrollmentCourseId = this.nullableInt(this.$refs.enrollmentCourseSelect?.value);
-                $wire.enrollmentAcademicYearId = this.nullableInt(this.$refs.enrollmentAcademicYearSelect?.value);
-                $wire.enrollmentSemesterId = this.nullableInt(this.$refs.enrollmentSemesterSelect?.value);
-                $wire.enrollmentDate = this.$refs.enrollmentDateInput?.value || null;
-                $wire.enrollmentStatus = this.$refs.enrollmentStatusSelect?.value || 'studying';
-                $wire.enrollmentNote = this.$refs.enrollmentNoteInput?.value || null;
-                await $wire.createEnrollment();
+                $wire.enrollmentStudentId = this.nullableInt(this.$refs.enrollmentQuickStudentSelect?.value);
+                $wire.enrollmentCourseId = this.nullableInt(this.$refs.enrollmentQuickCourseSelect?.value) || $wire.enrollmentCourseId;
+                await $wire.createEnrollmentByStudentCode();
             },
          }"
-         x-init="$nextTick(() => { if (showCreateEnrollmentModal) openEnrollmentModal() })"
+         x-init="$nextTick(() => { if (showCreateEnrollmentModal) initQuickEnrollmentSelects() })"
          x-on:close-create-enrollment-modal.window="closeEnrollmentModal()">
         <div class="ss-toolbar">
             <div class="ss-filters-group">
@@ -684,7 +1016,182 @@
             </div>
 
             <div>
-                {{ $this->table }}
+                <div class="enrollment-summary-row">
+                    <div>
+                        <strong>សរុប:</strong> {{ $totalEnrollments }} enrollments ·
+                        <strong>កំពុងសិក្សា:</strong> {{ $studyingEnrollments }} ·
+                        <strong>បានបញ្ចប់:</strong> {{ $completedEnrollments }}
+                    </div>
+                    <div>បង្ហាញ 10 records first · enroll students to online courses</div>
+                </div>
+
+                @if($enrollments->isEmpty())
+                    <div class="empty-state">មិនទាន់មានការចុះឈ្មោះសម្រាប់បង្ហាញទេ។</div>
+                @else
+                    <div class="enrollment-table-wrap">
+                        <table class="enrollment-table">
+                            <thead>
+                                <tr>
+                                    <th class="text-center">No.<br><span class="muted">Code</span></th>
+                                    <th>Student<br><span class="muted">Department</span></th>
+                                    <th>Online Course<br><span class="muted">Course Information</span></th>
+                                    <th>Class / Academic Year<br><span class="muted">Semester</span></th>
+                                    <th class="text-center">Date<br><span class="muted">Enrolled</span></th>
+                                    <th class="text-center">Status</th>
+                                    <th class="text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($enrollments as $enrollment)
+                                    @php
+                                        $student = $enrollment->student;
+                                        $course = $enrollment->course;
+                                        $studentName = trim(($student?->first_name ?? '').' '.($student?->last_name ?? '')) ?: 'Unknown student';
+                                        $status = $enrollment->status ?: 'studying';
+                                        $statusLabel = match ($status) {
+                                            'completed' => 'បានបញ្ចប់',
+                                            'cancelled' => 'បានបោះបង់',
+                                            default => 'កំពុងសិក្សា',
+                                        };
+                                    @endphp
+
+                                    <tr>
+                                        <td class="text-center">
+                                            <div>{{ $enrollments->firstItem() + $loop->index }}</div>
+                                            <div class="muted">{{ $student?->student_code ?? str_pad((string) $enrollment->enrollment_id, 4, '0', STR_PAD_LEFT) }}</div>
+                                        </td>
+                                        <td>
+                                            @if($student)
+                                                <a class="enrollment-link" href="{{ \App\Filament\Admin\Resources\Students\StudentResource::getUrl('edit', ['record' => $student->student_id]) }}">
+                                                    {{ $studentName }}
+                                                </a>
+                                            @else
+                                                <span>{{ $studentName }}</span>
+                                            @endif
+                                            <div class="muted">{{ $student?->department?->department_name ?? '-' }}</div>
+                                        </td>
+                                        <td>
+                                            @if($course)
+                                                <a class="enrollment-link" href="{{ \App\Filament\Admin\Pages\CourseStudents::getUrl(['course' => $course->course_id]) }}">
+                                                    {{ $course->course_name }}
+                                                </a>
+                                            @else
+                                                <span>No course</span>
+                                            @endif
+                                            <div class="muted">{{ $course?->course_code ?? '-' }} · {{ $course?->department?->department_name ?? 'Online course' }}</div>
+                                        </td>
+                                        <td>
+                                            <div>{{ $enrollment->classRoom?->class_name ?? 'Online course' }}</div>
+                                            <div class="muted">{{ $enrollment->academicYear?->year_name ?? '-' }} · {{ $enrollment->semester?->semester_name ?? '-' }}</div>
+                                        </td>
+                                        <td class="text-center">{{ $enrollment->enrollment_date?->format('m/d/Y') ?? '-' }}</td>
+                                            <td style="text-align: center; vertical-align: middle">
+                                                @if($status === 'studying')
+                                                    <button type="button" class="btn btn-success btn-xs w90" id="BtChangeStatus" value="{{ $enrollment->enrollment_id }}">
+                                                        <i class="fa fa-spinner"></i> ដំណើរការ
+                                                    </button>
+                                                @else
+                                                    <button type="button" class="btn btn-danger btn-xs w90" id="BtChangeStatus" value="{{ $enrollment->enrollment_id }}">
+                                                        <i class="fa fa-lock"></i> ចប់
+                                                    </button>
+                                                @endif
+                                            </td>
+                                        <td class="text-center">
+                                            <div class="action-row">
+                                                <div class="row-menu" x-data="{ open: false }" x-on:click.outside="open = false">
+                                                    <button type="button"
+                                                            class="action-btn action-btn-blue"
+                                                            id="dropdownMenuLink{{ $enrollment->enrollment_id }}"
+                                                            x-on:click="open = ! open"
+                                                            aria-haspopup="true"
+                                                            x-bind:aria-expanded="open.toString()"
+                                                            title="More actions">
+                                                        <i class="fas fa-ellipsis-v"></i>
+                                                    </button>
+
+                                                    <div class="row-menu-panel"
+                                                         x-show="open"
+                                                         x-transition
+                                                         x-cloak
+                                                         aria-labelledby="dropdownMenuLink{{ $enrollment->enrollment_id }}">
+                                                        @if($course)
+                                                            <a class="row-menu-item" href="{{ \App\Filament\Admin\Pages\CourseStudents::getUrl(['course' => $course->course_id]) }}">
+                                                                <span><i class="fas fa-users"></i> មើលនិស្សិត</span>
+                                                                <i class="fas fa-chevron-right"></i>
+                                                            </a>
+
+                                                            <hr class="row-menu-separator">
+                                                        @endif
+
+                                                        <a class="row-menu-item" href="{{ \App\Filament\Admin\Resources\Enrollments\EnrollmentResource::getUrl('edit', ['record' => $enrollment->enrollment_id]) }}">
+                                                            <span><i class="fas fa-eye"></i> លំអិត</span>
+                                                            <i class="fas fa-chevron-right"></i>
+                                                        </a>
+
+                                                        <hr class="row-menu-separator">
+
+                                                        <button type="button" class="row-menu-item" x-on:click="open = false; openEnrollmentModal(@js($course?->course_id), @js($enrollment->class_room_id), @js($enrollment->academic_year_id), @js($enrollment->semester_id))">
+                                                            <span><i class="fa fa-plus-circle"></i> ចុះឈ្មោះ</span>
+                                                            <i class="fas fa-chevron-right"></i>
+                                                        </button>
+
+                                                        <a class="row-menu-item" href="{{ \App\Filament\Admin\Resources\Enrollments\EnrollmentResource::getUrl('edit', ['record' => $enrollment->enrollment_id]) }}">
+                                                            <span><i class="fa fa-minus-circle"></i> លុបឈ្មោះ</span>
+                                                            <i class="fas fa-chevron-right"></i>
+                                                        </a>
+
+                                                        <hr class="row-menu-separator">
+
+                                                        @if($course)
+                                                            <a class="row-menu-item" href="{{ \App\Filament\Admin\Pages\CourseStudents::getUrl(['course' => $course->course_id]) }}">
+                                                                <span><i class="fa fa-file"></i> បញ្ជីការសិក្សា</span>
+                                                                <i class="fas fa-chevron-right"></i>
+                                                            </a>
+                                                        @endif
+
+                                                        <a class="row-menu-item" href="{{ \App\Filament\Admin\Resources\Attendances\AttendanceResource::getUrl('index') }}">
+                                                            <span><i class="fa fa-file"></i> បញ្ជីវត្តមាន</span>
+                                                            <i class="fas fa-chevron-right"></i>
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="enrollment-pagination">
+                        <div>
+                            បង្ហាញ {{ $enrollments->firstItem() }} ដល់ {{ $enrollments->lastItem() }} នៃ {{ $enrollments->total() }} records
+                        </div>
+                        <nav aria-label="Enrollment pagination">
+                            <ul class="pagination">
+                                @if($enrollments->onFirstPage())
+                                    <li class="page-item disabled"><span class="page-link">Previous</span></li>
+                                @else
+                                    <li class="page-item"><a class="page-link" href="{{ $enrollments->previousPageUrl() }}">Previous</a></li>
+                                @endif
+
+                                @foreach($enrollments->getUrlRange(1, $enrollments->lastPage()) as $page => $url)
+                                    @if($page === $enrollments->currentPage())
+                                        <li class="page-item active"><span class="page-link">{{ $page }}</span></li>
+                                    @else
+                                        <li class="page-item"><a class="page-link" href="{{ $url }}">{{ $page }}</a></li>
+                                    @endif
+                                @endforeach
+
+                                @if($enrollments->hasMorePages())
+                                    <li class="page-item"><a class="page-link" href="{{ $enrollments->nextPageUrl() }}">Next</a></li>
+                                @else
+                                    <li class="page-item disabled"><span class="page-link">Next</span></li>
+                                @endif
+                            </ul>
+                        </nav>
+                    </div>
+                @endif
             </div>
         </div>
 
@@ -694,7 +1201,7 @@
                  x-transition.opacity
                  x-cloak
                  x-on:keydown.escape.window="closeEnrollmentModal()">
-                <form class="ss-modal"
+                <form class="ss-modal quick-enroll-modal"
                       x-ref="enrollmentModal"
                       x-on:submit.prevent="submitEnrollment()"
                       x-on:click.outside="closeEnrollmentModal()"
@@ -703,13 +1210,47 @@
                     <div class="ss-modal-head">
                         <h3 class="ss-modal-title">
                             <span class="ss-modal-plus"><i class="fa-solid fas fa-user-plus"></i></span>
-                            ចុះឈ្មោះចូលរៀន
+                            ចុះឈ្មោះចូលរៀន (Course Enrollment)
                         </h3>
                         <button class="ss-modal-close" type="button" x-on:click="closeEnrollmentModal()">×</button>
                     </div>
 
                     <div class="ss-modal-body">
                         <div class="ss-modal-grid">
+                            <div class="ss-modal-field--full quick-enroll-field">
+                                <label class="ss-modal-label" for="PoliceId_Enroll">អត្តលេខសិក្ខាកាម (Student ID) <span class="ss-required">*</span></label>
+                                <select id="PoliceId_Enroll"
+                                        class="ss-modal-input"
+                                        x-ref="enrollmentQuickStudentSelect"
+                                        data-placeholder="Search by Student ID, Full Name, or Email">
+                                    <option value="">Search by Student ID, Full Name, or Email</option>
+                                    @foreach(\App\Models\Student::query()->orderBy('student_code')->orderBy('first_name')->get() as $student)
+                                        @php($studentFullName = trim(($student->first_name ?? '').' '.($student->last_name ?? '')))
+                                        @php($studentLabel = trim(($student->student_code ?? '').' - '.$studentFullName.' - '.($student->email ?? ''), ' -'))
+                                        <option value="{{ $student->student_id }}" @selected((int) $enrollmentStudentId === (int) $student->student_id)>
+                                            {{ $studentLabel }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('enrollmentStudentId') <div class="ss-modal-error" id="MsgEnroll">{{ $message }}</div> @enderror
+                                @error('enrollmentStudentCode') <div class="ss-modal-error">{{ $message }}</div> @enderror
+                            </div>
+
+                            <div class="ss-modal-field--full quick-enroll-field">
+                                <label class="ss-modal-label" for="quick-enrollment-course-id">Course <span class="ss-required">*</span></label>
+                                <select id="quick-enrollment-course-id"
+                                        class="ss-modal-input"
+                                        x-ref="enrollmentQuickCourseSelect"
+                                        data-placeholder="Search by course code or course title">
+                                    <option value="">Search by course code or course title</option>
+                                    @foreach(\App\Models\Course::query()->orderBy('course_code')->orderBy('course_name')->get() as $course)
+                                        <option value="{{ $course->course_id }}" @selected((int) $enrollmentCourseId === (int) $course->course_id)>
+                                            {{ trim(($course->course_code ?? '').' - '.$course->course_name, ' -') }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('enrollmentCourseId') <div class="ss-modal-error">{{ $message }}</div> @enderror
+                            </div>
                             <div class="ss-modal-field--full">
                                 <label class="ss-modal-label" for="enrollment-department-id">ដេប៉ាតឺម៉ង់</label>
                                 <select id="enrollment-department-id" class="ss-modal-input" x-ref="enrollmentDepartmentSelect" data-placeholder="ជ្រើសរើសដេប៉ាតឺម៉ង់" data-allow-clear="true">
@@ -793,10 +1334,10 @@
                     </div>
 
                     <div class="ss-modal-foot">
-                        <button class="ss-modal-cancel" type="button" x-on:click="closeEnrollmentModal()">បោះបង់</button>
-                        <button class="ss-modal-submit" type="submit" wire:loading.attr="disabled" wire:target="createEnrollment">
-                            <span wire:loading.remove wire:target="createEnrollment">រក្សាទុក</span>
-                            <span wire:loading wire:target="createEnrollment">កំពុងរក្សាទុក...</span>
+                        <button class="ss-modal-cancel ss-modal-cancel-dark" type="button" x-on:click="closeEnrollmentModal()">ចាក់ចេញ</button>
+                        <button class="ss-modal-submit ss-modal-submit-green" style="width: 120px;" type="submit" wire:loading.attr="disabled" wire:target="createEnrollmentByStudentCode">
+                            <span wire:loading.remove wire:target="createEnrollmentByStudentCode"><i class="fa fa-plus-circle"></i> ចុះឈ្មោះ</span>
+                            <span wire:loading wire:target="createEnrollmentByStudentCode">កំពុង...</span>
                         </button>
                     </div>
                 </form>

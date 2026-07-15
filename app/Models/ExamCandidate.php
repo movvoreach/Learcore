@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\LogsActivity;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ExamCandidate extends Model
 {
+    use LogsActivity;
+
     protected $primaryKey = 'exam_candidate_id';
 
     protected $fillable = [

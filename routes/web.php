@@ -27,6 +27,7 @@ Route::get('/learning/about/alumni', [frontendController::class, 'alumni'])->nam
 Route::get('/learning/terms', [frontendController::class, 'terms'])->name('frontend.terms');
 Route::get('/learning/faqs', [frontendController::class, 'faqs'])->name('frontend.faqs');
 Route::get('/learning/programs', [frontendController::class, 'programs'])->name('frontend.programs');
+Route::get('/learning/pages/{slug}', [frontendController::class, 'page'])->name('frontend.pages.show');
 Route::middleware('auth')->prefix('/learning/account')->name('frontend.account.')->group(function (): void {
     Route::get('/', [frontendController::class, 'accountDashboard'])->name('dashboard');
     Route::get('/profile', [frontendController::class, 'accountProfile'])->name('profile');

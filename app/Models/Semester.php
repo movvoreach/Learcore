@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\LogsActivity;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Semester extends Model
 {
+    use LogsActivity;
+
     protected $primaryKey = 'semester_id';
 
     protected $fillable = [

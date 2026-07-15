@@ -261,8 +261,11 @@
                                         <div class="course-workspace-done">
                                             <i class="fas fa-check-circle"></i>
                                             <span>បានដាក់ស្នើរួចហើយនៅថ្ងៃទី {{ $submission->submitted_at->format('d/m/Y H:i') }}</span>
-                                            @if($submission->status === 'graded')
+                                            @if($submission->status === 'graded' || filled($submission->score))
                                                 <strong>ពិន្ទុ: {{ $submission->score }} / {{ $assignment->max_score }}</strong>
+                                                @if(filled($submission->feedback))
+                                                    <span>Feedback: {{ $submission->feedback }}</span>
+                                                @endif
                                             @else
                                                 <span class="badge badge-info">កំពុងរង់ចាំការកែ</span>
                                             @endif

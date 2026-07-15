@@ -6,8 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>@yield('title', 'Moodle LMS')</title>
-    <link rel="icon" type="image/png" href="{{ asset('backend/dist/img/spilogo.png') }}">
+    <title>@yield('title', $branding['site_name'] ?? 'LearnCore LMS')</title>
+    <link rel="icon" type="image/png" href="{{ $branding['favicon_url'] ?? asset('backend/dist/img/spilogo.png') }}">
     <link rel="stylesheet" href="{{ asset('backend/plugins/fontawesome-free/css/all.min.css') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,9 +18,9 @@
 
     <style>
         :root {
-            --learning-orange: #ff5b00;
+            --learning-orange: {{ $branding['primary_color'] ?? '#ff5b00' }};
             --learning-orange-dark: #f04d00;
-            --learning-blue: #2563eb;
+            --learning-blue: {{ $branding['secondary_color'] ?? '#2563eb' }};
             --learning-blue-soft: #eaf1ff;
             --learning-ink: #111827;
             --learning-muted: #64748b;

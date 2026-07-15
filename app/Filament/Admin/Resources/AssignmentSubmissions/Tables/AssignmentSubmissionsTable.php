@@ -16,6 +16,7 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -24,40 +25,83 @@ class AssignmentSubmissionsTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn (Builder $query): Builder => $query->with(['assignment', 'student.department', 'student.academicYear', 'student.semester']))
+            ->modifyQueryUsing(fn (Builder $query): Builder => $query->with(['assignment.lesson.course', 'student.department', 'student.academicYear', 'student.semester']))
             ->columns([
+                TextColumn::make('student_name')
+                    ->label('Student')
+                    ->getStateUsing(fn (AssignmentSubmission $record): string => trim(($record->student?->first_name ?? '').' '.($record->student?->last_name ?? '')) ?: 'Unknown student')
+                    ->description(fn (AssignmentSubmission $record): string => collect([
+                        $record->student?->student_code,
+                        $record->student?->department?->department_name,
+                    ])->filter()->join(' - '))
+                    ->searchable(query: fn (Builder $query, string $search): Builder => $query->whereHas('student', fn (Builder $query): Builder => $query
+                        ->where('student_code', 'like', "%{$search}%")
+                        ->orWhere('first_name', 'like', "%{$search}%")
+                        ->orWhere('last_name', 'like', "%{$search}%")))
+                    ->sortable(query: fn (Builder $query, string $direction): Builder => $query
+                        ->join('students as submission_students', 'assignment_submissions.student_id', '=', 'submission_students.student_id')
+                        ->orderBy('submission_students.first_name', $direction)
+                        ->select('assignment_submissions.*')),
+
+                TextColumn::make('assignment.lesson.course.course_name')
+                    ->label('Course')
+                    ->limit(34)
+                    ->searchable()
+                    ->toggleable(),
+
                 TextColumn::make('assignment.title')
                     ->label('Assignment')
+                    ->description(fn (AssignmentSubmission $record): string => $record->assignment?->due_at
+                        ? 'Due '.$record->assignment->due_at->format('M d, Y')
+                        : 'No due date')
                     ->searchable()
                     ->sortable(),
-                TextColumn::make('student.student_code')
-                    ->label('Student Code')
-                    ->searchable(),
-                TextColumn::make('student.first_name')
-                    ->label('Student')
-                    ->formatStateUsing(fn ($record): string => trim(($record->student?->first_name ?? '').' '.($record->student?->last_name ?? '')))
-                    ->searchable(),
+
                 TextColumn::make('submitted_at')
+                    ->label('Submitted')
                     ->dateTime()
                     ->sortable(),
+
                 TextColumn::make('attachment_url')
                     ->label('Document')
-                    ->formatStateUsing(fn (?string $state): string => filled($state) ? 'Open file' : 'No file')
+                    ->formatStateUsing(fn (?string $state): string => filled($state) ? 'File attached' : 'No file')
                     ->url(fn (AssignmentSubmission $record): ?string => $record->attachmentPublicUrl())
                     ->openUrlInNewTab()
                     ->badge()
                     ->color(fn (?string $state): string => filled($state) ? 'info' : 'gray'),
+
                 TextColumn::make('response')
                     ->label('Student Note')
                     ->limit(45)
-                    ->toggleable(),
+                    ->placeholder('-')
+                    ->toggleable(isToggledHiddenByDefault: true),
+
                 TextColumn::make('status')
+                    ->label('Status')
+                    ->formatStateUsing(fn (?string $state): string => match ($state) {
+                        'submitted' => 'Submitted',
+                        'graded' => 'Graded',
+                        'reviewed' => 'Reviewed',
+                        'needs_revision' => 'Needs revision',
+                        default => 'Submitted',
+                    })
                     ->badge()
+                    ->color(fn (?string $state): string => match ($state) {
+                        'graded' => 'success',
+                        'reviewed' => 'info',
+                        'needs_revision' => 'warning',
+                        default => 'gray',
+                    })
                     ->sortable(),
-                TextColumn::make('score')
+
+                TextColumn::make('score_display')
                     ->label('Score')
-                    ->formatStateUsing(fn (?string $state): string => filled($state) ? $state : 'Not graded')
-                    ->sortable(),
+                    ->getStateUsing(fn (AssignmentSubmission $record): string => filled($record->score)
+                        ? number_format((float) $record->score, 2).' / '.number_format((float) ($record->assignment?->max_score ?? 100), 0)
+                        : 'Not graded')
+                    ->badge()
+                    ->color(fn (AssignmentSubmission $record): string => filled($record->score) ? 'success' : 'gray')
+                    ->sortable(query: fn (Builder $query, string $direction): Builder => $query->orderBy('score', $direction)),
             ])
             ->filters([
                 SelectFilter::make('student_department_id')
@@ -91,13 +135,26 @@ class AssignmentSubmissionsTable
                     ->label('Status')
                     ->options([
                         'submitted' => 'Submitted',
+                        'graded' => 'Graded',
                         'reviewed' => 'Reviewed',
                         'needs_revision' => 'Needs revision',
                     ]),
+                TernaryFilter::make('has_file')
+                    ->label('Submitted file')
+                    ->placeholder('All')
+                    ->trueLabel('Has file')
+                    ->falseLabel('No file')
+                    ->queries(
+                        true: fn (Builder $query): Builder => $query->whereNotNull('attachment_url')->where('attachment_url', '!=', ''),
+                        false: fn (Builder $query): Builder => $query->where(fn (Builder $query): Builder => $query->whereNull('attachment_url')->orWhere('attachment_url', '')),
+                    ),
             ], layout: FiltersLayout::AboveContent)
+            ->filtersFormColumns(4)
+            ->paginated([10, 25, 50, 100])
+            ->defaultPaginationPageOption(10)
             ->recordActions([
                 Action::make('open_file')
-                    ->label('Open file')
+                    ->label('File')
                     ->icon(Heroicon::OutlinedDocumentArrowDown)
                     ->color('info')
                     ->url(fn (AssignmentSubmission $record): ?string => $record->attachmentPublicUrl())
@@ -105,14 +162,14 @@ class AssignmentSubmissionsTable
                     ->visible(fn (AssignmentSubmission $record): bool => filled($record->attachment_url)),
 
                 Action::make('grade')
-                    ->label('Score')
+                    ->label('Review')
                     ->icon(Heroicon::OutlinedPencilSquare)
                     ->color('success')
                     ->modalHeading('Review assignment submission')
                     ->modalSubmitActionLabel('Save score')
                     ->fillForm(fn (AssignmentSubmission $record): array => [
                         'score' => $record->score,
-                        'status' => $record->status ?: 'reviewed',
+                        'status' => $record->status ?: 'graded',
                         'feedback' => $record->feedback,
                     ])
                     ->form([
@@ -126,10 +183,11 @@ class AssignmentSubmissionsTable
                             ->label('Status')
                             ->options([
                                 'submitted' => 'Submitted',
+                                'graded' => 'Graded',
                                 'reviewed' => 'Reviewed',
                                 'needs_revision' => 'Needs revision',
                             ])
-                            ->default('reviewed')
+                            ->default('graded')
                             ->required(),
                         Textarea::make('feedback')
                             ->label('Feedback')
@@ -139,9 +197,12 @@ class AssignmentSubmissionsTable
                     ->action(function (AssignmentSubmission $record, array $data): void {
                         $record->update([
                             'score' => $data['score'] ?? null,
-                            'status' => $data['status'] ?? 'reviewed',
+                            'status' => filled($data['score'] ?? null) ? 'graded' : ($data['status'] ?? 'reviewed'),
                             'feedback' => $data['feedback'] ?? null,
                         ]);
+
+                        $record->refresh()->loadMissing('assignment');
+                        $record->publishGradeToStudent(auth()->id());
                     }),
 
                 EditAction::make(),

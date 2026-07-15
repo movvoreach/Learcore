@@ -3,16 +3,12 @@
 namespace App\Filament\Admin\Resources\Schedules\Pages;
 
 use App\Filament\Admin\Resources\Schedules\ScheduleResource;
+use App\Models\ClassRoom;
 use App\Models\Schedule;
-use Filament\Actions\Action;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TimePicker;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\Page;
-use Filament\Schemas\Components\Grid;
-use Filament\Support\Enums\Width;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\HtmlString;
+use Illuminate\Validation\Rule;
 
 class ListSchedules extends Page
 {
@@ -25,130 +21,104 @@ class ListSchedules extends Page
     public $semester_id = null;
     public $department_id = null;
 
+    public ?int $scheduleDepartmentId = null;
+    public ?int $scheduleAcademicYearId = null;
+    public ?int $scheduleSemesterId = null;
+    public ?int $scheduleTeacherId = null;
+    public ?int $scheduleClassId = null;
+    public ?string $scheduleDay = null;
+    public ?string $scheduleStartTime = null;
+    public ?string $scheduleEndTime = null;
+
     protected function getHeaderActions(): array
     {
-        return auth()->user()?->hasAnyRole(['super_admin', 'admin'])
-            ? [
-                Action::make('createSchedule')
-                    ->label(new HtmlString('<i class="fa-solid fas fa-plus"></i> <span>បញ្ចូល</span>'))
-                    ->color('primary')
-                    ->modalHeading('បញ្ចូលកាលវិភាគ')
-                    ->modalWidth(Width::SevenExtraLarge)
-                    ->modalSubmitActionLabel('រក្សាទុក')
-                    ->modalCancelActionLabel('ត្រឡប់')
-                    ->form($this->scheduleModalForm())
-                    ->action(function (array $data): void {
-                        Schedule::query()->create([
-                            'teacher_id' => $data['teacher_id'],
-                            'class_id' => $data['class_id'],
-                            'day' => $data['day'],
-                            'start_time' => $data['start_time'],
-                            'end_time' => $data['end_time'],
-                        ]);
-
-                        Notification::make()
-                            ->title('បានបញ្ចូលកាលវិភាគដោយជោគជ័យ')
-                            ->success()
-                            ->send();
-                    }),
-            ]
-            : [];
+        return [];
     }
 
-    /**
-     * @return array<int, \Filament\Schemas\Components\Component>
-     */
-    private function scheduleModalForm(): array
+    public function createSchedule(): void
     {
-        return [
-            Grid::make(2)
-                ->schema([
-                    Select::make('department_id')
-                        ->label('ដេប៉ាតឺម៉ង់ (Department)')
-                        ->placeholder('ជ្រើសរើសដេប៉ាតឺម៉ង់ (Department)')
-                        ->options(fn () => \App\Models\Department::pluck('department_name', 'department_id'))
-                        ->searchable()
-                        ->preload()
-                        ->live()
-                        ->dehydrated(false),
-                    Select::make('academic_year_id')
-                        ->label('ឆ្នាំសិក្សា (Academic Year)')
-                        ->placeholder('ជ្រើសរើសឆ្នាំសិក្សា (Academic Year)')
-                        ->options(fn () => \App\Models\AcademicYear::pluck('year_name', 'academic_year_id'))
-                        ->searchable()
-                        ->preload()
-                        ->live()
-                        ->dehydrated(false),
-                    Select::make('semester_id')
-                        ->label('ឆមាស (Semester)')
-                        ->placeholder('ជ្រើសរើសឆមាស (Semester)')
-                        ->options(fn () => \App\Models\Semester::pluck('semester_name', 'semester_id'))
-                        ->searchable()
-                        ->preload()
-                        ->live()
-                        ->dehydrated(false),
-                    Select::make('teacher_id')
-                        ->label('គ្រូបង្រៀន (Teacher)')
-                        ->placeholder('ជ្រើសរើសគ្រូបង្រៀន (Teacher)')
-                        ->relationship('teacher', 'first_name', function (Builder $query, $get) {
-                            if ($get('department_id')) {
-                                $query->where('department_id', $get('department_id'));
-                            }
-                        })
-                        ->getOptionLabelFromRecordUsing(fn ($record) => trim("{$record->first_name} {$record->last_name}"))
-                        ->searchable(['teacher_code', 'first_name', 'last_name'])
-                        ->preload()
-                        ->required(),
-                    Select::make('class_id')
-                        ->label('ថ្នាក់រៀន (Class)')
-                        ->placeholder('ជ្រើសរើសថ្នាក់រៀន (Class)')
-                        ->options(function ($get) {
-                            $query = \App\Models\ClassRoom::query();
-                            if ($get('academic_year_id')) {
-                                $query->where('academic_year_id', $get('academic_year_id'));
-                            }
-                            if ($get('department_id') || $get('semester_id')) {
-                                $query->whereHas('course', function ($q) use ($get) {
-                                    if ($get('department_id')) {
-                                        $q->where('department_id', $get('department_id'));
-                                    }
-                                    if ($get('semester_id')) {
-                                        $q->where('semester_id', $get('semester_id'));
-                                    }
-                                });
-                            }
-                            return $query->pluck('class_name', 'class_room_id');
-                        })
-                        ->searchable()
-                        ->required(),
-                    Select::make('day')
-                        ->label('ថ្ងៃ (Day)')
-                        ->placeholder('ជ្រើសរើសថ្ងៃ (Day)')
-                        ->options([
-                            'monday' => 'ចន្ទ (Monday)',
-                            'tuesday' => 'អង្គារ (Tuesday)',
-                            'wednesday' => 'ពុធ (Wednesday)',
-                            'thursday' => 'ព្រហស្បតិ៍ (Thursday)',
-                            'friday' => 'សុក្រ (Friday)',
-                            'saturday' => 'សៅរ៍ (Saturday)',
-                            'sunday' => 'អាទិត្យ (Sunday)',
-                        ])
-                        ->required(),
-                    TimePicker::make('start_time')
-                        ->label('ម៉ោងចាប់ផ្តើម (Start Time)')
-                        ->seconds(false)
-                        ->required(),
-                    TimePicker::make('end_time')
-                        ->label('ម៉ោងបញ្ចប់ (End Time)')
-                        ->seconds(false)
-                        ->required(),
-                ]),
-        ];
+        abort_unless(auth()->user()?->hasAnyRole(['super_admin', 'admin']), 403);
+
+        $data = $this->validate([
+            'scheduleDepartmentId' => ['nullable', 'integer', 'exists:departments,department_id'],
+            'scheduleAcademicYearId' => ['nullable', 'integer', 'exists:academic_years,academic_year_id'],
+            'scheduleSemesterId' => ['nullable', 'integer', 'exists:semesters,semester_id'],
+            'scheduleTeacherId' => ['required', 'integer', 'exists:teachers,teacher_id'],
+            'scheduleClassId' => ['required', 'integer', 'exists:class_rooms,class_room_id'],
+            'scheduleDay' => ['required', Rule::in(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'])],
+            'scheduleStartTime' => ['required', 'date_format:H:i'],
+            'scheduleEndTime' => ['required', 'date_format:H:i', 'after:scheduleStartTime'],
+        ], [], [
+            'scheduleTeacherId' => 'Teacher',
+            'scheduleClassId' => 'Class',
+            'scheduleDay' => 'Day',
+            'scheduleStartTime' => 'Start Time',
+            'scheduleEndTime' => 'End Time',
+        ]);
+
+        $classRoom = ClassRoom::query()
+            ->with('course')
+            ->find($data['scheduleClassId']);
+
+        if (! $classRoom) {
+            $this->addError('scheduleClassId', 'Class not found.');
+
+            return;
+        }
+
+        $classAcademicYearId = $classRoom->academic_year_id ?? $classRoom->course?->academic_year_id;
+
+        if ($this->scheduleAcademicYearId && (int) $classAcademicYearId !== (int) $this->scheduleAcademicYearId) {
+            $this->addError('scheduleClassId', 'Class does not match selected academic year.');
+
+            return;
+        }
+
+        if ($this->scheduleDepartmentId && (int) $classRoom->course?->department_id !== (int) $this->scheduleDepartmentId) {
+            $this->addError('scheduleClassId', 'Class does not match selected department.');
+
+            return;
+        }
+
+        if ($this->scheduleSemesterId && (int) $classRoom->course?->semester_id !== (int) $this->scheduleSemesterId) {
+            $this->addError('scheduleClassId', 'Class does not match selected semester.');
+
+            return;
+        }
+
+        Schedule::query()->create([
+            'teacher_id' => $data['scheduleTeacherId'],
+            'class_id' => $data['scheduleClassId'],
+            'day' => $data['scheduleDay'],
+            'start_time' => $data['scheduleStartTime'],
+            'end_time' => $data['scheduleEndTime'],
+        ]);
+
+        $this->resetCreateScheduleForm();
+        $this->dispatch('close-create-schedule-modal');
+
+        Notification::make()
+            ->title('Schedule created successfully')
+            ->success()
+            ->send();
+    }
+
+    public function resetCreateScheduleForm(): void
+    {
+        $this->scheduleDepartmentId = null;
+        $this->scheduleAcademicYearId = null;
+        $this->scheduleSemesterId = null;
+        $this->scheduleTeacherId = null;
+        $this->scheduleClassId = null;
+        $this->scheduleDay = null;
+        $this->scheduleStartTime = null;
+        $this->scheduleEndTime = null;
+        $this->resetValidation();
     }
 
     protected function getViewData(): array
     {
-        $query = \App\Models\Schedule::with(['teacher', 'classRoom', 'classRoom.course', 'classRoom.academicYear']);
+        $query = Schedule::with(['teacher', 'classRoom', 'classRoom.course', 'classRoom.academicYear']);
         $user = auth()->user();
         $isTeacher = $user->hasRole('teacher');
         $isStudent = $user->hasRole('student');
@@ -162,13 +132,7 @@ class ListSchedules extends Page
                     ->whereNotNull('class_room_id')
                     ->pluck('class_room_id');
 
-                $query->where(function (Builder $query) use ($student, $classRoomIds): void {
-                    $query
-                        ->whereHas('students', fn (Builder $query): Builder => $query
-                            ->where('students.student_id', $student->student_id))
-                        ->when($classRoomIds->isNotEmpty(), fn (Builder $query): Builder => $query
-                            ->orWhereIn('class_id', $classRoomIds));
-                });
+                $query->whereIn('class_id', $classRoomIds);
             }
         } elseif ($isTeacher && $user->teacher) {
             $this->teacher_id = $user->teacher->teacher_id;
@@ -178,59 +142,52 @@ class ListSchedules extends Page
         }
 
         if ($this->academic_year_id) {
-            $query->whereHas('classRoom', function($q) {
-                $q->where('academic_year_id', $this->academic_year_id);
+            $query->whereHas('classRoom', function (Builder $query): void {
+                $query->where('academic_year_id', $this->academic_year_id);
             });
         }
 
         if ($this->semester_id) {
-            $query->whereHas('classRoom.course', function($q) {
-                $q->where('semester_id', $this->semester_id);
+            $query->whereHas('classRoom.course', function (Builder $query): void {
+                $query->where('semester_id', $this->semester_id);
             });
         }
 
         if ($this->department_id) {
-            $query->whereHas('classRoom.course', function($q) {
-                $q->where('department_id', $this->department_id);
+            $query->whereHas('classRoom.course', function (Builder $query): void {
+                $query->where('department_id', $this->department_id);
             });
         }
 
         $schedules = $query->get();
-
         $timeSlots = [];
+
         foreach ($schedules as $schedule) {
             $start = \Carbon\Carbon::parse($schedule->start_time)->format('H:i');
             $end = \Carbon\Carbon::parse($schedule->end_time)->format('H:i');
             $timeKey = "{$start} - {$end}";
-            
-            if (!isset($timeSlots[$timeKey])) {
+
+            if (! isset($timeSlots[$timeKey])) {
                 $timeSlots[$timeKey] = [
                     'start_time' => $schedule->start_time,
                     'end_time' => $schedule->end_time,
-                    'days' => []
+                    'days' => [],
                 ];
             }
-            
+
             $timeSlots[$timeKey]['days'][$schedule->day][] = $schedule;
         }
 
-        uasort($timeSlots, function ($a, $b) {
-            return strtotime($a['start_time']) <=> strtotime($b['start_time']);
-        });
-
-        $days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
-        $teachers = \App\Models\Teacher::all();
-        $academicYears = \App\Models\AcademicYear::all(); 
-        $semesters = \App\Models\Semester::all();
-        $departments = \App\Models\Department::all();
+        uasort($timeSlots, fn (array $a, array $b): int => strtotime($a['start_time']) <=> strtotime($b['start_time']));
 
         return [
             'timeSlots' => $timeSlots,
-            'days' => $days,
-            'teachers' => $teachers,
-            'academicYears' => $academicYears,
-            'semesters' => $semesters,
-            'departments' => $departments,
+            'days' => ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'],
+            'teachers' => \App\Models\Teacher::query()->orderBy('first_name')->get(),
+            'academicYears' => \App\Models\AcademicYear::query()->orderBy('year_name')->get(),
+            'semesters' => \App\Models\Semester::query()->orderBy('start_date')->get(),
+            'departments' => \App\Models\Department::query()->orderBy('department_name')->get(),
+            'classRooms' => ClassRoom::query()->with('course')->orderBy('class_name')->get(),
             'isTeacher' => $isTeacher,
             'isStudent' => $isStudent,
         ];

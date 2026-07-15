@@ -1,225 +1,255 @@
 <x-filament-panels::page>
     <style>
-        .cs-page {
-            color: #172033;
-            font-family: "Noto Sans Khmer", "Khmer OS Siemreap", ui-sans-serif, system-ui, sans-serif;
+        .course-roster-page {
+            color: #24304a;
+            font-family: "Battambang", "Kantumruy Pro", "Noto Sans Khmer", "Khmer OS Siemreap", ui-sans-serif, system-ui, sans-serif;
+            font-size: 14px;
+            line-height: 1.65;
         }
 
-        .cs-header {
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
+        .course-roster-title {
+            margin: 0 0 6px;
+            color: #273149;
+            font-size: 27px;
+            font-weight: 800;
+            letter-spacing: 0;
+        }
+
+        .course-roster-breadcrumb {
+            margin-bottom: 24px;
+            color: #929ab0;
+            font-size: 12px;
+        }
+
+        .course-roster-card {
+            border: 1px solid #dce2f0;
+            border-radius: 6px;
             background: #fff;
-            padding: 20px;
-            margin-bottom: 16px;
-            box-shadow: 0 8px 20px rgba(15, 23, 42, .05);
+            box-shadow: 0 10px 28px rgba(31, 41, 55, .055);
         }
 
-        .cs-header-top {
+        .course-roster-summary {
+            margin-bottom: 26px;
+        }
+
+        .course-roster-summary-main {
+            padding: 30px 28px 28px;
+            text-align: center;
+        }
+
+        .course-roster-summary-main h2 {
+            margin: 0;
+            color: #1f2a44;
+            font-size: 30px;
+            font-weight: 800;
+            letter-spacing: 0;
+        }
+
+        .course-roster-summary-main p {
+            margin: 8px 0 0;
+            color: #2d3760;
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .course-roster-summary-meta {
             display: flex;
             justify-content: space-between;
-            align-items: flex-start;
-            flex-wrap: wrap;
-            gap: 12px;
+            gap: 16px;
+            border-top: 1px solid #e0e5f1;
+            background: #fbfcff;
+            padding: 18px 22px;
+            color: #626b83;
+            font-size: 14px;
+            line-height: 1.75;
         }
 
-        .cs-course-title {
-            margin: 0;
-            color: #0f172a;
-            font-size: 24px;
-            font-weight: 900;
-            line-height: 1.25;
+        .course-roster-summary-meta strong {
+            color: #47516a;
+            font-weight: 700;
         }
 
-        .cs-course-code {
-            display: inline-block;
-            margin-top: 6px;
-            padding: 3px 10px;
-            border-radius: 6px;
-            background: #eff6ff;
-            color: #1d4ed8;
-            font-size: 13px;
-            font-weight: 850;
-        }
-
-        .cs-meta-row,
-        .cs-stats {
+        .course-roster-panel-header {
             display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-top: 14px;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid #e0e5f1;
+            padding: 17px 18px;
+            color: #4d5872;
+            font-size: 15px;
+            font-weight: 700;
         }
 
-        .cs-pill,
-        .cs-stat {
-            border: 1px solid #dbe3ef;
-            border-radius: 999px;
-            background: #f8fafc;
-            padding: 6px 12px;
-            color: #334155;
-            font-size: 12px;
-            font-weight: 850;
-            white-space: nowrap;
-        }
-
-        .cs-stat strong {
-            color: #0f172a;
-            font-weight: 950;
-        }
-
-        .cs-btn {
+        .course-roster-add {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            min-height: 32px;
-            border-radius: 7px;
-            padding: 7px 12px;
-            font-size: 12px;
-            font-weight: 850;
-            cursor: pointer;
-            text-decoration: none;
-            transition: all .15s;
-        }
-
-        .cs-btn-save {
-            border: 0;
-            background: #16a34a;
+            width: 30px;
+            height: 28px;
+            border-radius: 4px;
+            background: #5865f2;
             color: #fff;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: 800;
+            box-shadow: 0 6px 14px rgba(88, 101, 242, .24);
+            transition: background .15s ease, transform .15s ease;
         }
 
-        .cs-btn-save:hover {
-            background: #15803d;
+        .course-roster-add:hover {
+            background: #4653db;
+            transform: translateY(-1px);
         }
 
-        .cs-btn-back {
-            background: #f1f5f9;
-            color: #334155;
-            border: 1px solid #e2e8f0;
-        }
-
-        .cs-table-wrap {
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            background: #fff;
-            box-shadow: 0 4px 12px rgba(15, 23, 42, .04);
+        .course-roster-table-wrap {
+            padding: 18px;
             overflow-x: auto;
         }
 
-        .cs-table {
+        .course-roster-table {
             width: 100%;
-            min-width: 1420px;
+            min-width: 1180px;
             border-collapse: collapse;
+            border: 1px solid #1f2937;
+            color: #26324d;
             font-size: 12px;
-            white-space: nowrap;
-        }
-
-        .cs-table th {
-            position: sticky;
-            top: 0;
-            z-index: 1;
-            background: #f8fafc;
-            border-bottom: 2px solid #e2e8f0;
-            padding: 9px 10px;
-            text-align: left;
-            color: #475569;
-            font-size: 11px;
-            font-weight: 900;
-        }
-
-        .cs-table td {
-            border-bottom: 1px solid #f1f5f9;
-            padding: 9px 10px;
-            vertical-align: middle;
-        }
-
-        .cs-table tbody tr:hover {
-            background: #f8fafc;
-        }
-
-        .cs-col-center {
-            text-align: center;
-        }
-
-        .cs-student-name {
-            color: #0f172a;
-            font-weight: 900;
-        }
-
-        .cs-muted {
-            color: #64748b;
-            font-size: 11px;
-            font-weight: 750;
-        }
-
-        .cs-score-input {
-            width: 72px;
-            padding: 6px 5px;
-            border: 1px solid #d1d5db;
-            border-radius: 6px;
             background: #fff;
-            color: #0f172a;
-            font-size: 12px;
-            font-weight: 850;
+        }
+
+        .course-roster-table th {
+            border: 1px solid #1f2937;
+            background: #e4e7ff;
+            padding: 11px 10px;
+            text-align: left;
+            vertical-align: top;
+            color: #303852;
+            font-weight: 800;
+            line-height: 1.5;
+        }
+
+        .course-roster-table td {
+            border: 1px solid #1f2937;
+            padding: 11px 10px;
+            vertical-align: middle;
+            line-height: 1.55;
+        }
+
+        .course-roster-table tbody tr:hover {
+            background: #f8faff;
+        }
+
+        .text-center {
             text-align: center;
         }
 
-        .cs-score-input:focus {
-            outline: none;
-            border-color: #2563eb;
-            box-shadow: 0 0 0 2px rgba(37, 99, 235, .15);
+        .student-link {
+            color: #4459f0;
+            font-weight: 800;
+            text-decoration: none;
         }
 
-        .cs-badge {
+        .student-link:hover {
+            color: #2738bc;
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+
+        .muted {
+            color: #626b80;
+            font-size: 11px;
+            line-height: 1.5;
+        }
+
+        .score-input {
+            width: 68px;
+            border: 1px solid #c8d0df;
+            border-radius: 5px;
+            background: #fff;
+            padding: 6px 7px;
+            color: #1f2937;
+            text-align: center;
+            font-weight: 700;
+        }
+
+        .score-input:focus {
+            outline: none;
+            border-color: #5865f2;
+            box-shadow: 0 0 0 3px rgba(88, 101, 242, .14);
+        }
+
+        .action-row {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .action-btn {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            min-width: 54px;
-            border-radius: 999px;
-            padding: 3px 8px;
-            font-size: 11px;
-            font-weight: 900;
+            min-width: 30px;
+            min-height: 30px;
+            border: 0;
+            border-radius: 4px;
+            color: #fff;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: background .15s ease, transform .15s ease, box-shadow .15s ease;
         }
 
-        .cs-badge-good {
-            background: #dcfce7;
-            color: #166534;
+        .action-btn-green {
+            min-width: 90px;
+            gap: 6px;
+            background: #22c55e;
+            box-shadow: 0 6px 14px rgba(34, 197, 94, .18);
         }
 
-        .cs-badge-bad {
-            background: #fee2e2;
-            color: #991b1b;
+        .action-btn-red {
+            background: #ef233c;
+            box-shadow: 0 6px 14px rgba(239, 35, 60, .18);
         }
 
-        .cs-badge-neutral {
-            background: #e0f2fe;
-            color: #075985;
+        .action-btn-blue {
+            background: #5865f2;
+            box-shadow: 0 6px 14px rgba(88, 101, 242, .18);
         }
 
-        .cs-empty {
-            padding: 38px;
-            border: 1px dashed #cbd5e1;
-            border-radius: 8px;
-            color: #64748b;
-            background: #fff;
-            font-size: 15px;
+        .action-btn:hover {
+            transform: translateY(-1px);
+            filter: brightness(.96);
+        }
+
+        .empty-state {
+            padding: 42px 18px;
+            color: #68738a;
             text-align: center;
+            font-size: 15px;
         }
 
-        .cs-toast {
+        .toast {
             position: fixed;
-            bottom: 24px;
             right: 24px;
+            bottom: 24px;
             z-index: 9999;
-            border-radius: 8px;
+            border-radius: 6px;
             background: #16a34a;
             color: #fff;
             padding: 12px 18px;
             font-size: 14px;
-            font-weight: 850;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, .15);
+            font-weight: 700;
+            box-shadow: 0 14px 34px rgba(15, 23, 42, .2);
+        }
+
+        @media (max-width: 768px) {
+            .course-roster-summary-meta {
+                flex-direction: column;
+            }
         }
     </style>
 
-    <div class="cs-page"
+    <div class="course-roster-page"
          x-data="{
             toastMessage: '',
             showToast: false,
@@ -230,132 +260,138 @@
             }
          }"
          @notify.window="showNotification($event.detail.message)">
-        <div class="cs-toast" x-show="showToast" x-transition x-cloak x-text="toastMessage"></div>
+        <div class="toast" x-show="showToast" x-transition x-cloak x-text="toastMessage"></div>
 
-        <div class="cs-header">
-            <div class="cs-header-top">
+        <h1 class="course-roster-title">គ្រប់គ្រងវឌ្ឍនភាព</h1>
+        <div class="course-roster-breadcrumb">Home &gt; វគ្គសិក្សា &gt; និស្សិតក្នុងវគ្គ</div>
+
+        <section class="course-roster-card course-roster-summary">
+            <div class="course-roster-summary-main">
+                <h2>វគ្គសិក្សា</h2>
+                <p>ឈ្មោះ: {{ $course->course_name }}</p>
+            </div>
+            <div class="course-roster-summary-meta">
                 <div>
-                    <h1 class="cs-course-title">{{ $course->course_name }}</h1>
-                    <span class="cs-course-code">{{ $course->course_code }}</span>
+                    <div><strong>លេខកូដវគ្គសិក្សា:</strong> {{ $course->course_code ?? '-' }}</div>
+                    <div><strong>កាលបរិច្ឆេទ:</strong> {{ $course->created_at?->format('m/d/Y') ?? '-' }}</div>
                 </div>
-                <a href="{{ \App\Filament\Admin\Resources\Courses\CourseResource::getUrl('index') }}" class="cs-btn cs-btn-back">
-                    ត្រឡប់ក្រោយ
-                </a>
+                <div style="text-align: right;">
+                    <div><strong>ឆ្នាំសិក្សា:</strong> {{ $course->academicYear?->year_name ?? '-' }}</div>
+                    <div><strong>ឆមាស:</strong> {{ $course->semester?->semester_name ?? '-' }}</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="course-roster-card">
+            <div class="course-roster-panel-header">
+                <span>និស្សិតក្នុងវគ្គសិក្សា</span>
+                <a class="course-roster-add" href="{{ \App\Filament\Admin\Resources\Enrollments\EnrollmentResource::getUrl('create') }}" title="Add enrollment">+</a>
             </div>
 
-            <div class="cs-meta-row">
-                @if($course->department)
-                    <span class="cs-pill">ដេប៉ាតឺម៉ង់: {{ $course->department->department_name }}</span>
-                @endif
-                @if($course->academicYear)
-                    <span class="cs-pill">ឆ្នាំសិក្សា: {{ $course->academicYear->year_name }}</span>
-                @endif
-                @if($course->semester)
-                    <span class="cs-pill">ឆមាស: {{ $course->semester->semester_name }}</span>
-                @endif
-                <span class="cs-pill">គ្រូបង្រៀន: {{ $teacherName }}</span>
-            </div>
+            @if($enrollments->isEmpty())
+                <div class="empty-state">មិនទាន់មាននិស្សិតចុះឈ្មោះក្នុងវគ្គសិក្សានេះទេ។</div>
+            @else
+                <div class="course-roster-table-wrap">
+                    <table class="course-roster-table">
+                        <thead>
+                            <tr>
+                                <th class="text-center">ល.រ<br><span class="muted">លេខសម្គាល់</span></th>
+                                <th>និស្សិត<br><span class="muted">វគ្គសិក្សាអនឡាញ</span></th>
+                                <th>គ្រូបង្រៀន<br><span class="muted">លេខកូដ</span></th>
+                                <th>ព័ត៌មានវគ្គ<br><span class="muted">វគ្គ / ថ្នាក់</span></th>
+                                <th class="text-center">វឌ្ឍនភាព<br><span class="muted">មេរៀនបានរៀន</span></th>
+                                <th class="text-center">ពិន្ទុ<br><span class="muted">សរុប</span></th>
+                                <th class="text-center">កាលបរិច្ឆេទ<br><span class="muted">ចុះឈ្មោះ</span></th>
+                                <th class="text-center">វឌ្ឍនភាព</th>
+                                <th class="text-center">លុប</th>
+                                <th class="text-center">មើល</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($enrollments as $enrollment)
+                                @php
+                                    $student = $enrollment->student;
+                                    $studentId = (int) $enrollment->student_id;
+                                    $summary = $studentSummaries->get($studentId, []);
+                                    $progressId = $summary['progress_id'] ?? null;
+                                    $totalScore = (float) ($summary['total_score'] ?? 0);
+                                    $completedLessons = (int) ($summary['completed_lessons'] ?? 0);
+                                    $totalLessons = (int) ($summary['total_lessons'] ?? 0);
+                                @endphp
 
-            <div class="cs-stats">
-                <span class="cs-stat">និស្សិតសរុប: <strong>{{ $totalStudents }}</strong></span>
-                <span class="cs-stat">កិច្ចការ: <strong>{{ $assignments->count() }}</strong></span>
-                <span class="cs-stat">តេស្តខ្លី: <strong>{{ $quizzes->count() }}</strong></span>
-                <span class="cs-stat">ប្រឡង: <strong>{{ $exams->count() }}</strong></span>
-            </div>
-        </div>
-
-        @if($enrollments->isEmpty())
-            <div class="cs-empty">មិនទាន់មាននិស្សិតចុះឈ្មោះក្នុងវគ្គសិក្សានេះទេ។</div>
-        @else
-            <div class="cs-table-wrap">
-                <table class="cs-table">
-                    <thead>
-                        <tr>
-                            <th class="cs-col-center">ល.រ</th>
-                            <th>និស្សិត</th>
-                            <th>វគ្គសិក្សា</th>
-                            <th class="cs-col-center">វឌ្ឍនភាព</th>
-                            <th class="cs-col-center">វត្តមាន</th>
-                            <th class="cs-col-center">កិច្ចការ</th>
-                            <th class="cs-col-center">តេស្តខ្លី</th>
-                            <th class="cs-col-center">ប្រឡងពាក់កណ្តាល</th>
-                            <th class="cs-col-center">ប្រឡងចុងក្រោយ</th>
-                            <th class="cs-col-center">គម្រោង</th>
-                            <th class="cs-col-center">ពិន្ទុសរុបស្វ័យប្រវត្តិ</th>
-                            <th class="cs-col-center">និទ្ទេស</th>
-                            <th class="cs-col-center">ស្ថានភាពពិន្ទុ</th>
-                            <th class="cs-col-center">ស្ថានភាពសិក្សា</th>
-                            <th class="cs-col-center">វិញ្ញាបនបត្រ</th>
-                            <th class="cs-col-center">សកម្មភាពចុងក្រោយ</th>
-                            <th class="cs-col-center">សកម្មភាព</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($enrollments as $enrollment)
-                            @php
-                                $student = $enrollment->student;
-                                $studentId = (int) $enrollment->student_id;
-                                $summary = $studentSummaries->get($studentId, []);
-                                $totalScore = (float) ($summary['total_score'] ?? 0);
-                                $scoreStatus = (string) ($summary['score_status'] ?? 'ធ្លាក់');
-                                $scoreStatusClass = $scoreStatus === 'ជាប់' ? 'cs-badge-good' : 'cs-badge-bad';
-                            @endphp
-
-                            @if($student)
-                                <tr wire:key="student-score-row-{{ $studentId }}">
-                                    <td class="cs-col-center">{{ $loop->iteration }}</td>
-                                    <td>
-                                        <div class="cs-student-name">{{ trim(($student->first_name ?? '').' '.($student->last_name ?? '')) ?: 'គ្មានឈ្មោះ' }}</div>
-                                        <div class="cs-muted">{{ $student->student_code ?? '-' }}</div>
-                                    </td>
-                                    <td>
-                                        <div>{{ $course->course_name }}</div>
-                                        <div class="cs-muted">{{ $course->course_code }}</div>
-                                    </td>
-                                    <td class="cs-col-center">{{ $summary['progress'] ?? '-' }}</td>
-                                    <td class="cs-col-center">{{ $summary['attendance'] ?? '-' }}</td>
-
-                                    @foreach(['assignments', 'quizzes', 'midterm', 'final', 'project'] as $category)
-                                        <td class="cs-col-center">
+                                @if($student)
+                                    <tr wire:key="course-roster-row-{{ $enrollment->enrollment_id }}">
+                                        <td class="text-center">
+                                            <div>{{ $loop->iteration }}</div>
+                                            <div class="muted">{{ $student->student_code ?? str_pad((string) $studentId, 4, '0', STR_PAD_LEFT) }}</div>
+                                        </td>
+                                        <td>
+                                            <a class="student-link" href="{{ \App\Filament\Admin\Resources\Students\StudentResource::getUrl('edit', ['record' => $studentId]) }}">
+                                                {{ trim(($student->first_name ?? '').' '.($student->last_name ?? '')) ?: 'គ្មានឈ្មោះ' }}
+                                            </a>
+                                            <div class="muted">{{ $course->course_name }}</div>
+                                        </td>
+                                        <td>
+                                            <a class="student-link" href="#">{{ $teacherName }}</a>
+                                            <div class="muted">{{ $course->course_code ?? '-' }}</div>
+                                        </td>
+                                        <td>
+                                            <div>{{ $enrollment->classRoom?->class_name ?? 'Online course' }}</div>
+                                            <div class="muted">{{ $course->department?->department_name ?? '-' }}</div>
+                                        </td>
+                                        <td class="text-center">
+                                            <div>{{ $summary['progress'] ?? '0%' }}</div>
+                                            <div class="muted">{{ $completedLessons }} / {{ $totalLessons }} មេរៀន</div>
+                                        </td>
+                                        <td class="text-center">
                                             <input type="number"
                                                    min="0"
                                                    max="100"
                                                    step="0.01"
-                                                   class="cs-score-input"
-                                                   aria-label="{{ $scoreLabels[$category] }}"
-                                                   wire:model.live.debounce.400ms="scores.{{ $studentId }}.{{ $category }}"
-                                                   placeholder="0">
+                                                   class="score-input"
+                                                   wire:model.live.debounce.400ms="scores.{{ $studentId }}.assignments"
+                                                   title="Assignment score">
+                                            <div class="muted">សរុប {{ number_format($totalScore, 0) }}</div>
                                         </td>
-                                    @endforeach
-
-                                    <td class="cs-col-center">
-                                        <strong>{{ number_format($totalScore, 2) }}</strong>
-                                    </td>
-                                    <td class="cs-col-center">
-                                        <span class="cs-badge cs-badge-neutral">{{ $summary['grade'] ?? 'F' }}</span>
-                                    </td>
-                                    <td class="cs-col-center">
-                                        <span class="cs-badge {{ $scoreStatusClass }}">{{ $scoreStatus }}</span>
-                                    </td>
-                                    <td class="cs-col-center">{{ $summary['enrollment_status'] ?? '-' }}</td>
-                                    <td class="cs-col-center">{{ $summary['certificate'] ?? 'មិនទាន់មាន' }}</td>
-                                    <td class="cs-col-center">{{ $summary['last_activity'] ?? '-' }}</td>
-                                    <td class="cs-col-center">
-                                        <button type="button"
-                                                class="cs-btn cs-btn-save"
-                                                wire:click="saveGrade({{ $studentId }})"
-                                                wire:loading.attr="disabled"
-                                                wire:target="saveGrade({{ $studentId }})">
-                                            <span wire:loading.remove wire:target="saveGrade({{ $studentId }})">រក្សាទុក</span>
-                                            <span wire:loading wire:target="saveGrade({{ $studentId }})">កំពុងរក្សា...</span>
-                                        </button>
-                                    </td>
-                                </tr>
-                            @endif
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-        @endif
+                                        <td class="text-center">
+                                            <div>{{ $enrollment->enrollment_date?->format('m/d/Y') ?? '-' }}</div>
+                                            <div class="muted">{{ $summary['last_activity'] ?? '-' }}</div>
+                                        </td>
+                                        <td class="text-center">
+                                            <button type="button"
+                                                    class="action-btn action-btn-green"
+                                                    wire:click="saveGrade({{ $studentId }})"
+                                                    wire:loading.attr="disabled"
+                                                    wire:target="saveGrade({{ $studentId }})">
+                                                <span wire:loading.remove wire:target="saveGrade({{ $studentId }})">ដាក់ពិន្ទុ</span>
+                                                <span wire:loading wire:target="saveGrade({{ $studentId }})">រក្សា...</span>
+                                            </button>
+                                        </td>
+                                        <td class="text-center">
+                                            <a class="action-btn action-btn-red" href="{{ \App\Filament\Admin\Resources\Enrollments\EnrollmentResource::getUrl('edit', ['record' => $enrollment->enrollment_id]) }}" title="Edit enrollment">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </a>
+                                        </td>
+                                        <td class="text-center">
+                                            <div class="action-row">
+                                                @if($progressId)
+                                                    <a class="action-btn action-btn-blue" href="{{ \App\Filament\Admin\Resources\StudentProgresses\StudentProgressResource::getUrl('edit', ['record' => $progressId]) }}" title="Progress detail">
+                                                        <i class="fas fa-ellipsis-v"></i>
+                                                    </a>
+                                                @else
+                                                    <a class="action-btn action-btn-blue" href="{{ \App\Filament\Admin\Resources\StudentProgresses\StudentProgressResource::getUrl('index') }}" title="Progress list">
+                                                        <i class="fas fa-ellipsis-v"></i>
+                                                    </a>
+                                                @endif
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @endif
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @endif
+        </section>
     </div>
 </x-filament-panels::page>

@@ -15,6 +15,7 @@ class ClassRoomForm
                 Select::make('course_id')
                     ->label('វគ្គសិក្សា (Course)')
                     ->relationship('course', 'course_name')
+                    ->getOptionLabelFromRecordUsing(fn ($record): string => trim(($record->course_code ?? '').' - '.$record->course_name, ' -'))
                     ->searchable()
                     ->preload()
                     ->required(),
@@ -32,6 +33,10 @@ class ClassRoomForm
                     ->required(),
                 TextInput::make('room')
                     ->label('បន្ទប់រៀន (Room)'),
+                TextInput::make('capacity')
+                    ->label('សមត្ថភាព (Capacity)')
+                    ->numeric()
+                    ->minValue(1),
             ]);
     }
 }

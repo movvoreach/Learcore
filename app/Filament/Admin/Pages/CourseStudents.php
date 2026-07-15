@@ -11,6 +11,7 @@ use App\Models\Enrollment;
 use App\Models\Exam;
 use App\Models\Quiz;
 use App\Models\StudentProgress;
+use App\Services\StudentCourseProgressService;
 use Filament\Pages\Page;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
@@ -161,7 +162,7 @@ class CourseStudents extends Page
     {
         return Enrollment::query()
             ->where('course_id', $this->courseRecord->course_id)
-            ->with(['student', 'course'])
+            ->with(['student.department', 'student.academicYear', 'student.semester', 'course', 'classRoom'])
             ->orderBy('enrollment_date')
             ->get();
     }
@@ -264,6 +265,9 @@ class CourseStudents extends Page
             $studentId = (int) $enrollment->student_id;
             $studentAttendances = $attendances->get($studentId, collect());
             $progress = $progresses->get($studentId);
+            $progressNote = app(StudentCourseProgressService::class)->decodeNote($progress?->note);
+            $completedLessons = count($progressNote['completed_lesson_ids'] ?? []);
+            $totalLessons = (int) ($progressNote['total_lessons'] ?? $this->courseRecord->contentLessons()->publishedForStudents()->count());
             $certificate = $certificates->get($studentId);
             $grade = $gradeActivity->get($studentId);
             $latestAttendance = $studentAttendances->sortByDesc('updated_at')->first();
@@ -279,6 +283,9 @@ class CourseStudents extends Page
             return [
                 $studentId => [
                     'progress' => $progress ? number_format((float) $progress->progress_percent, 0).'%' : '-',
+                    'progress_id' => $progress?->progress_id,
+                    'completed_lessons' => $completedLessons,
+                    'total_lessons' => $totalLessons,
                     'attendance' => $this->attendancePercent($studentAttendances),
                     'total_score' => $totalScore,
                     'grade' => $this->letterGrade($totalScore),

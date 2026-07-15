@@ -8,6 +8,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
+use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
 
 class ContentLessonForm
@@ -143,6 +144,29 @@ class ContentLessonForm
                             ->visible(fn (Get $get): bool => $get('content_type') === 'video')
                             ->columnSpan(8),
 
+                        Forms\Components\Placeholder::make('video_upload_note')
+                            ->label('')
+                            ->content(fn (): HtmlString => new HtmlString('
+                                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:2px">
+                                    <div style="display:flex;gap:12px;align-items:center;border:1px solid #bbf7d0;background:#f0fdf4;border-radius:6px;padding:12px">
+                                        <img src="'.e(asset('backend/img/video.png')).'" alt="Video" style="width:48px;height:48px;object-fit:contain;flex:0 0 auto">
+                                        <div style="line-height:1.65">
+                                            <strong style="display:block;color:#166534">Upload Video</strong>
+                                            <span style="color:#365f45">សូម Upload តែឯកសារវីដេអូប៉ុណ្ណោះ៖ .mp4, .webm, .mov។ ទំហំអតិបរមា 500MB។</span>
+                                        </div>
+                                    </div>
+                                    <div style="display:flex;gap:12px;align-items:center;border:1px solid #fecaca;background:#fff1f2;border-radius:6px;padding:12px">
+                                        <img src="'.e(asset('backend/img/doc.png')).'" alt="Document" style="width:48px;height:48px;object-fit:contain;flex:0 0 auto">
+                                        <div style="line-height:1.65">
+                                            <strong style="display:block;color:#991b1b">Do not upload document</strong>
+                                            <span style="color:#7f1d1d">កុំ Upload ឯកសារ PDF, Word, PowerPoint, ZIP ឬរូបភាព នៅពេលជ្រើសរើសប្រភេទ Video។</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            '))
+                            ->visible(fn (Get $get): bool => $get('content_type') === 'video')
+                            ->columnSpanFull(),
+
                         Forms\Components\FileUpload::make('file_path')
                             ->label(fn (Get $get): string => $get('content_type') === 'video' ? 'Upload Video' : 'ឯកសារ / File')
                             ->disk('public')
@@ -164,6 +188,16 @@ class ContentLessonForm
                                 ],
                             })
                             ->maxSize(fn (Get $get): int => $get('content_type') === 'video' ? 512000 : 51200)
+                            ->placeholder(fn (Get $get): ?string => $get('content_type') === 'video'
+                                ? '<div class="lc-upload-placeholder">
+                                    <span class="lc-upload-icon"><i class="fa fa-download"></i></span>
+                                    <span class="lc-upload-title"><span class="filepond--label-action">Choose a file</span> or drag it here.</span>
+                                    <span class="lc-upload-note">អនុញ្ញាតតែ .mp4, .webm, .mov | អតិបរមា 500MB</span>
+                                </div>'
+                                : null)
+                            ->panelLayout(fn (Get $get): string => $get('content_type') === 'video' ? 'integrated' : 'compact')
+                            ->imagePreviewHeight(fn (Get $get): ?string => $get('content_type') === 'video' ? '120px' : null)
+                            ->uploadingMessage('កំពុង Upload...')
                             ->downloadable()
                             ->openable()
                             ->visible(fn (Get $get): bool => in_array($get('content_type'), ['file', 'video', 'assignment', 'quiz'], true))

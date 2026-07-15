@@ -19,7 +19,11 @@ use App\Filament\Admin\Resources\AcademicYears\AcademicYearResource;
 use App\Filament\Admin\Resources\Semesters\SemesterResource;
 use App\Filament\Admin\Resources\StudentPromotions\StudentPromotionResource;
 use App\Filament\Admin\Resources\ActivityLogResource;
+use App\Filament\Admin\Resources\CmsPages\CmsPageResource;
+use App\Filament\Admin\Resources\FrontendSettings\FrontendSettingResource;
 use App\Filament\Admin\Resources\Languages\LanguageResource;
+use App\Filament\Admin\Resources\NavigationGroups\NavigationGroupResource;
+use App\Filament\Admin\Resources\NavigationItems\NavigationItemResource;
 use App\Filament\Admin\Resources\Translations\TranslationResource;
 use App\Filament\Admin\Resources\AssessmentGrades\AssessmentGradeResource;
 use App\Filament\Admin\Resources\AssessmentQuestions\AssessmentQuestionResource;
@@ -70,6 +74,7 @@ use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\HtmlString;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
@@ -110,6 +115,7 @@ class AdminPanelProvider extends PanelProvider
             ->brandLogoHeight('3.8rem')
             ->favicon(asset('backend/dist/img/logo.png'))
             ->font('Battambang', url: asset('fonts/battambang.css'), provider: LocalFontProvider::class)
+            ->databaseNotifications(fn (): bool => Schema::hasTable('notifications'))
             ->colors([
                 'primary' => Color::Amber,
             ])
@@ -168,7 +174,7 @@ class AdminPanelProvider extends PanelProvider
                 function (): HtmlString {
                     $user = auth()->user();
                     $locale = app()->getLocale();
-                    
+
                     $welcomeText = match($locale) {
                         'km' => 'សូមស្វាគមន៍',
                         'fr' => 'Bienvenue',
@@ -177,7 +183,7 @@ class AdminPanelProvider extends PanelProvider
                     };
 
                     $nameText = $user ? e($user->name) : 'Guest';
-                    
+
                     $roleText = 'Administrator';
                     if ($user) {
                         if ($user->hasRole('student')) {
@@ -295,7 +301,7 @@ class AdminPanelProvider extends PanelProvider
                                 const trigger = document.querySelector('.fi-user-menu-trigger');
                                 if (trigger && !trigger.classList.contains('lc-customized')) {
                                     trigger.classList.add('lc-customized');
-                                    
+
                                     const infoDiv = document.createElement('div');
                                     infoDiv.className = 'lc-user-info-wrapper';
                                     infoDiv.innerHTML = `
@@ -303,7 +309,7 @@ class AdminPanelProvider extends PanelProvider
                                         <span class="lc-user-role">{$roleText}</span>
                                     `;
                                     trigger.appendChild(infoDiv);
-                                    
+
                                     const chevron = document.createElement('span');
                                     chevron.className = 'lc-user-chevron';
                                     chevron.innerHTML = `
@@ -313,7 +319,7 @@ class AdminPanelProvider extends PanelProvider
                                     `;
                                     trigger.appendChild(chevron);
                                 }
-                                
+
                                 const searchInput = document.querySelector('.fi-global-search-field input');
                                 if (searchInput) {
                                     searchInput.placeholder = '{$searchPlaceholder}';
@@ -493,17 +499,17 @@ HTML);
                 ->visible(fn (): bool => auth()->user()?->isTeacher() ?? false)
                 ->sort(40),
 
-            NavigationItem::make($this->adminLabel('nav.assignments'))
-                ->icon(Heroicon::OutlinedClipboardDocumentCheck)
-                ->url(fn (): string => ContentAssignmentResource::getUrl('index'))
-                ->isActiveWhen(fn (): bool => request()->routeIs(ContentAssignmentResource::getRouteBaseName().'.*') || request()->routeIs(AssignmentSubmissionResource::getRouteBaseName().'.*'))
+            NavigationItem::make($this->adminLabel('nav.assignment_submissions'))
+                ->icon($this->sidebarIcon('fas fa-file-upload', '#9333ea'))
+                ->url(fn (): string => AssignmentSubmissionResource::getUrl('index'))
+                ->isActiveWhen(fn (): bool => request()->routeIs(AssignmentSubmissionResource::getRouteBaseName().'.*'))
                 ->visible(fn (): bool => auth()->user()?->isTeacher() ?? false)
                 ->sort(50),
 
-            NavigationItem::make($this->adminLabel('nav.quizzes_exams'))
-                ->icon(Heroicon::OutlinedQuestionMarkCircle)
-                ->url(fn (): string => QuizResource::getUrl('index'))
-                ->isActiveWhen(fn (): bool => request()->routeIs(QuizResource::getRouteBaseName().'.*') || request()->routeIs(ExamResource::getRouteBaseName().'.*') || request()->routeIs(QuestionBankResource::getRouteBaseName().'.*'))
+            NavigationItem::make($this->adminLabel('nav.submissions'))
+                ->icon($this->sidebarIcon('fas fa-inbox', '#4f46e5'))
+                ->url(fn (): string => ExamSubmissionResource::getUrl('index'))
+                ->isActiveWhen(fn (): bool => request()->routeIs(ExamSubmissionResource::getRouteBaseName().'.*'))
                 ->visible(fn (): bool => auth()->user()?->isTeacher() ?? false)
                 ->sort(60),
 
@@ -556,36 +562,33 @@ HTML);
             $this->resourceNavItem($this->adminLabel('nav.class_rooms'), self::GROUP_CONTENT, 18, asset('Icons/course.png'), ClassRoomResource::class),
             $this->resourceNavItem($this->adminLabel('nav.chapters'), self::GROUP_CONTENT, 20, asset('Icons/content-chapters.png'), ContentChapterResource::class),
             $this->resourceNavItem($this->adminLabel('nav.lessons'), self::GROUP_CONTENT, 30, asset('Icons/ducs.png'), ContentLessonResource::class),
-            $this->resourceNavItem($this->adminLabel('nav.videos'), self::GROUP_CONTENT, 40, Heroicon::OutlinedVideoCamera, ContentVideoResource::class),
-            $this->resourceNavItem($this->adminLabel('nav.documents'), self::GROUP_CONTENT, 50, Heroicon::OutlinedDocumentText, ContentDocumentResource::class),
-            $this->resourceNavItem($this->adminLabel('nav.assignments'), self::GROUP_CONTENT, 60, Heroicon::OutlinedClipboardDocumentCheck, ContentAssignmentResource::class),
-            $this->resourceNavItem($this->adminLabel('nav.resources'), self::GROUP_CONTENT, 70, Heroicon::OutlinedFolderOpen, ContentResourceResource::class),
+            $this->resourceNavItem($this->adminLabel('nav.videos'), self::GROUP_CONTENT, 40, $this->sidebarIcon('fas fa-play-circle', '#0284c7'), ContentVideoResource::class),
+            $this->resourceNavItem($this->adminLabel('nav.documents'), self::GROUP_CONTENT, 50, $this->sidebarIcon('fas fa-file-pdf', '#dc2626'), ContentDocumentResource::class),
+            $this->resourceNavItem($this->adminLabel('nav.assignments'), self::GROUP_CONTENT, 60, $this->sidebarIcon('fas fa-clipboard-list', '#7c3aed'), ContentAssignmentResource::class),
 
             $this->resourceNavItem($this->adminLabel('nav.students'), self::GROUP_STUDENTS, 10, asset('Icons/students.png'), StudentResource::class),
             $this->resourceNavItem($this->adminLabel('nav.enrollments'), self::GROUP_STUDENTS, 20, asset('Icons/enrollments.png'), EnrollmentResource::class),
             $this->resourceNavItem($this->adminLabel('nav.attendance'), self::GROUP_STUDENTS, 30, asset('Icons/presence.png'), AttendanceResource::class),
             $this->resourceNavItem($this->adminLabel('nav.promotions'), self::GROUP_STUDENTS, 40, asset('Icons/students.png'), StudentPromotionResource::class),
 
-            $this->resourceNavItem($this->adminLabel('nav.quizzes'), self::GROUP_ASSESSMENT, 10, Heroicon::OutlinedQuestionMarkCircle, QuizResource::class),
-            $this->resourceNavItem($this->adminLabel('nav.question_banks'), self::GROUP_ASSESSMENT, 20, Heroicon::OutlinedCircleStack, QuestionBankResource::class),
-            $this->resourceNavItem($this->adminLabel('nav.questions'), self::GROUP_ASSESSMENT, 30, Heroicon::OutlinedListBullet, AssessmentQuestionResource::class),
-            $this->resourceNavItem($this->adminLabel('nav.exams'), self::GROUP_ASSESSMENT, 50, Heroicon::OutlinedPencilSquare, ExamResource::class, fn (): bool => request()->routeIs(ExamResource::getRouteBaseName().'.*') && request()->query('view') !== 'schedule'),
-            $this->resourceNavItem($this->adminLabel('nav.exam_schedule'), self::GROUP_ASSESSMENT, 60, Heroicon::OutlinedCalendarDays, ExamResource::class, fn (): bool => request()->routeIs(ExamResource::getRouteBaseName().'.*') && request()->query('view') === 'schedule', ['view' => 'schedule']),
-            $this->resourceNavItem($this->adminLabel('nav.exam_candidates'), self::GROUP_ASSESSMENT, 70, Heroicon::OutlinedUserGroup, ExamCandidateResource::class),
-            $this->resourceNavItem($this->adminLabel('nav.submissions'), self::GROUP_ASSESSMENT, 80, Heroicon::OutlinedInboxStack, ExamSubmissionResource::class),
-            $this->resourceNavItem($this->adminLabel('nav.assignment_submissions'), self::GROUP_ASSESSMENT, 85, Heroicon::OutlinedInboxArrowDown, AssignmentSubmissionResource::class),
-            $this->resourceNavItem($this->adminLabel('nav.grading'), self::GROUP_ASSESSMENT, 90, Heroicon::OutlinedCheckBadge, AssessmentGradeResource::class),
-            $this->resourceNavItem($this->adminLabel('nav.results'), self::GROUP_ASSESSMENT, 100, Heroicon::OutlinedTrophy, AssessmentResultResource::class),
-            $this->resourceNavItem($this->adminLabel('nav.student_progress'), self::GROUP_ASSESSMENT, 110, Heroicon::OutlinedChartBar, StudentProgressResource::class),
-            $this->resourceNavItem($this->adminLabel('nav.certificates'), self::GROUP_ASSESSMENT, 120, Heroicon::OutlinedDocumentCheck, CertificateResource::class),
 
-            $this->pageNavItem($this->adminLabel('nav.student_reports'), self::GROUP_REPORTS, 10, Heroicon::OutlinedUsers, StudentReport::class),
-            $this->pageNavItem($this->adminLabel('nav.attendance_reports'), self::GROUP_REPORTS, 20, Heroicon::OutlinedCalendarDateRange, AttendanceReport::class),
-            $this->pageNavItem($this->adminLabel('nav.exam_reports'), self::GROUP_REPORTS, 30, Heroicon::OutlinedDocumentCheck, ExamReport::class),
-            $this->pageNavItem($this->adminLabel('nav.finance_reports'), self::GROUP_REPORTS, 40, Heroicon::OutlinedBanknotes, FinanceReport::class),
-            $this->pageNavItem($this->adminLabel('nav.activity_logs'), self::GROUP_REPORTS, 50, Heroicon::OutlinedQueueList, ActivityReport::class),
-            $this->resourceNavItem($this->adminLabel('nav.languages'), self::GROUP_SETTINGS, 10, Heroicon::OutlinedLanguage, LanguageResource::class),
-            $this->resourceNavItem($this->adminLabel('nav.translations'), self::GROUP_SETTINGS, 20, Heroicon::OutlinedLanguage, TranslationResource::class),
+            $this->resourceNavItem($this->adminLabel('nav.submissions'), self::GROUP_ASSESSMENT, 80, $this->sidebarIcon('fas fa-inbox', '#4f46e5'), ExamSubmissionResource::class),
+            $this->resourceNavItem($this->adminLabel('nav.assignment_submissions'), self::GROUP_ASSESSMENT, 85, $this->sidebarIcon('fas fa-file-upload', '#9333ea'), AssignmentSubmissionResource::class),
+            $this->resourceNavItem($this->adminLabel('nav.student_progress'), self::GROUP_ASSESSMENT, 110, $this->sidebarIcon('fas fa-chart-bar', '#0f766e'), StudentProgressResource::class),
+            $this->resourceNavItem($this->adminLabel('nav.certificates'), self::GROUP_ASSESSMENT, 120, $this->sidebarIcon('fas fa-certificate', '#dc2626'), CertificateResource::class),
+
+            $this->pageNavItem($this->adminLabel('nav.student_reports'), self::GROUP_REPORTS, 10, $this->sidebarIcon('fas fa-user-graduate', '#2563eb'), StudentReport::class),
+            $this->pageNavItem($this->adminLabel('nav.attendance_reports'), self::GROUP_REPORTS, 20, $this->sidebarIcon('fas fa-calendar-check', '#16a34a'), AttendanceReport::class),
+            $this->pageNavItem($this->adminLabel('nav.exam_reports'), self::GROUP_REPORTS, 30, $this->sidebarIcon('fas fa-file-alt', '#7c3aed'), ExamReport::class),
+            $this->pageNavItem($this->adminLabel('nav.finance_reports'), self::GROUP_REPORTS, 40, $this->sidebarIcon('fas fa-money-bill-wave', '#15803d'), FinanceReport::class),
+            $this->resourceNavItem('Audit Log', self::GROUP_REPORTS, 50, $this->sidebarIcon('fas fa-history', '#64748b'), ActivityLogResource::class),
+            $this->pageNavItem($this->adminLabel('nav.activity_logs'), self::GROUP_REPORTS, 60, $this->sidebarIcon('fas fa-chart-line', '#64748b'), ActivityReport::class),
+            $this->resourceNavItem($this->adminLabel('nav.languages'), self::GROUP_SETTINGS, 10, $this->sidebarIcon('fas fa-language', '#0891b2'), LanguageResource::class),
+            $this->resourceNavItem($this->adminLabel('nav.translations'), self::GROUP_SETTINGS, 20, $this->sidebarIcon('fas fa-exchange-alt', '#4f46e5'), TranslationResource::class),
+            $this->resourceNavItem('Frontend Settings', self::GROUP_SETTINGS, 30, $this->sidebarIcon('fas fa-sliders-h', '#f97316'), FrontendSettingResource::class),
+            $this->resourceNavItem('CMS Pages', self::GROUP_SETTINGS, 40, $this->sidebarIcon('fas fa-file-alt', '#2563eb'), CmsPageResource::class),
+            $this->resourceNavItem('Navigation Groups', self::GROUP_SETTINGS, 50, $this->sidebarIcon('fas fa-layer-group', '#0891b2'), NavigationGroupResource::class),
+            $this->resourceNavItem('Navigation Items', self::GROUP_SETTINGS, 60, $this->sidebarIcon('fas fa-bars', '#16a34a'), NavigationItemResource::class),
         ];
     }
 
@@ -594,7 +597,12 @@ HTML);
         return fn (): string => __("admin.{$key}");
     }
 
-    private function navItem(string|Closure $label, string $group, int $sort, string|BackedEnum|null $icon, string|Closure|null $url = null): NavigationItem
+    private function sidebarIcon(string $class, string $color): HtmlString
+    {
+        return new HtmlString('<i class="'.e($class).'" style="font-size:22px;color:'.e($color).'"></i>');
+    }
+
+    private function navItem(string|Closure $label, string $group, int $sort, string|BackedEnum|HtmlString|null $icon, string|Closure|null $url = null): NavigationItem
     {
         return NavigationItem::make($label)
             ->group($this->adminLabel($group))
@@ -604,14 +612,14 @@ HTML);
             ->visible(fn (): bool => auth()->user()?->hasAnyRole(['super_admin', 'admin']) ?? false);
     }
 
-    private function resourceNavItem(string|Closure $label, string $group, int $sort, string|BackedEnum|null $icon, string $resource, ?Closure $isActiveWhen = null, array $urlParameters = []): NavigationItem
+    private function resourceNavItem(string|Closure $label, string $group, int $sort, string|BackedEnum|HtmlString|null $icon, string $resource, ?Closure $isActiveWhen = null, array $urlParameters = []): NavigationItem
     {
         return $this->navItem($label, $group, $sort, $icon, fn (): string => $resource::getUrl(parameters: $urlParameters))
             ->visible(fn (): bool => $this->canShowResourceNavItem($resource))
             ->isActiveWhen($isActiveWhen ?? fn (): bool => request()->routeIs($resource::getRouteBaseName().'.*'));
     }
 
-    private function pageNavItem(string|Closure $label, string $group, int $sort, string|BackedEnum|null $icon, string $page): NavigationItem
+    private function pageNavItem(string|Closure $label, string $group, int $sort, string|BackedEnum|HtmlString|null $icon, string $page): NavigationItem
     {
         return $this->navItem($label, $group, $sort, $icon, fn (): string => $page::getUrl())
             ->isActiveWhen(fn (): bool => request()->routeIs($page::getRouteName()));

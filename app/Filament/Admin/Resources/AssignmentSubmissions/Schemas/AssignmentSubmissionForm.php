@@ -16,6 +16,7 @@ class AssignmentSubmissionForm
                 ->label('Status')
                 ->options([
                     'submitted' => 'Submitted',
+                    'graded' => 'Graded',
                     'reviewed' => 'Reviewed',
                     'needs_revision' => 'Needs revision',
                 ])

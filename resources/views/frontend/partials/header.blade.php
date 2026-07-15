@@ -147,22 +147,10 @@
     $registerUrl = Route::has('register') ? route('register') : route('login');
     $adminDashboardUrl = Route::has('admin.dashboard') ? route('admin.dashboard') : url('/admin');
 
-    $categoryUrl = Route::has('frontend.course-categories')
-        ? route('frontend.course-categories')
-        : route('frontend.courses');
-    $courseCategories = \App\Models\CourseCategory::query()
-        ->whereHas('courses', fn ($query) => $isAdmin || $isTeacher ? $query : $query->visibleOnFrontend($currentUser))
-        ->withCount(['courses' => fn ($query) => $isAdmin || $isTeacher ? $query : $query->visibleOnFrontend($currentUser)])
-        ->orderBy('category_name')
-        ->limit(10)
-        ->get();
-    $instructorsUrl = Route::has('frontend.instructors')
-        ? route('frontend.instructors')
-        : route('frontend.about').'#instructors';
-    $contactUrl = Route::has('frontend.contact')
-        ? route('frontend.contact')
-        : route('frontend.about').'#contact';
-    $faqUrl = Route::has('frontend.faqs') ? route('frontend.faqs') : route('frontend.about').'#faq';
+    $branding ??= [];
+    $navigationGroups ??= collect();
+    $siteName = $branding['site_name'] ?? $learningText['brand'];
+    $headerLogo = $branding['header_logo_url'] ?? null;
 
     $studentDropdown = [
         ['key' => 'my_dashboard', 'icon' => 'fas fa-tachometer-alt', 'route' => 'frontend.student.dashboard', 'fallback' => Route::has('frontend.account.dashboard') ? route('frontend.account.dashboard') : null, 'active' => 'frontend.student.dashboard'],
@@ -233,9 +221,12 @@
 
 <nav class="learning-navbar fixed-top">
     <div class="learning-navbar__inner">
-        <a class="learning-brand" href="{{ route('dashboard') }}" aria-label="{{ $learningText['brand'] }}">
+        <a class="learning-brand" href="{{ route('dashboard') }}" aria-label="{{ $siteName }}">
+            @if($headerLogo)
+                <img src="{{ $headerLogo }}" alt="{{ $siteName }}" class="learning-brand__logo">
+            @endif
             <span class="learning-brand__text">
-                <strong>{{ $learningText['brand'] }}</strong>
+                <strong>{{ $siteName }}</strong>
             </span>
         </a>
 
@@ -244,13 +235,51 @@
         </button>
 
         <div class="learning-nav d-none d-lg-flex" aria-label="Primary navigation">
-            <a href="{{ route('dashboard') }}" class="learning-nav__link {{ request()->routeIs('dashboard') ? 'is-active' : '' }}">
-                {{ $learningText['home'] }}
-            </a>
+            @foreach($navigationGroups as $group)
+                @php
+                    $items = $group->rootItems;
+                @endphp
 
-            <a href="{{ route('frontend.courses') }}" class="learning-nav__link {{ request()->routeIs('frontend.courses*') ? 'is-active' : '' }}">
-                {{ $learningText['courses'] }}
-            </a>
+                @if($items->isNotEmpty() && $group->slug === 'main')
+                    @foreach($items as $item)
+                        @php
+                            $itemUrl = $item->resolvedUrl();
+                            $path = trim((string) parse_url($itemUrl, PHP_URL_PATH), '/');
+                            $isActive = $path !== '' && request()->is($path.'*');
+                        @endphp
+
+                        @if($item->childrenRecursive->count())
+                            <div class="nav-item dropdown">
+                                <a class="learning-nav__link dropdown-toggle {{ $isActive ? 'is-active' : '' }}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    {{ $item->translatedTitle() }}
+                                </a>
+                                <div class="dropdown-menu">
+                                    <a class="dropdown-item {{ $isActive ? 'active' : '' }}" href="{{ $itemUrl }}" target="{{ $item->target ?: '_self' }}">
+                                        @if($item->icon)
+                                            <i class="{{ $item->icon }} me-2" aria-hidden="true"></i>
+                                        @endif
+                                        <span>{{ $item->translatedTitle() }}</span>
+                                    </a>
+                                    @include('frontend.partials.navigation-dropdown-items', ['items' => $item->childrenRecursive])
+                                </div>
+                            </div>
+                        @else
+                            <a href="{{ $itemUrl }}" target="{{ $item->target ?: '_self' }}" class="learning-nav__link {{ $isActive ? 'is-active' : '' }}">
+                                {{ $item->translatedTitle() }}
+                            </a>
+                        @endif
+                    @endforeach
+                @elseif($items->isNotEmpty())
+                    <div class="nav-item dropdown">
+                        <a class="learning-nav__link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            {{ $group->translatedName() }}
+                        </a>
+                        <div class="dropdown-menu">
+                            @include('frontend.partials.navigation-dropdown-items', ['items' => $items])
+                        </div>
+                    </div>
+                @endif
+            @endforeach
 
             @if($isStudent && Route::has('frontend.student.courses'))
                 <a href="{{ route('frontend.student.courses') }}" class="learning-nav__link {{ request()->routeIs('frontend.student.courses*') ? 'is-active' : '' }}">
@@ -269,59 +298,6 @@
                     {{ $learningText['create_course'] }}
                 </a>
             @endif
-
-
-
-            @unless($isTeacher || $isAdmin)
-                <div class="nav-item dropdown learning-categories">
-                    <a class="learning-nav__link dropdown-toggle {{ request()->filled('category_id') ? 'is-active' : '' }}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        {{ $learningText['course_categories'] }}
-                    </a>
-                    <div class="dropdown-menu learning-category-menu">
-                        <a class="dropdown-item {{ request()->filled('category_id') ? '' : 'active' }}" href="{{ route('frontend.courses') }}">
-                            <i class="fas fa-layer-group"></i>
-                            <span>{{ $learningText['course_categories'] }}</span>
-                        </a>
-                        @forelse($courseCategories as $category)
-                            <a class="dropdown-item {{ (int) request('category_id') === (int) $category->course_category_id ? 'active' : '' }}" href="{{ route('frontend.courses', ['category_id' => $category->course_category_id]) }}">
-                                <i class="fas fa-folder"></i>
-                                <span>{{ $category->category_name }}</span>
-                                <small>{{ $category->courses_count }}</small>
-                            </a>
-                        @empty
-                            <span class="dropdown-item disabled">
-                                <i class="fas fa-folder-open"></i>
-                                <span>{{ $learningText['course_categories'] }}</span>
-                            </span>
-                        @endforelse
-                    </div>
-                </div>
-            @endunless
-
-            <div class="nav-item dropdown learning-about">
-                <a class="learning-nav__link dropdown-toggle {{ request()->routeIs('frontend.about*') ? 'is-active' : '' }}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    {{ $learningText['about'] }}
-                </a>
-                <div class="dropdown-menu">
-                    <a class="dropdown-item {{ request()->routeIs('frontend.about') ? 'active' : '' }}" href="{{ route('frontend.about') }}">{{ $learningText['about_system'] }}</a>
-                    <a class="dropdown-item {{ request()->routeIs('frontend.about.welcome-speech') ? 'active' : '' }}" href="{{ route('frontend.about.welcome-speech') }}">{{ $learningText['welcome_speech'] }}</a>
-                    <a class="dropdown-item {{ request()->routeIs('frontend.about.general-info') ? 'active' : '' }}" href="{{ route('frontend.about.general-info') }}">{{ $learningText['general_info'] }}</a>
-                    <a class="dropdown-item {{ request()->routeIs('frontend.about.vision-mission-goal') ? 'active' : '' }}" href="{{ route('frontend.about.vision-mission-goal') }}">{{ $learningText['vision_mission_goal'] }}</a>
-                    <a class="dropdown-item {{ request()->routeIs('frontend.about.services-recreation') ? 'active' : '' }}" href="{{ route('frontend.about.services-recreation') }}">{{ $learningText['services_recreation'] }}</a>
-                    <a class="dropdown-item {{ request()->routeIs('frontend.about.alumni') ? 'active' : '' }}" href="{{ route('frontend.about.alumni') }}">{{ $learningText['alumni'] }}</a>
-                </div>
-            </div>
-
-            <div class="nav-item dropdown learning-more">
-                <a class="learning-nav__link dropdown-toggle {{ request()->routeIs('frontend.faqs') ? 'is-active' : '' }}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    {{ $learningText['more'] }}
-                </a>
-                <div class="dropdown-menu">
-                    <a class="dropdown-item" href="{{ $instructorsUrl }}">{{ $learningText['instructors'] }}</a>
-                    <a class="dropdown-item" href="{{ $contactUrl }}">{{ $learningText['contact'] }}</a>
-                    <a class="dropdown-item {{ request()->routeIs('frontend.faqs') ? 'active' : '' }}" href="{{ $faqUrl }}">{{ $learningText['faq'] }}</a>
-                </div>
-            </div>
         </div>
 
         <div class="learning-actions d-flex align-items-center gap-3">
@@ -378,7 +354,9 @@
 
                     <div class="dropdown-menu dropdown-menu-end" role="menu" id="usermenu-dropdown" aria-labelledby="usermenu">
                         @foreach($dropdownItems as $item)
-                            @php($renderDropdownItem($item))
+                            @php
+                                $renderDropdownItem($item);
+                            @endphp
                         @endforeach
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item text-danger" href="#" title="{{ $learningText['logout'] }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
@@ -414,12 +392,10 @@
 
     <div class="collapse learning-mobile-collapse d-lg-none" id="learningNavbarMenu">
         <div class="learning-nav learning-nav--mobile" aria-label="Mobile navigation">
-            <a href="{{ route('dashboard') }}" class="learning-nav__link {{ request()->routeIs('dashboard') ? 'is-active' : '' }}">
-                <i class="fas fa-home"></i><span>{{ $learningText['home'] }}</span>
-            </a>
-            <a href="{{ route('frontend.courses') }}" class="learning-nav__link {{ request()->routeIs('frontend.courses*') ? 'is-active' : '' }}">
-                <i class="fas fa-graduation-cap"></i><span>{{ $learningText['courses'] }}</span>
-            </a>
+            @foreach($navigationGroups as $group)
+                @include('frontend.partials.navigation-mobile-items', ['items' => $group->rootItems, 'level' => 0])
+            @endforeach
+
             @if($isStudent && Route::has('frontend.student.courses'))
                 <a href="{{ route('frontend.student.courses') }}" class="learning-nav__link {{ request()->routeIs('frontend.student.courses*') ? 'is-active' : '' }}">
                     <i class="fas fa-book-reader"></i><span>{{ $learningText['my_courses'] }}</span>
@@ -435,45 +411,6 @@
                     <i class="fas fa-plus-circle"></i><span>{{ $learningText['create_course'] }}</span>
                 </a>
             @endif
-
-            @unless($isTeacher || $isAdmin)
-                <a href="{{ $categoryUrl }}" class="learning-nav__link {{ request()->filled('category_id') ? 'is-active' : '' }}">
-                    <i class="fas fa-layer-group"></i><span>{{ $learningText['course_categories'] }}</span>
-                </a>
-                @foreach($courseCategories as $category)
-                    <a href="{{ route('frontend.courses', ['category_id' => $category->course_category_id]) }}" class="learning-nav__link learning-nav__link--sub {{ (int) request('category_id') === (int) $category->course_category_id ? 'is-active' : '' }}">
-                        <i class="fas fa-folder"></i>
-                        <span>{{ $category->category_name }}</span>
-                    </a>
-                @endforeach
-            @endunless
-            <a href="{{ route('frontend.about') }}" class="learning-nav__link {{ request()->routeIs('frontend.about') ? 'is-active' : '' }}">
-                <i class="fas fa-info-circle"></i><span>{{ $learningText['about'] }}</span>
-            </a>
-            <a href="{{ route('frontend.about.welcome-speech') }}" class="learning-nav__link learning-nav__link--sub {{ request()->routeIs('frontend.about.welcome-speech') ? 'is-active' : '' }}">
-                <i class="fas fa-comment-dots"></i><span>{{ $learningText['welcome_speech'] }}</span>
-            </a>
-            <a href="{{ route('frontend.about.general-info') }}" class="learning-nav__link learning-nav__link--sub {{ request()->routeIs('frontend.about.general-info') ? 'is-active' : '' }}">
-                <i class="fas fa-university"></i><span>{{ $learningText['general_info'] }}</span>
-            </a>
-            <a href="{{ route('frontend.about.vision-mission-goal') }}" class="learning-nav__link learning-nav__link--sub {{ request()->routeIs('frontend.about.vision-mission-goal') ? 'is-active' : '' }}">
-                <i class="fas fa-bullseye"></i><span>{{ $learningText['vision_mission_goal'] }}</span>
-            </a>
-            <a href="{{ route('frontend.about.services-recreation') }}" class="learning-nav__link learning-nav__link--sub {{ request()->routeIs('frontend.about.services-recreation') ? 'is-active' : '' }}">
-                <i class="fas fa-swimming-pool"></i><span>{{ $learningText['services_recreation'] }}</span>
-            </a>
-            <a href="{{ route('frontend.about.alumni') }}" class="learning-nav__link learning-nav__link--sub {{ request()->routeIs('frontend.about.alumni') ? 'is-active' : '' }}">
-                <i class="fas fa-user-graduate"></i><span>{{ $learningText['alumni'] }}</span>
-            </a>
-            <a href="{{ $instructorsUrl }}" class="learning-nav__link">
-                <i class="fas fa-chalkboard-teacher"></i><span>{{ $learningText['instructors'] }}</span>
-            </a>
-            <a href="{{ $contactUrl }}" class="learning-nav__link">
-                <i class="fas fa-envelope"></i><span>{{ $learningText['contact'] }}</span>
-            </a>
-            <a href="{{ $faqUrl }}" class="learning-nav__link {{ request()->routeIs('frontend.faqs') ? 'is-active' : '' }}">
-                <i class="fas fa-question-circle"></i><span>{{ $learningText['faq'] }}</span>
-            </a>
         </div>
 
         <form action="{{ route('frontend.courses') }}" method="GET" class="learning-search learning-search--mobile" role="search">
@@ -534,9 +471,18 @@
 
         body.frontend-page .learning-brand {
             min-width: max-content;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
             color: #fff;
             border-radius: 0;
             padding: 0 12px;
+        }
+
+        body.frontend-page .learning-brand__logo {
+            width: 42px;
+            height: 42px;
+            object-fit: contain;
         }
 
         body.frontend-page .learning-brand:hover {
@@ -590,15 +536,13 @@
             transform: none;
         }
 
-        body.frontend-page .learning-categories .dropdown-menu,
-        body.frontend-page .learning-more .dropdown-menu,
+        body.frontend-page .learning-navbar__inner > .learning-nav .nav-item .dropdown-menu,
         body.frontend-page .learning-language .dropdown-menu,
         body.frontend-page .learning-user .dropdown-menu {
             z-index: 1200;
         }
 
-        body.frontend-page .learning-categories .dropdown-menu,
-        body.frontend-page .learning-more .dropdown-menu {
+        body.frontend-page .learning-navbar__inner > .learning-nav .nav-item .dropdown-menu {
             min-width: 190px;
             margin-top: 0;
             border: 0;
@@ -607,8 +551,12 @@
             padding: 10px 0;
         }
 
-        body.frontend-page .learning-categories .dropdown-menu {
-            min-width: 285px;
+        body.frontend-page .learning-dropdown-children {
+            padding-left: 12px;
+        }
+
+        body.frontend-page .learning-dropdown-children .dropdown-item {
+            font-size: 14px;
         }
 
         body.frontend-page .learning-actions {

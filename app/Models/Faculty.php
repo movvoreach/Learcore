@@ -3,12 +3,13 @@
 namespace App\Models;
 
 use App\Models\Concerns\GeneratesCodes;
+use App\Models\Concerns\LogsActivity;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Faculty extends Model
 {
-    use GeneratesCodes;
+    use GeneratesCodes, LogsActivity;
 
     protected $primaryKey = 'faculty_id';
 

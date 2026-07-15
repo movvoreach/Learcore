@@ -5,6 +5,7 @@ namespace App\Filament\Admin\Resources\ClassRooms;
 use App\Filament\Admin\Resources\ClassRooms\Pages\CreateClassRoom;
 use App\Filament\Admin\Resources\ClassRooms\Pages\EditClassRoom;
 use App\Filament\Admin\Resources\ClassRooms\Pages\ListClassRooms;
+use App\Filament\Admin\Resources\ClassRooms\Pages\ViewClassRoom;
 use App\Filament\Admin\Resources\ClassRooms\Schemas\ClassRoomForm;
 use App\Filament\Admin\Resources\ClassRooms\Tables\ClassRoomsTable;
 use App\Models\ClassRoom;
@@ -46,6 +47,7 @@ class ClassRoomResource extends Resource
         return [
             'index' => ListClassRooms::route('/'),
             'create' => CreateClassRoom::route('/create'),
+            'view' => ViewClassRoom::route('/{record}'),
             'edit' => EditClassRoom::route('/{record}/edit'),
         ];
     }

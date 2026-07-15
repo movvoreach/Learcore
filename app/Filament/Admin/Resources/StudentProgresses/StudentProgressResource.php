@@ -13,6 +13,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class StudentProgressResource extends Resource
 {
@@ -40,6 +41,21 @@ class StudentProgressResource extends Resource
     public static function table(Table $table): Table
     {
         return StudentProgressesTable::configure($table);
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery()->with(['course', 'student', 'classRoom']);
+        $user = auth()->user();
+
+        if ($user?->hasRole('teacher') && ! $user->hasAnyRole(['super_admin', 'admin'])) {
+            return $user->teacher
+                ? $query->whereHas('course.courseAssignments', fn (Builder $query): Builder => $query
+                    ->where('teacher_id', $user->teacher->teacher_id))
+                : $query->whereRaw('1 = 0');
+        }
+
+        return $query;
     }
 
     public static function getPages(): array

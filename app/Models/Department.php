@@ -3,13 +3,14 @@
 namespace App\Models;
 
 use App\Models\Concerns\GeneratesCodes;
+use App\Models\Concerns\LogsActivity;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Department extends Model
 {
-    use GeneratesCodes;
+    use GeneratesCodes, LogsActivity;
 
     protected $primaryKey = 'department_id';
 

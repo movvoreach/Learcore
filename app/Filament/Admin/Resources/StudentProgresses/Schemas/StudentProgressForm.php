@@ -44,6 +44,36 @@ class StudentProgressForm
                     ->label('ពិន្ទុ')
                     ->numeric()
                     ->minValue(0),
+                TextInput::make('attendance_score')
+                    ->label('Attendance 10%')
+                    ->numeric()
+                    ->minValue(0)
+                    ->maxValue(10)
+                    ->default(0),
+                TextInput::make('attribute_score')
+                    ->label('Attribute 10%')
+                    ->numeric()
+                    ->minValue(0)
+                    ->maxValue(10)
+                    ->default(0),
+                TextInput::make('midterm_score')
+                    ->label('Midterm 20%')
+                    ->numeric()
+                    ->minValue(0)
+                    ->maxValue(20)
+                    ->default(0),
+                TextInput::make('assignment_score')
+                    ->label('Homework/Assignment 20%')
+                    ->numeric()
+                    ->minValue(0)
+                    ->maxValue(20)
+                    ->default(0),
+                TextInput::make('final_score')
+                    ->label('Final 40%')
+                    ->numeric()
+                    ->minValue(0)
+                    ->maxValue(40)
+                    ->default(0),
                 Select::make('status')
                     ->label('ស្ថានភាព')
                     ->options([

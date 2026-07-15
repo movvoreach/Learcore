@@ -219,6 +219,131 @@
             background: #4351e6;
         }
 
+        .ss-modal-backdrop {
+            position: fixed;
+            inset: 0;
+            z-index: 60;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            overflow-y: auto;
+            background: rgba(0, 0, 0, .48);
+            padding: 42px 20px;
+        }
+
+        .ss-modal {
+            width: min(860px, 100%);
+            border-radius: 4px;
+            background: #fff;
+            color: #3f4566;
+            box-shadow: 0 18px 40px rgba(0, 0, 0, .22);
+        }
+
+        .ss-modal-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-height: 62px;
+            padding: 0 18px;
+            border-bottom: 1px solid #e3e5ef;
+        }
+
+        .ss-modal-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 0;
+            font-size: 19px;
+            font-weight: 400;
+        }
+
+        .ss-modal-close {
+            border: 0;
+            background: transparent;
+            color: #777;
+            font-size: 28px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .ss-modal-body {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 16px;
+            padding: 24px 18px 26px;
+        }
+
+        .ss-modal-label {
+            display: block;
+            margin-bottom: 5px;
+            color: #59617e;
+            font-size: 14px;
+        }
+
+        .ss-required {
+            color: #f3132e;
+        }
+
+        .ss-modal-input {
+            width: 100%;
+            min-height: 42px;
+            border: 1px solid #cfd4ec;
+            border-radius: 3px;
+            background: #fff;
+            padding: 8px 12px;
+            color: #59617e;
+            font: inherit;
+            box-shadow: none;
+        }
+
+        .ss-modal-error {
+            margin-top: 6px;
+            color: #dc2626;
+            font-size: 13px;
+        }
+
+        .ss-modal-foot {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 10px;
+            min-height: 62px;
+            padding: 0 18px;
+            border-top: 1px solid #e3e5ef;
+        }
+
+        .ss-modal-cancel,
+        .ss-modal-add {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            min-height: 42px;
+            border: 0;
+            border-radius: 3px;
+            padding: 0 18px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .ss-modal-cancel {
+            background: #eef0f7;
+            color: #59617e;
+        }
+
+        .ss-modal-add {
+            min-width: 132px;
+            background: #5866f5;
+            color: #fff;
+            font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+            .ss-modal-body {
+                grid-template-columns: 1fr;
+            }
+        }
+
         .fi-header-actions,
         .fi-ac-actions,
         .fi-ac,
@@ -426,7 +551,109 @@
         .print-header, .print-footer { display: none; }
     </style>
 
-    <div class="schedule-show">
+    <div class="schedule-show"
+         x-data="{
+            showCreateScheduleModal: false,
+            initScheduleModal() {
+                this.$nextTick(() => {
+                    if (! window.jQuery || ! window.jQuery.fn.select2 || ! this.$refs.scheduleModal) {
+                        return;
+                    }
+
+                    [
+                        this.$refs.scheduleDepartmentSelect,
+                        this.$refs.scheduleAcademicYearSelect,
+                        this.$refs.scheduleSemesterSelect,
+                        this.$refs.scheduleTeacherSelect,
+                        this.$refs.scheduleClassSelect,
+                        this.$refs.scheduleDaySelect,
+                    ].forEach((element) => {
+                        const select = window.jQuery(element);
+
+                        if (select.hasClass('select2-hidden-accessible')) {
+                            select.select2('destroy');
+                        }
+
+                        select.select2({
+                            theme: 'bootstrap4',
+                            width: '100%',
+                            dropdownParent: window.jQuery(this.$refs.scheduleModal),
+                            placeholder: element.dataset.placeholder || '',
+                            allowClear: ! element.required,
+                        });
+                    });
+
+                    window.jQuery(this.$refs.scheduleDepartmentSelect).off('change.createSchedule').on('change.createSchedule', () => {
+                        this.$wire.set('scheduleDepartmentId', this.nullableInt(this.$refs.scheduleDepartmentSelect.value));
+                        this.filterScheduleModalOptions();
+                    });
+                    window.jQuery(this.$refs.scheduleAcademicYearSelect).off('change.createSchedule').on('change.createSchedule', () => {
+                        this.$wire.set('scheduleAcademicYearId', this.nullableInt(this.$refs.scheduleAcademicYearSelect.value));
+                        this.filterScheduleModalOptions();
+                    });
+                    window.jQuery(this.$refs.scheduleSemesterSelect).off('change.createSchedule').on('change.createSchedule', () => {
+                        this.$wire.set('scheduleSemesterId', this.nullableInt(this.$refs.scheduleSemesterSelect.value));
+                        this.filterScheduleModalOptions();
+                    });
+                    window.jQuery(this.$refs.scheduleTeacherSelect).off('change.createSchedule').on('change.createSchedule', () => this.$wire.set('scheduleTeacherId', this.nullableInt(this.$refs.scheduleTeacherSelect.value)));
+                    window.jQuery(this.$refs.scheduleClassSelect).off('change.createSchedule').on('change.createSchedule', () => this.$wire.set('scheduleClassId', this.nullableInt(this.$refs.scheduleClassSelect.value)));
+                    window.jQuery(this.$refs.scheduleDaySelect).off('change.createSchedule').on('change.createSchedule', () => this.$wire.set('scheduleDay', this.$refs.scheduleDaySelect.value || null));
+
+                    this.filterScheduleModalOptions();
+                    this.syncScheduleModalValues();
+                });
+            },
+            syncScheduleModalValues() {
+                this.$wire.set('scheduleDepartmentId', this.nullableInt(this.$refs.scheduleDepartmentSelect?.value));
+                this.$wire.set('scheduleAcademicYearId', this.nullableInt(this.$refs.scheduleAcademicYearSelect?.value));
+                this.$wire.set('scheduleSemesterId', this.nullableInt(this.$refs.scheduleSemesterSelect?.value));
+                this.$wire.set('scheduleTeacherId', this.nullableInt(this.$refs.scheduleTeacherSelect?.value));
+                this.$wire.set('scheduleClassId', this.nullableInt(this.$refs.scheduleClassSelect?.value));
+                this.$wire.set('scheduleDay', this.$refs.scheduleDaySelect?.value || null);
+            },
+            filterScheduleModalOptions() {
+                const departmentId = this.$refs.scheduleDepartmentSelect?.value || '';
+                const academicYearId = this.$refs.scheduleAcademicYearSelect?.value || '';
+                const semesterId = this.$refs.scheduleSemesterSelect?.value || '';
+
+                this.filterOptions(this.$refs.scheduleTeacherSelect, { departmentId });
+                this.filterOptions(this.$refs.scheduleClassSelect, { departmentId, academicYearId, semesterId });
+            },
+            filterOptions(select, filters) {
+                if (! select) {
+                    return;
+                }
+
+                Array.from(select.options).forEach((option) => {
+                    if (! option.value) {
+                        option.hidden = false;
+                        option.disabled = false;
+                        return;
+                    }
+
+                    const visible = (! filters.departmentId || option.dataset.departmentId === filters.departmentId)
+                        && (! filters.academicYearId || option.dataset.academicYearId === filters.academicYearId)
+                        && (! filters.semesterId || option.dataset.semesterId === filters.semesterId);
+
+                    option.hidden = ! visible;
+                    option.disabled = ! visible;
+                });
+
+                if (select.selectedOptions[0]?.disabled) {
+                    window.jQuery(select).val('').trigger('change');
+                } else {
+                    window.jQuery(select).trigger('change.select2');
+                }
+            },
+            nullableInt(value) {
+                return value ? parseInt(value, 10) : null;
+            },
+            closeScheduleModal() {
+                this.showCreateScheduleModal = false;
+                this.$wire.resetCreateScheduleForm();
+            },
+         }"
+         x-on:close-create-schedule-modal.window="showCreateScheduleModal = false">
         <div class="ss-toolbar">
             <div class="ss-filters-group">
                 @if(!$isTeacher && !$isStudent)
@@ -546,7 +773,7 @@
             
             <div class="ss-actions-group" style="display: flex; gap: 6px;">
                 @if (\App\Filament\Admin\Resources\Schedules\ScheduleResource::canCreate())
-                    <button class="ss-tool" type="button" title="បញ្ចូល" wire:click="mountAction('createSchedule')">
+                    <button class="ss-tool" type="button" title="បញ្ចូល" x-on:click="showCreateScheduleModal = true; initScheduleModal()">
                         <i class="fa fa-plus-circle"></i>
                     </button>
                 @endif
@@ -556,6 +783,140 @@
                 </button>
             </div>
         </div>
+
+        @if (\App\Filament\Admin\Resources\Schedules\ScheduleResource::canCreate())
+            <div class="ss-modal-backdrop"
+                 x-show="showCreateScheduleModal"
+                 x-transition.opacity
+                 x-cloak
+                 x-on:keydown.escape.window="closeScheduleModal()">
+                <form class="ss-modal"
+                      x-ref="scheduleModal"
+                      wire:submit.prevent="createSchedule"
+                      x-on:click.outside="closeScheduleModal()"
+                      x-show="showCreateScheduleModal"
+                      x-transition>
+                    <div class="ss-modal-head">
+                        <h3 class="ss-modal-title">
+                            <i class="fa-solid fas fa-calendar-plus"></i>
+                            បញ្ចូលកាលវិភាគ
+                        </h3>
+                        <button class="ss-modal-close" type="button" x-on:click="closeScheduleModal()">x</button>
+                    </div>
+
+                    <div class="ss-modal-body">
+                        <label>
+                            <span class="ss-modal-label">ដេប៉ាតឺម៉ង់ (Department)</span>
+                            <div class="ss-select2-wrap" wire:ignore>
+                                <select class="ss-modal-input" x-ref="scheduleDepartmentSelect" data-placeholder="ជ្រើសរើសដេប៉ាតឺម៉ង់ (Department)">
+                                    <option value="">ជ្រើសរើសដេប៉ាតឺម៉ង់ (Department)</option>
+                                    @foreach($departments as $department)
+                                        <option value="{{ $department->department_id }}">{{ $department->department_name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            @error('scheduleDepartmentId')<div class="ss-modal-error">{{ $message }}</div>@enderror
+                        </label>
+
+                        <label>
+                            <span class="ss-modal-label">ឆ្នាំសិក្សា (Academic Year)</span>
+                            <div class="ss-select2-wrap" wire:ignore>
+                                <select class="ss-modal-input" x-ref="scheduleAcademicYearSelect" data-placeholder="ជ្រើសរើសឆ្នាំសិក្សា (Academic Year)">
+                                    <option value="">ជ្រើសរើសឆ្នាំសិក្សា (Academic Year)</option>
+                                    @foreach($academicYears as $academicYear)
+                                        <option value="{{ $academicYear->academic_year_id }}">{{ $academicYear->year_name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            @error('scheduleAcademicYearId')<div class="ss-modal-error">{{ $message }}</div>@enderror
+                        </label>
+
+                        <label>
+                            <span class="ss-modal-label">ឆមាស (Semester)</span>
+                            <div class="ss-select2-wrap" wire:ignore>
+                                <select class="ss-modal-input" x-ref="scheduleSemesterSelect" data-placeholder="ជ្រើសរើសឆមាស (Semester)">
+                                    <option value="">ជ្រើសរើសឆមាស (Semester)</option>
+                                    @foreach($semesters as $semester)
+                                        <option value="{{ $semester->semester_id }}">{{ $semester->semester_name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            @error('scheduleSemesterId')<div class="ss-modal-error">{{ $message }}</div>@enderror
+                        </label>
+
+                        <label>
+                            <span class="ss-modal-label">គ្រូបង្រៀន (Teacher)<span class="ss-required">*</span></span>
+                            <div class="ss-select2-wrap" wire:ignore>
+                                <select class="ss-modal-input" x-ref="scheduleTeacherSelect" data-placeholder="ជ្រើសរើសគ្រូបង្រៀន (Teacher)" required>
+                                    <option value="">ជ្រើសរើសគ្រូបង្រៀន (Teacher)</option>
+                                    @foreach($teachers as $teacher)
+                                        <option value="{{ $teacher->teacher_id }}" data-department-id="{{ $teacher->department_id }}">
+                                            {{ trim(($teacher->first_name ?? '').' '.($teacher->last_name ?? '')) }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            @error('scheduleTeacherId')<div class="ss-modal-error">{{ $message }}</div>@enderror
+                        </label>
+
+                        <label>
+                            <span class="ss-modal-label">ថ្នាក់រៀន (Class)<span class="ss-required">*</span></span>
+                            <div class="ss-select2-wrap" wire:ignore>
+                                <select class="ss-modal-input" x-ref="scheduleClassSelect" data-placeholder="ជ្រើសរើសថ្នាក់រៀន (Class)" required>
+                                    <option value="">ជ្រើសរើសថ្នាក់រៀន (Class)</option>
+                                    @foreach($classRooms as $classRoom)
+                                        <option value="{{ $classRoom->class_room_id }}"
+                                                data-department-id="{{ $classRoom->course?->department_id }}"
+                                                data-academic-year-id="{{ $classRoom->academic_year_id ?? $classRoom->course?->academic_year_id }}"
+                                                data-semester-id="{{ $classRoom->course?->semester_id }}">
+                                            {{ $classRoom->class_name }}{{ $classRoom->class_code ? ' - '.$classRoom->class_code : '' }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            @error('scheduleClassId')<div class="ss-modal-error">{{ $message }}</div>@enderror
+                        </label>
+
+                        <label>
+                            <span class="ss-modal-label">ថ្ងៃ (Day)<span class="ss-required">*</span></span>
+                            <div class="ss-select2-wrap" wire:ignore>
+                                <select class="ss-modal-input" x-ref="scheduleDaySelect" data-placeholder="ជ្រើសរើសថ្ងៃ (Day)" required>
+                                    <option value="">ជ្រើសរើសថ្ងៃ (Day)</option>
+                                    <option value="monday">ចន្ទ (Monday)</option>
+                                    <option value="tuesday">អង្គារ (Tuesday)</option>
+                                    <option value="wednesday">ពុធ (Wednesday)</option>
+                                    <option value="thursday">ព្រហស្បតិ៍ (Thursday)</option>
+                                    <option value="friday">សុក្រ (Friday)</option>
+                                    <option value="saturday">សៅរ៍ (Saturday)</option>
+                                    <option value="sunday">អាទិត្យ (Sunday)</option>
+                                </select>
+                            </div>
+                            @error('scheduleDay')<div class="ss-modal-error">{{ $message }}</div>@enderror
+                        </label>
+
+                        <label>
+                            <span class="ss-modal-label">ម៉ោងចាប់ផ្តើម (Start Time)<span class="ss-required">*</span></span>
+                            <input class="ss-modal-input" type="time" wire:model.defer="scheduleStartTime" required>
+                            @error('scheduleStartTime')<div class="ss-modal-error">{{ $message }}</div>@enderror
+                        </label>
+
+                        <label>
+                            <span class="ss-modal-label">ម៉ោងបញ្ចប់ (End Time)<span class="ss-required">*</span></span>
+                            <input class="ss-modal-input" type="time" wire:model.defer="scheduleEndTime" required>
+                            @error('scheduleEndTime')<div class="ss-modal-error">{{ $message }}</div>@enderror
+                        </label>
+                    </div>
+
+                    <div class="ss-modal-foot">
+                        <button class="ss-modal-cancel" type="button" x-on:click="closeScheduleModal()">ត្រឡប់</button>
+                        <button class="ss-modal-add" type="submit" wire:loading.attr="disabled" wire:target="createSchedule">
+                            <span wire:loading.remove wire:target="createSchedule">រក្សាទុក</span>
+                            <span wire:loading wire:target="createSchedule">កំពុងរក្សាទុក...</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        @endif
 
         <div id="print-header-content" class="print-header" style="flex-direction: column; width: 100%; margin-bottom: 5px;">
             <table style="width: 100%; border-collapse: collapse; text-align: center;">

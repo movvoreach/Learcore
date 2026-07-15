@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\LogsActivity;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ClassRoom extends Model
 {
+    use LogsActivity;
+
     protected $primaryKey = 'class_room_id';
 
     protected $fillable = [
@@ -16,6 +19,7 @@ class ClassRoom extends Model
         'class_code',
         'class_name',
         'room',
+        'capacity',
     ];
 
     public function course(): BelongsTo

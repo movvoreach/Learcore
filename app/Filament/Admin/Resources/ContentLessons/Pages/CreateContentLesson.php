@@ -8,7 +8,10 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateContentLesson extends CreateRecord
 {
     protected static string $resource = ContentLessonResource::class;
-protected function getCancelFormAction(): \Filament\Actions\Action
+
+    protected string $view = 'filament.admin.resources.content-lessons.pages.create-content-lesson';
+
+    protected function getCancelFormAction(): \Filament\Actions\Action
     {
         return parent::getCancelFormAction()
             ->label('ត្រឡប់');

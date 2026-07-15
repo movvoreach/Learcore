@@ -284,6 +284,47 @@
             accent-color: #5866f5;
         }
 
+        .ss-month-attendance {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            min-width: 220px;
+            flex-wrap: wrap;
+        }
+
+        .ss-month-day {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+            color: #59617e;
+            font-size: 12px;
+        }
+
+        .ss-month-date {
+            min-width: 24px;
+            line-height: 1.2;
+        }
+
+        .ss-month-check {
+            width: 19px;
+            height: 19px;
+            accent-color: #16a34a;
+            cursor: pointer;
+        }
+
+        .ss-month-day.is-present .ss-month-date {
+            color: #16a34a;
+            font-weight: 700;
+        }
+
+        .ss-month-day.is-absent .ss-month-date {
+            color: #dc2626;
+            font-weight: 700;
+        }
+
         .ss-delete {
             display: inline-flex;
             align-items: center;
@@ -1256,7 +1297,7 @@
                             <th style="width: 160px;">ស្ថានភាពសិក្សា</th>
                             <th class="ss-center" style="width: 90px;">ពិន្ទុ</th>
                             <th class="ss-center" style="width: 130px;">ភេទ</th>
-                            <th class="ss-center" style="width: 96px;">វត្តមាន</th>
+                            <th class="ss-center" style="width: 240px;">វត្តមាន</th>
                             <th style="width: 150px;">សម្គាល់</th>
                             <th class="ss-center" style="width: 80px;">សកម្មភាព</th>
                             <th class="ss-center" style="width: 70px;">ជម្រើស</th>
@@ -1301,7 +1342,30 @@
                                            x-on:blur="$el.classList.remove('ss-input-active')">
                                 </td>
                                 <td class="ss-center">
-                                    <input class="ss-check" type="checkbox" checked disabled>
+                                    <div class="ss-month-attendance">
+                                        @forelse($monthDates as $date)
+                                            @php
+                                                $attendanceKey = $student->student_id.'|'.$date->toDateString();
+                                                $attendance = $monthAttendances->get($attendanceKey);
+                                                $isPresent = $attendance?->status === 'present';
+                                                $isAbsent = $attendance?->status === 'absent';
+                                            @endphp
+                                            <label class="ss-month-day {{ $isPresent ? 'is-present' : ($isAbsent ? 'is-absent' : '') }}"
+                                                   title="{{ $date->format('Y-m-d') }} - {{ $isPresent ? 'មក' : 'អត់មក' }}">
+                                                <span class="ss-month-date">{{ $date->format('d') }}</span>
+                                                <input class="ss-month-check"
+                                                       type="checkbox"
+                                                       @checked($isPresent)
+                                                       x-on:change="
+                                                            $el.closest('.ss-month-day').classList.toggle('is-present', $el.checked);
+                                                            $el.closest('.ss-month-day').classList.toggle('is-absent', ! $el.checked);
+                                                       "
+                                                       wire:change="setMonthAttendance({{ $student->student_id }}, '{{ $date->toDateString() }}', $event.target.checked)">
+                                            </label>
+                                        @empty
+                                            <span class="ss-muted">-</span>
+                                        @endforelse
+                                    </div>
                                 </td>
                                 <td>
                                     <input class="ss-input"

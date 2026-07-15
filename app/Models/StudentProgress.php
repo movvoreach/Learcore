@@ -18,6 +18,11 @@ class StudentProgress extends Model
         'progress_date',
         'progress_percent',
         'score',
+        'attendance_score',
+        'attribute_score',
+        'midterm_score',
+        'assignment_score',
+        'final_score',
         'status',
         'note',
     ];
@@ -28,6 +33,11 @@ class StudentProgress extends Model
             'progress_date' => 'date',
             'progress_percent' => 'decimal:2',
             'score' => 'decimal:2',
+            'attendance_score' => 'decimal:2',
+            'attribute_score' => 'decimal:2',
+            'midterm_score' => 'decimal:2',
+            'assignment_score' => 'decimal:2',
+            'final_score' => 'decimal:2',
         ];
     }
 
