@@ -101,9 +101,9 @@ class ShowSchedule extends Page
         }
 
         /** @var Schedule $schedule */
-        $schedule = $this->getRecord()->loadMissing(['classRoom.course']);
+        $schedule = $this->getRecord()->loadMissing(['course', 'classRoom.course']);
         $classRoom = $schedule->classRoom;
-        $course = $classRoom?->course;
+        $course = $schedule->course ?? $classRoom?->course;
 
         if (! $classRoom || ! $course) {
             $this->addError('studentId', 'This schedule does not have a valid class/course.');
@@ -117,7 +117,7 @@ class ShowSchedule extends Page
                 'class_room_id' => $classRoom->class_room_id,
             ],
             [
-                'course_id' => $classRoom->course_id,
+                'course_id' => $course->course_id,
                 'academic_year_id' => $classRoom->academic_year_id ?? $course->academic_year_id,
                 'semester_id' => $course->semester_id,
                 'enrollment_date' => now()->toDateString(),
@@ -173,6 +173,8 @@ class ShowSchedule extends Page
         /** @var Schedule $schedule */
         $schedule = $this->getRecord()->loadMissing([
             'teacher.department',
+            'course.department',
+            'course.semester',
             'classRoom.course.department',
             'classRoom.course.semester',
             'classRoom.academicYear',

@@ -18,9 +18,21 @@ class ClassRoom extends Model
         'academic_year_id',
         'class_code',
         'class_name',
+        'table',
+        'status',
         'room',
         'capacity',
     ];
+
+    protected static function booted(): void
+    {
+        static::creating(function (ClassRoom $classRoom): void {
+            if (! $classRoom->class_code) {
+                $nextId = ((int) static::query()->max('class_room_id')) + 1;
+                $classRoom->class_code = 'CLS-'.str_pad((string) $nextId, 6, '0', STR_PAD_LEFT);
+            }
+        });
+    }
 
     public function course(): BelongsTo
     {

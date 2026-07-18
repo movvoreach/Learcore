@@ -6,12 +6,14 @@ use App\Filament\Admin\Pages\CourseLessons;
 use App\Filament\Admin\Pages\CourseStudents;
 use App\Filament\Admin\Pages\StudentCourse;
 use App\Models\Course;
+use App\Services\CourseCompletionService;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Notifications\Notification;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\FiltersLayout;
@@ -142,31 +144,48 @@ class CoursesTable
                         ->color('success')
                         ->url(fn (Course $record): string => CourseLessons::getUrl(['course' => $record->course_id])),
 
+                    Action::make('mark_course_completed')
+                        ->label('Mark Course Completed')
+                        ->icon(Heroicon::OutlinedCheckCircle)
+                        ->color('success')
+                        ->requiresConfirmation()
+                        ->modalHeading('Submit course completion request')
+                        ->modalDescription('The system will verify lessons, enrolled student progress, quizzes, and assignments before sending this course to admin review.')
+                        ->action(function (Course $record): void {
+                            try {
+                                app(CourseCompletionService::class)->requestCompletion($record, auth()->user());
+
+                                Notification::make()
+                                    ->success()
+                                    ->title('Course completion request submitted')
+                                    ->body('Admin has been notified for certificate approval.')
+                                    ->send();
+                            } catch (\Throwable $exception) {
+                                Notification::make()
+                                    ->danger()
+                                    ->title('Course is not ready')
+                                    ->body($exception->getMessage())
+                                    ->send();
+                            }
+                        })
+                        ->visible(fn (Course $record): bool => auth()->user()?->hasAnyRole(['super_admin', 'admin', 'teacher'])
+                            && ! auth()->user()?->isStudent()
+                            && ! $record->completionRequests()->where('status', 'pending')->exists()),
+
                     Action::make('assign_teacher')
                         ->label('Assign Teacher')
                         ->icon(Heroicon::OutlinedAcademicCap)
                         ->color('warning')
-                        ->extraAttributes(function (Course $record): array {
-                            $assignment = $record->courseAssignments->first();
-
-                            return [
-                                'data-open-assign-teacher' => '1',
-                                'data-course-id' => (string) $record->course_id,
-                                'data-course-name' => $record->course_name,
-                                'data-course-department-id' => (string) ($record->department_id ?? ''),
-                                'data-teacher-department-id' => (string) ($assignment?->teacher?->department_id ?? ''),
-                                'data-teacher-id' => (string) ($assignment?->teacher_id ?? ''),
-                            ];
-                        }),
+                        ->action(fn (Course $record, $livewire): mixed => $livewire->openAssignTeacherModal($record->course_id)),
 
                     EditAction::make()
-                        ->label('កែសម្រួល'),
+                        ->label('Edit'),
 
                     DeleteAction::make()
-                        ->label('លុប'),
+                        ->label('Delete'),
                 ])
                     ->label('មុខងារ')
-                    ->icon(null)
+                    ->icon(Heroicon::EllipsisVertical)
                     ->button()
                     ->color('primary')
                     ->dropdownWidth('14rem')

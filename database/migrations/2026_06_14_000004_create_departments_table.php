@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('departments', function (Blueprint $table) {
             $table->bigIncrements('department_id');
-            $table->unsignedBigInteger('faculty_id');
+            $table->unsignedBigInteger('faculty_id')->nullable();
             $table->string('department_code', 30)->unique();
             $table->string('department_name', 150);
             $table->string('deans', 255)->nullable();
@@ -20,7 +20,7 @@ return new class extends Migration
                 ->references('faculty_id')
                 ->on('faculties')
                 ->cascadeOnUpdate()
-                ->restrictOnDelete();
+                ->nullOnDelete();
         });
     }
 

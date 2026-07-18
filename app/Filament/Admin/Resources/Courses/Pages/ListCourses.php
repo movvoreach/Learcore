@@ -5,7 +5,6 @@ namespace App\Filament\Admin\Resources\Courses\Pages;
 use App\Filament\Admin\Resources\Courses\CourseResource;
 use App\Models\Course;
 use App\Models\CourseAssignment;
-use Filament\Actions\CreateAction;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ListRecords;
 
@@ -24,7 +23,7 @@ class ListCourses extends ListRecords
     public function openAssignTeacherModal(int $courseId): void
     {
         $course = Course::query()
-            ->with(['courseAssignments', 'academicYear'])
+            ->with(['courseAssignments.teacher', 'academicYear'])
             ->findOrFail($courseId);
 
         $assignment = $course->courseAssignments->first();
@@ -35,7 +34,12 @@ class ListCourses extends ListRecords
         $this->assignTeacherId = $assignment?->teacher_id;
         $this->showAssignTeacherModal = true;
         $this->resetValidation();
-        $this->dispatch('open-assign-teacher-modal');
+        $this->dispatch('open-assign-teacher-modal',
+            courseId: $this->assignCourseId,
+            courseName: $this->assignCourseName,
+            departmentId: $this->assignDepartmentId,
+            teacherId: $this->assignTeacherId,
+        );
     }
 
     public function closeAssignTeacherModal(): void
@@ -44,8 +48,12 @@ class ListCourses extends ListRecords
         $this->resetValidation();
     }
 
-    public function saveTeacherAssignment(): void
+    public function saveTeacherAssignment(?int $courseId = null, ?int $departmentId = null, ?int $teacherId = null): void
     {
+        $this->assignCourseId = $courseId ?? $this->assignCourseId;
+        $this->assignDepartmentId = $departmentId ?? $this->assignDepartmentId;
+        $this->assignTeacherId = $teacherId ?? $this->assignTeacherId;
+
         $data = $this->validate([
             'assignCourseId' => ['required', 'integer', 'exists:courses,course_id'],
             'assignDepartmentId' => ['nullable', 'integer', 'exists:departments,department_id'],
@@ -70,19 +78,26 @@ class ListCourses extends ListRecords
             }
         }
 
-        CourseAssignment::query()->updateOrCreate(
-            [
-                'teacher_id' => $data['assignTeacherId'],
+        $assignmentData = [
+            'teacher_id' => $data['assignTeacherId'],
+            'academic_year_id' => $course->academic_year_id,
+            'assigned_date' => now()->toDateString(),
+            'status' => 'active',
+            'note' => null,
+        ];
+
+        $courseAssignmentQuery = CourseAssignment::query()
+            ->where('course_id', $data['assignCourseId'])
+            ->whereNull('class_room_id');
+
+        if ($courseAssignmentQuery->exists()) {
+            $courseAssignmentQuery->update($assignmentData);
+        } else {
+            CourseAssignment::query()->create($assignmentData + [
                 'course_id' => $data['assignCourseId'],
-            ],
-            [
                 'class_room_id' => null,
-                'academic_year_id' => $course->academic_year_id,
-                'assigned_date' => now()->toDateString(),
-                'status' => 'active',
-                'note' => null,
-            ],
-        );
+            ]);
+        }
 
         $this->showAssignTeacherModal = false;
         $this->resetAssignTeacherForm();
@@ -96,16 +111,7 @@ class ListCourses extends ListRecords
 
     protected function getHeaderActions(): array
     {
-        if (auth()->user()?->isStudent()) {
-            return [];
-        }
-
-        return [
-            CreateAction::make()
-                ->icon('heroicon-m-plus')
-                ->hiddenLabel()
-                ->tooltip('បញ្ចូលវគ្គសិក្សា'),
-        ];
+        return [];
     }
 
     private function resetAssignTeacherForm(): void

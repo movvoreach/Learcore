@@ -21,7 +21,6 @@ class DepartmentForm
                             ->relationship('faculty', 'faculty_name')
                             ->searchable()
                             ->preload()
-                            ->required()
                             ->placeholder('ជ្រើសរើសជម្រើសណាមួយ'),
                         TextInput::make('department_code')
                             ->label('លេខកូដដេប៉ាតឺម៉ង់')

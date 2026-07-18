@@ -18,12 +18,13 @@ class ContentLessonsTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn (Builder $query): Builder => $query->with(['course']))
+            ->modifyQueryUsing(fn (Builder $query): Builder => $query->with(['course', 'module']))
             ->columns([
                 TextColumn::make('title')->label('មេរៀន')->searchable()->sortable(),
                 TextColumn::make('course.course_name')->label('វគ្គសិក្សា')->searchable()->sortable(),
                 TextColumn::make('content_type')->label('Type')->badge()->sortable(),
-                TextColumn::make('module_number')->label('Module')->sortable(),
+                TextColumn::make('module.title')->label('Module')->searchable()->sortable(),
+                TextColumn::make('module_number')->label('Module No.')->sortable(),
                 TextColumn::make('position')->label('លំដាប់')->sortable(),
                 TextColumn::make('visibility')->label('Visibility')->badge()->sortable(),
                 IconColumn::make('is_published')->label('ផ្សាយ')->boolean(),
@@ -60,6 +61,7 @@ class ContentLessonsTable
                     DeleteBulkAction::make(),
                 ]),
             ])
+            ->reorderable('position')
             ->defaultSort('position');
     }
 }

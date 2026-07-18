@@ -2,7 +2,7 @@
 
 namespace App\Filament\Admin\Resources\ContentLessons\Schemas;
 
-use App\Models\ContentLesson;
+use App\Models\CourseModule;
 use Filament\Forms;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
@@ -28,19 +28,39 @@ class ContentLessonForm
                             ->searchable()
                             ->preload()
                             ->default(fn (): ?int => request()->integer('course_id') ?: null)
+                            ->required()
+                            ->columnSpan(6),
+
+                        Forms\Components\Select::make('course_module_id')
+                            ->label('Module')
+                            ->options(fn (): array => CourseModule::query()
+                                ->with('course')
+                                ->orderBy('course_id')
+                                ->orderBy('module_number')
+                                ->get()
+                                ->mapWithKeys(fn (CourseModule $module): array => [
+                                    $module->course_module_id => trim(($module->course?->course_name ?? 'Course').' / Module '.$module->module_number.' - '.$module->title),
+                                ])
+                                ->all())
+                            ->searchable()
+                            ->preload()
+                            ->default(fn (): ?int => request()->integer('course_module_id') ?: null)
                             ->live()
                             ->afterStateUpdated(function (Set $set, ?int $state): void {
                                 if (! $state) {
-                                    $set('position', 1);
-
                                     return;
                                 }
 
-                                $nextPosition = ContentLesson::query()
-                                    ->where('course_id', $state)
-                                    ->max('position');
+                                $module = CourseModule::query()->find($state);
 
-                                $set('position', ($nextPosition ?? 0) + 1);
+                                if (! $module) {
+                                    return;
+                                }
+
+                                $set('course_id', $module->course_id);
+                                $set('module_number', $module->module_number);
+                                $set('module_title', $module->title);
+                                $set('position', self::nextLessonNumber($module->course_module_id));
                             })
                             ->required()
                             ->columnSpan(6),
@@ -82,11 +102,13 @@ class ContentLessonForm
                             ->numeric()
                             ->default(1)
                             ->required()
+                            ->readOnly()
                             ->columnSpan(3),
 
                         Forms\Components\TextInput::make('module_title')
                             ->label('ចំណងជើងម៉ូឌុល')
                             ->maxLength(255)
+                            ->readOnly()
                             ->columnSpan(9),
 
                         Forms\Components\TextInput::make('title')
@@ -104,7 +126,6 @@ class ContentLessonForm
                         Forms\Components\TextInput::make('slug')
                             ->label('Slug')
                             ->required()
-                            ->unique(ignoreRecord: true)
                             ->maxLength(255)
                             ->columnSpan(4),
                     ]),
@@ -118,7 +139,7 @@ class ContentLessonForm
                             ->rows(3)
                             ->columnSpanFull(),
 
-                        Forms\Components\RichEditor::make('body')
+                        Forms\Components\ViewField::make('body')
                             ->label(fn (Get $get): string => match ($get('content_type')) {
                                 'page' => 'ខ្លឹមសារទំព័រ',
                                 'assignment' => 'សេចក្ដីណែនាំកិច្ចការ',
@@ -126,6 +147,7 @@ class ContentLessonForm
                                 'forum' => 'ប្រធានបទពិភាក្សា',
                                 default => 'ខ្លឹមសារមេរៀន',
                             })
+                            ->view('filament.admin.components.lesson-tiptap-editor')
                             ->visible(fn (Get $get): bool => in_array($get('content_type'), ['lesson', 'page', 'assignment', 'quiz', 'forum'], true))
                             ->columnSpanFull(),
 
@@ -222,6 +244,7 @@ class ContentLessonForm
                                 'scheduled' => 'កំណត់ពេល',
                             ])
                             ->default('visible')
+                            ->live()
                             ->required()
                             ->columnSpan(4),
 
@@ -263,5 +286,13 @@ class ContentLessonForm
                             ->columnSpan(3),
                     ]),
             ]);
+    }
+
+    private static function nextLessonNumber(int $courseModuleId): int
+    {
+        return ((int) CourseModule::query()
+            ->find($courseModuleId)
+            ?->lessons()
+            ->max('position')) + 1;
     }
 }

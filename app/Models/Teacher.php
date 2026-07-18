@@ -51,6 +51,11 @@ class Teacher extends Model
         return $this->hasMany(CourseAssignment::class, 'teacher_id', 'teacher_id');
     }
 
+    public function completionRequests(): HasMany
+    {
+        return $this->hasMany(CourseCompletionRequest::class, 'teacher_id', 'teacher_id');
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

@@ -77,31 +77,6 @@
             box-shadow: 0 2px 8px rgba(44, 50, 89, .08);
         }
 
-        .ss-ribbon {
-            position: absolute;
-            top: 0;
-            left: 22px;
-            width: 90px;
-            height: 94px;
-            padding-top: 33px;
-            background: #5866f5;
-            color: #fff;
-            text-align: center;
-            font-size: 14px;
-            font-weight: 700;
-        }
-
-        .ss-ribbon::after {
-            content: "";
-            position: absolute;
-            left: 0;
-            right: 0;
-            bottom: -26px;
-            border-left: 45px solid transparent;
-            border-right: 45px solid transparent;
-            border-top: 26px solid #5866f5;
-        }
-
         .ss-heading {
             padding: 0 100px 16px;
             border-bottom: 1px solid #d8dbe8;
@@ -312,9 +287,11 @@
             showCreateAcademicYearModal: @js($showCreateAcademicYearModal),
             openAcademicYearModal() {
                 this.showCreateAcademicYearModal = true;
+                $wire.openCreateAcademicYearModal();
             },
             closeAcademicYearModal() {
                 this.showCreateAcademicYearModal = false;
+                $wire.closeCreateAcademicYearModal();
             },
             async submitAcademicYear() {
                 $wire.showCreateAcademicYearModal = true;
@@ -325,27 +302,25 @@
                 await $wire.createAcademicYear();
             },
          }"
-         x-init="$nextTick(() => { if (showCreateAcademicYearModal) openAcademicYearModal() })"
          x-on:close-create-academic-year-modal.window="closeAcademicYearModal()">
         <div class="ss-toolbar">
             <div class="ss-filters-group">
                 <!-- No filters needed for academic years table -->
             </div>
 
-            <div class="ss-actions-group" style="display: flex; gap: 6px;">
+            <div class="ss-actions-group" >
                 @if (\App\Filament\Admin\Resources\AcademicYears\AcademicYearResource::canCreate())
                     <button class="ss-tool" type="button" x-on:click="openAcademicYearModal()" title="បញ្ចូលឆ្នាំសិក្សា">
-                        <i class="fa fa-plus-circle"></i>
+                        <i class="fa fa-plus-circle" aria-hidden="true"></i>
                     </button>
                 @endif
             </div>
         </div>
 
         <div class="ss-card">
-            <div class="ss-ribbon">បញ្ជី</div>
 
             <div class="ss-heading">
-                <h2>បញ្ជីឆ្នាំសិក្សា</h2>
+                <h2>ឆ្នាំសិក្សា</h2>
             </div>
 
             <div>

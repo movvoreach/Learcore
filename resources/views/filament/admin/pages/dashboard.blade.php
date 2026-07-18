@@ -1,7 +1,7 @@
 <x-filament-panels::page>
     <style>
         .db-page {
-            font-family: "Inter", "Noto Sans Khmer", "Khmer OS Siemreap", ui-sans-serif, system-ui, sans-serif;
+            font-family: "Battambang", "Noto Sans Khmer", "Khmer OS Siemreap", ui-sans-serif, system-ui, sans-serif;
             color: #1e293b;
             display: grid;
             gap: 24px;
@@ -1610,7 +1610,7 @@
                 .admin-stat-label {
                     font-size: 15px;
                     color: #64748b;
-                    font-family: 'Khmer OS Siemreap', sans-serif;
+                    font-family: 'Battambang', 'Khmer OS Siemreap', sans-serif;
                 }
                 .dark .admin-stat-label {
                     color: #94a3b8;

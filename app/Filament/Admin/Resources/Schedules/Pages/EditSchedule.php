@@ -3,6 +3,7 @@
 namespace App\Filament\Admin\Resources\Schedules\Pages;
 
 use App\Filament\Admin\Resources\Schedules\ScheduleResource;
+use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
 
@@ -16,9 +17,16 @@ class EditSchedule extends EditRecord
             DeleteAction::make(),
         ];
     }
-protected function getCancelFormAction(): \Filament\Actions\Action
+
+    protected function getRedirectUrl(): string
+    {
+        return ScheduleResource::getUrl('index');
+    }
+
+    protected function getCancelFormAction(): Action
     {
         return parent::getCancelFormAction()
-            ->label('ត្រឡប់');
+            ->label('ត្រឡប់')
+            ->url(ScheduleResource::getUrl('index'));
     }
 }

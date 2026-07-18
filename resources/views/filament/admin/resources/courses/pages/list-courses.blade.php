@@ -19,68 +19,7 @@
                     window.history.replaceState({}, '', url.toString());
                 };
 
-                const openAssignTeacherModal = (trigger) => {
-                    const item = window.jQuery ? window.jQuery(trigger) : null;
-                    const courseId = item ? item.data('course-id') : trigger.dataset.courseId;
-                    const courseDepartmentId = item ? item.data('course-department-id') : trigger.dataset.courseDepartmentId;
-                    const teacherDepartmentId = item ? item.data('teacher-department-id') : trigger.dataset.teacherDepartmentId;
-                    const teacherId = item ? item.data('teacher-id') : trigger.dataset.teacherId;
-
-                    window.dispatchEvent(new CustomEvent('open-assign-teacher-local', {
-                        detail: {
-                            courseId: courseId ? parseInt(courseId, 10) : null,
-                            courseName: item ? item.data('course-name') : trigger.dataset.courseName,
-                            departmentId: teacherDepartmentId
-                                ? parseInt(teacherDepartmentId, 10)
-                                : (courseDepartmentId ? parseInt(courseDepartmentId, 10) : null),
-                            teacherId: teacherId ? parseInt(teacherId, 10) : null,
-                        },
-                    }));
-                };
-
-                const replaceCourseActionButtonIcon = () => {
-                    if (! window.jQuery) {
-                        return;
-                    }
-
-                    window.jQuery('.lc-course-actions').each(function () {
-                        const button = window.jQuery(this);
-
-                        button.find('svg.fi-icon').remove();
-
-                        if (! button.children('.fa-ellipsis-vertical').length) {
-                            button.prepend('<i class="fa-solid fa-ellipsis-vertical fas fa-ellipsis-v" aria-hidden="true"></i>');
-                        }
-                    });
-                };
-
-                if (! window.__courseAssignTeacherClickBound) {
-                    window.__courseAssignTeacherClickBound = true;
-
-                    document.addEventListener('click', (event) => {
-                        const trigger = event.target.closest('[data-open-assign-teacher]');
-
-                        if (! trigger) {
-                            return;
-                        }
-
-                        event.preventDefault();
-                        event.stopImmediatePropagation();
-                        openAssignTeacherModal(trigger);
-                    }, true);
-                }
-
-                if (! window.__courseActionIconObserverBound) {
-                    window.__courseActionIconObserverBound = true;
-
-                    new MutationObserver(replaceCourseActionButtonIcon).observe(document.body, {
-                        childList: true,
-                        subtree: true,
-                    });
-                }
-
                 cleanAssignTeacherQuery();
-                replaceCourseActionButtonIcon();
             })();
         </script>
     @endonce
@@ -120,7 +59,7 @@
         /* Toolbar / Filters */
         .ss-toolbar {
             display: flex;
-            align-items: center;
+            align-items: flex-end;
             justify-content: space-between;
             gap: 16px;
             width: 100%;
@@ -135,8 +74,23 @@
 
         .ss-filters-group {
             display: flex;
+            align-items: flex-end;
             gap: 12px;
             flex-wrap: wrap;
+            flex: 1 1 520px;
+            min-width: 260px;
+        }
+
+        .ss-filters-group:empty::before {
+            content: "";
+            display: block;
+            min-height: 46px;
+        }
+
+        .ss-actions-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .ss-tool {
@@ -146,100 +100,113 @@
             min-width: 54px;
             height: 46px;
             border: 0;
-            border-radius: 0;
+            border-radius: 4px;
             background: #5866f5;
             color: #fff;
             font-size: 20px;
             font-weight: 700;
             text-decoration: none;
             cursor: pointer;
-            transition: background-color .15s ease;
+            box-shadow: 0 8px 18px rgba(88, 102, 245, .24);
+            transition: transform .15s ease, box-shadow .15s ease, background-color .15s ease;
         }
 
         .ss-tool:hover {
             background: #4351e6;
+            color: #fff;
+            transform: translateY(-1px);
+            box-shadow: 0 12px 24px rgba(67, 81, 230, .28);
+        }
+
+        .ss-filters-group .fi-ta-filters-above-content-ctn {
+            width: 100%;
+            margin: 0 !important;
+            padding: 0 !important;
+            border: 0 !important;
+            background: transparent !important;
+            box-shadow: none !important;
+        }
+
+        .ss-filters-group .fi-ta-filters {
+            display: flex;
+            align-items: flex-end;
+            gap: 12px;
+            flex-wrap: wrap;
+            width: 100%;
+        }
+
+        .ss-filters-group .fi-ta-filters-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-height: 46px;
+            margin: 0 !important;
+        }
+
+        .ss-filters-group .fi-ta-filters-heading {
+            margin: 0 !important;
+            color: #3a405f;
+            font-size: 15px;
+            font-weight: 700;
+            line-height: 1;
+            white-space: nowrap;
+        }
+
+        .ss-filters-group .fi-ta-filters-header .fi-link {
+            min-height: 38px;
+            border-radius: 4px;
+            padding: 0 12px;
+            background: #fff5f5;
+            color: #dc3545 !important;
+            font-weight: 700;
+        }
+
+        .ss-filters-group .fi-sc.fi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)) !important;
+            align-items: end;
+            gap: 10px !important;
+            flex: 1 1 420px;
+        }
+
+        .ss-filters-group .fi-fo-field-label {
+            color: #64748b;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .ss-filters-group .fi-input-wrp {
+            min-height: 42px;
+            border-radius: 4px !important;
+            border-color: #dbe3ef !important;
+            background: #f8fbff !important;
+            box-shadow: none !important;
         }
 
         .courses-list-show .lc-course-actions {
-            display: inline-flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            gap: 9px !important;
-            min-width: 92px;
             min-height: 38px;
-            border: 1px solid rgba(255, 255, 255, .16) !important;
             border-radius: 4px !important;
-            background: linear-gradient(135deg, #5264f4 0%, #3159df 100%) !important;
+            background: #5866f5 !important;
             color: #fff !important;
-            padding: 0 14px !important;
             font-size: 13px !important;
-            font-weight: 700;
-            line-height: 1 !important;
-            box-shadow: 0 7px 16px rgba(49, 89, 223, .22) !important;
-            transition: transform .15s ease, box-shadow .15s ease, background .15s ease !important;
+            font-weight: 800 !important;
+            box-shadow: 0 8px 18px rgba(88, 102, 245, .24) !important;
         }
 
         .courses-list-show .lc-course-actions:hover,
         .courses-list-show .lc-course-actions:focus-visible {
-            background: linear-gradient(135deg, #4354e9 0%, #244ac8 100%) !important;
+            background: #4351e6 !important;
             color: #fff !important;
-            box-shadow: 0 10px 22px rgba(49, 89, 223, .3) !important;
-            transform: translateY(-1px);
         }
 
-        .courses-list-show .lc-course-actions:active {
-            box-shadow: 0 4px 10px rgba(49, 89, 223, .22) !important;
-            transform: translateY(0);
+        .courses-list-show .fi-dropdown-list-item,
+        .courses-list-show .fi-dropdown-list-item-label {
+            color: #0f172a !important;
         }
 
-        .courses-list-show .lc-course-actions span,
-        .courses-list-show .lc-course-actions .fi-btn-label {
-            color: #fff !important;
-            line-height: 1 !important;
-            white-space: nowrap;
-        }
-
-        .courses-list-show .lc-course-actions svg {
-            display: none !important;
-        }
-
-        .courses-list-show .lc-course-actions .fa-ellipsis-vertical {
-            align-items: center;
-            justify-content: center;
-            width: 22px;
-            height: 22px;
-            border-radius: 4px;
-            background: rgba(255, 255, 255, .18);
-            color: #fff;
-            display: inline-flex;
-            font-family: "Font Awesome 5 Free" !important;
-            font-size: 13px;
-            font-weight: 900;
-            line-height: 1;
-        }
-
-        .courses-list-show .lc-course-actions .fa-ellipsis-vertical::before {
-            content: "\f142";
-        }
-
-        .courses-list-show .lc-course-actions::before {
-            content: "\f142";
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 22px;
-            height: 22px;
-            border-radius: 4px;
-            background: rgba(255, 255, 255, .18);
-            color: #fff;
-            font-family: "Font Awesome 5 Free" !important;
-            font-size: 13px;
-            font-weight: 900;
-            line-height: 1;
-        }
-
-        .courses-list-show .lc-course-actions:has(.fa-ellipsis-vertical)::before {
-            content: none;
+        .dark .courses-list-show .fi-dropdown-list-item,
+        .dark .courses-list-show .fi-dropdown-list-item-label {
+            color: #f8fafc !important;
         }
 
         .ss-modal-backdrop {
@@ -431,40 +398,20 @@
         /* Card styles */
         .ss-card {
             position: relative;
-            overflow-x: auto;
+            overflow: visible;
             border-radius: 5px;
             background: #fff;
             padding: 26px 22px 24px;
             box-shadow: 0 2px 8px rgba(44, 50, 89, .08);
         }
 
-        .ss-ribbon {
-            position: absolute;
-            top: 0;
-            left: 22px;
-            width: 90px;
-            height: 94px;
-            padding-top: 33px;
-            background: #5866f5;
-            color: #fff;
-            text-align: center;
-            font-size: 14px;
-            font-weight: 700;
-        }
-
-        .ss-ribbon::after {
-            content: "";
-            position: absolute;
-            left: 0;
-            right: 0;
-            bottom: -26px;
-            border-left: 45px solid transparent;
-            border-right: 45px solid transparent;
-            border-top: 26px solid #5866f5;
+        .courses-list-show .fi-ta-content,
+        .courses-list-show .fi-ta-table-ctn {
+            overflow-x: auto;
         }
 
         .ss-heading {
-            padding: 0 100px 16px;
+            padding: 0 0 16px;
             border-bottom: 1px solid #d8dbe8;
             text-align: center;
             margin-bottom: 24px;
@@ -483,6 +430,19 @@
             background: #1e293b;
             box-shadow: none;
             border: 1px solid #334155;
+        }
+
+        .dark .ss-filters-group .fi-ta-filters-heading {
+            color: #f1f5f9;
+        }
+
+        .dark .ss-filters-group .fi-ta-filters-header .fi-link {
+            background: rgba(220, 53, 69, .14);
+        }
+
+        .dark .ss-filters-group .fi-input-wrp {
+            background: #0f172a !important;
+            border-color: #334155 !important;
         }
 
         .dark .ss-card {
@@ -548,6 +508,7 @@
 
         /* Hide default Filament header actions globally on this page */
         .fi-header-actions,
+        .fi-header-actions-ctn,
         .fi-page-header-actions {
             display: none !important;
         }
@@ -588,6 +549,7 @@
             },
             closeAssignTeacherModal() {
                 this.showAssignTeacherModal = false;
+                $wire.closeAssignTeacherModal();
                 const url = new URL(window.location.href);
 
                 if (url.searchParams.has('assignTeacher')) {
@@ -666,15 +628,14 @@
                 return value ? parseInt(value, 10) : null;
             },
             async submitAssignTeacher() {
+                const departmentId = this.nullableInt(this.$refs.assignDepartmentSelect?.value);
+                const teacherId = this.nullableInt(this.$refs.assignTeacherSelect?.value);
+
                 $wire.showAssignTeacherModal = true;
-                $wire.assignCourseId = this.assignCourseId;
-                $wire.assignDepartmentId = this.nullableInt(this.$refs.assignDepartmentSelect?.value);
-                $wire.assignTeacherId = this.nullableInt(this.$refs.assignTeacherSelect?.value);
-                await $wire.saveTeacherAssignment();
+                await $wire.saveTeacherAssignment(this.assignCourseId, departmentId, teacherId);
             },
          }"
-         x-init="$nextTick(() => { if (showAssignTeacherModal) openAssignTeacherModal() })"
-         x-on:open-assign-teacher-modal.window="openAssignTeacherModal()"
+         x-on:open-assign-teacher-modal.window="openAssignTeacherModal($event.detail)"
          x-on:open-assign-teacher-local.window="openAssignTeacherModal($event.detail)"
          x-on:close-assign-teacher-modal.window="closeAssignTeacherModal()">
         <div class="ss-toolbar">
@@ -682,20 +643,18 @@
                 <!-- No filters needed for courses table -->
             </div>
             
-            <div class="ss-actions-group" style="display: flex; gap: 6px;">
+            <div class="ss-actions-group">
                 @if (\App\Filament\Admin\Resources\Courses\CourseResource::canCreate() && !auth()->user()?->isStudent())
                     <a class="ss-tool" href="{{ \App\Filament\Admin\Resources\Courses\CourseResource::getUrl('create') }}" title="បញ្ចូលវគ្គសិក្សា">
-                        <i class="fa fa-plus-circle"></i>
+                        <i class="fa fa-plus-circle" aria-hidden="true"></i>
                     </a>
                 @endif
             </div>
         </div>
 
         <div class="ss-card">
-            <div class="ss-ribbon">បញ្ជី</div>
-
             <div class="ss-heading">
-                <h2>បញ្ជីវគ្គសិក្សា</h2>
+                <h2>វគ្គសិក្សា</h2>
             </div>
 
             <div>

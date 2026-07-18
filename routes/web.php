@@ -9,6 +9,7 @@ use App\Models\Enrollment;
 use App\Models\Student;
 use App\Models\StudentProgress;
 use App\Http\Controllers\Admin\ReportExportController;
+use App\Http\Controllers\Admin\LessonEditorUploadController;
 use App\Http\Controllers\frontend\frontendController;
 use App\Http\Controllers\frontend\LanguageController;
 use Illuminate\Http\Request;
@@ -54,6 +55,9 @@ Route::post('/learning/courses/{course}/lessons/{lesson}/quizzes/{quiz}/submit',
 Route::post('/learning/courses/{course}/lessons/{lesson}/assignments/{assignment}/submit', [frontendController::class, 'submitAssignment'])
     ->middleware('auth')
     ->name('frontend.courses.lessons.assignments.submit');
+Route::post('/learning/courses/{course}/lessons/{lesson}/complete', [frontendController::class, 'completeLesson'])
+    ->middleware('auth')
+    ->name('frontend.courses.lessons.complete');
 Route::post('/learning/discussion/{discussionPost}/comments', [frontendController::class, 'storeDiscussionComment'])
     ->middleware('auth')
     ->name('frontend.discussion.comments.store');
@@ -81,3 +85,15 @@ Route::middleware('auth')->prefix('admin/reports')->name('admin.reports.')->grou
     Route::get('{report}/excel', [ReportExportController::class, 'excel'])->name('excel');
     Route::get('{report}/print', [ReportExportController::class, 'print'])->name('print');
 });
+
+Route::post('/admin/content-lessons/editor-upload', LessonEditorUploadController::class)
+    ->middleware('auth')
+    ->name('admin.lesson-editor.upload');
+
+Route::middleware('auth')->get('/teacher/notifications', function () {
+    abort_unless(auth()->user()?->hasAnyRole(['super_admin', 'admin', 'teacher']), 403);
+
+    return view('teacher.notifications', [
+        'notifications' => auth()->user()->notifications()->latest()->paginate(20),
+    ]);
+})->name('teacher.notifications');

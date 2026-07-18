@@ -7,7 +7,7 @@
 
     @php
         $classRoom = $schedule->classRoom;
-        $course = $classRoom?->course;
+        $course = $schedule->course ?? $classRoom?->course;
         $teacher = $schedule->teacher;
         $teacherName = $teacher ? trim(($teacher->first_name ?? '').' '.($teacher->last_name ?? '')) : '-';
         $timeLabel = \Carbon\Carbon::parse($schedule->start_time)->format('H:i').' - '.\Carbon\Carbon::parse($schedule->end_time)->format('H:i');
@@ -316,7 +316,7 @@
         function printSheet() {
             var table = document.querySelector('.as-page .as-table');
             if (!table) {
-                alert('មិនមានតារាង!');
+                alert('???????????!');
                 return;
             }
 
@@ -386,7 +386,7 @@
 
     <div class="as-page">
         <div class="as-toolbar">
-            <button class="as-print" type="button" onclick="printSheet()" title="បោះពុម្ព">
+            <button class="as-print" type="button" onclick="printSheet()" title="????????">
                 <i class="fas fa-print"></i>
             </button>
         </div>
@@ -394,33 +394,33 @@
 
         <div class="as-filter">
             <div class="as-filter-row">
-                <label class="as-label" for="days-count">ចំនួនថ្ងៃ</label>
+                <label class="as-label" for="days-count">?????????</label>
                 <input id="days-count" class="as-input" type="number" min="1" max="62" wire:model.defer="daysCount">
 
-                <label class="as-label" for="start-date">ថ្ងៃចាប់ផ្តើម</label>
+                <label class="as-label" for="start-date">?????????????</label>
                 <input id="start-date" class="as-input" type="date" wire:model.defer="startDate">
 
-                <button class="as-search" type="button" wire:click="$refresh" title="ស្វែងរក">
+                <button class="as-search" type="button" wire:click="$refresh" title="???????">
                     <i class="fas fa-search"></i>
                 </button>
             </div>
         </div>
 
         @if($students->isEmpty())
-            <div class="as-empty">មិនទាន់មាននិស្សិតសម្រាប់បញ្ជីវត្តមាននេះទេ។</div>
+            <div class="as-empty">??????????????????????????????????????????</div>
         @else
             <div class="as-table-wrap">
                 <table class="as-table">
                     <tbody>
                         <tr class="as-meta">
-                            <td colspan="4">បញ្ជីវត្តមាន</td>
-                            <td colspan="16">លេខកូដថ្នាក់: {{ $classRoom?->class_code ?? '-' }}</td>
-                            <td colspan="{{ max($dates->count() - 16, 1) }}">មុខវិជ្ជា: {{ $course?->course_name ?? '-' }}</td>
+                            <td colspan="4">????????????</td>
+                            <td colspan="16">????????????: {{ $classRoom?->class_code ?? '-' }}</td>
+                            <td colspan="{{ max($dates->count() - 16, 1) }}">?????????: {{ $course?->course_name ?? '-' }}</td>
                         </tr>
                         <tr class="as-meta">
-                            <td colspan="4">ពេលសិក្សា: {{ $timeLabel }}</td>
-                            <td colspan="16">គ្រូបង្រៀន: {{ $teacherName }}</td>
-                            <td colspan="{{ max($dates->count() - 16, 1) }}">ខែ: {{ $monthLabel }}</td>
+                            <td colspan="4">?????????: {{ $timeLabel }}</td>
+                            <td colspan="16">??????????: {{ $teacherName }}</td>
+                            <td colspan="{{ max($dates->count() - 16, 1) }}">??: {{ $monthLabel }}</td>
                         </tr>
                         <tr>
                             <td colspan="4" class="as-signature">Instructor's Signature</td>

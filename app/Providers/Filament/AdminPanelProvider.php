@@ -35,6 +35,7 @@ use App\Filament\Admin\Resources\ContentDocuments\ContentDocumentResource;
 use App\Filament\Admin\Resources\ContentLessons\ContentLessonResource;
 use App\Filament\Admin\Resources\ContentResources\ContentResourceResource;
 use App\Filament\Admin\Resources\ContentVideos\ContentVideoResource;
+use App\Filament\Admin\Resources\CourseModules\CourseModuleResource;
 use App\Filament\Admin\Resources\Courses\CourseResource;
 use App\Filament\Admin\Resources\ClassRooms\ClassRoomResource;
 use App\Filament\Admin\Resources\CourseAssignments\CourseAssignmentResource;
@@ -75,6 +76,7 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\HtmlString;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
@@ -224,16 +226,14 @@ class AdminPanelProvider extends PanelProvider
                         default => 'Search courses, lessons, quizzes...',
                     };
 
-                    return new HtmlString(<<<HTML
+                    $lessonEditorAssets = Vite::withEntryPoints(['resources/js/app.js'])->toHtml();
+
+                    return new HtmlString($lessonEditorAssets . <<<HTML
                     <script>
                         (() => {
                             let hoverOpenedSidebar = false
 
-                            const desktopSidebarCanHover = () => (
-                                window.matchMedia('(min-width: 1024px)').matches &&
-                                document.body.classList.contains('fi-body-has-sidebar-collapsible-on-desktop') &&
-                                ! document.body.classList.contains('fi-body-has-top-navigation')
-                            )
+                            const desktopSidebarCanHover = () => false
 
                             const sidebarStore = () => window.Alpine?.store?.('sidebar')
 
@@ -560,7 +560,8 @@ HTML);
             $this->resourceNavItem($this->adminLabel('nav.course_categories'), self::GROUP_CONTENT, 10, asset('Icons/course.png'), CourseCategoryResource::class),
             $this->resourceNavItem($this->adminLabel('nav.courses'), self::GROUP_CONTENT, 15, asset('Icons/courses.png'), CourseResource::class),
             $this->resourceNavItem($this->adminLabel('nav.class_rooms'), self::GROUP_CONTENT, 18, asset('Icons/course.png'), ClassRoomResource::class),
-            $this->resourceNavItem($this->adminLabel('nav.chapters'), self::GROUP_CONTENT, 20, asset('Icons/content-chapters.png'), ContentChapterResource::class),
+            $this->resourceNavItem('Modules', self::GROUP_CONTENT, 19, Heroicon::OutlinedQueueList, CourseModuleResource::class),
+            // $this->resourceNavItem($this->adminLabel('nav.chapters'), self::GROUP_CONTENT, 20, asset('Icons/content-chapters.png'), ContentChapterResource::class),
             $this->resourceNavItem($this->adminLabel('nav.lessons'), self::GROUP_CONTENT, 30, asset('Icons/ducs.png'), ContentLessonResource::class),
             $this->resourceNavItem($this->adminLabel('nav.videos'), self::GROUP_CONTENT, 40, $this->sidebarIcon('fas fa-play-circle', '#0284c7'), ContentVideoResource::class),
             $this->resourceNavItem($this->adminLabel('nav.documents'), self::GROUP_CONTENT, 50, $this->sidebarIcon('fas fa-file-pdf', '#dc2626'), ContentDocumentResource::class),

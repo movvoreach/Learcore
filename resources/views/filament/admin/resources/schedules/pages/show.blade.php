@@ -9,17 +9,17 @@
 
     @php
         $classRoom = $schedule->classRoom;
-        $course = $classRoom?->course;
+        $course = $schedule->course ?? $classRoom?->course;
         $teacher = $schedule->teacher;
         $teacherName = $teacher ? trim(($teacher->first_name ?? '').' '.($teacher->last_name ?? '')) : '-';
         $dayLabel = match ($schedule->day) {
-            'monday' => 'ចន្ទ',
-            'tuesday' => 'អង្គារ',
-            'wednesday' => 'ពុធ',
-            'thursday' => 'ព្រហស្បតិ៍',
-            'friday' => 'សុក្រ',
-            'saturday' => 'សៅរ៍',
-            'sunday' => 'អាទិត្យ',
+            'monday' => '????',
+            'tuesday' => '??????',
+            'wednesday' => '???',
+            'thursday' => '??????????',
+            'friday' => '?????',
+            'saturday' => '????',
+            'sunday' => '???????',
             default => $schedule->day,
         };
         $timeLabel = \Carbon\Carbon::parse($schedule->start_time)->format('H:i').' - '.\Carbon\Carbon::parse($schedule->end_time)->format('H:i');
@@ -759,7 +759,7 @@
             var printPage = document.getElementById(pageId);
 
             if (! printPage) {
-                alert('មិនមានទិន្នន័យសម្រាប់បោះពុម្ពទេ!');
+                alert('???????????????????????????????!');
                 return;
             }
 
@@ -774,7 +774,7 @@
             document.body.appendChild(iframe);
 
             var fontUrl = '{{ asset("fonts/battambang.css") }}';
-            var title = 'បញ្ជីនិស្សិត';
+            var title = '????????????';
             var doc = iframe.contentDocument || iframe.contentWindow.document;
 
             doc.open();
@@ -832,6 +832,16 @@
             showScheduleMenu: false,
             showDeleteStudentModal: false,
             deleteStudentId: null,
+            setStudentId(value) {
+                this.$wire.set('studentId', value, false);
+            },
+            closeAddStudentModal() {
+                this.showAddStudentModal = false;
+
+                if (window.jQuery && this.$refs.studentSelect) {
+                    window.jQuery(this.$refs.studentSelect).val('').trigger('change.select2');
+                }
+            },
             initStudentSelect() {
                 this.$nextTick(() => {
                     if (! window.jQuery || ! window.jQuery.fn.select2 || ! this.$refs.studentSelect) {
@@ -847,53 +857,57 @@
                     select.select2({
                         theme: 'bootstrap4',
                         width: '100%',
-                        placeholder: 'ស្វែងរកតាមឈ្មោះ ឬ អត្តលេខ...',
-                        dropdownParent: window.jQuery(this.$refs.addStudentModal),
+                        placeholder: '??????????????? ? ???????...',
+                        dropdownParent: select.closest('.ss-select2-wrap'),
                     });
 
                     select.off('change.scheduleStudent').on('change.scheduleStudent', () => {
-                        this.$wire.set('studentId', select.val() ? parseInt(select.val(), 10) : null);
+                        this.setStudentId(select.val() ? parseInt(select.val(), 10) : null);
                     });
                 });
             },
          }"
          @close-add-student-modal.window="
-            showAddStudentModal = false;
-            if (window.jQuery && $refs.studentSelect) {
-                window.jQuery($refs.studentSelect).val('').trigger('change.select2');
-            }
+            closeAddStudentModal();
         ">
         <div class="ss-toolbar">
           
             @if($canManageScheduleStudents)
-                <button class="ss-tool" type="button" title="បន្ថែម" x-on:click="showAddStudentModal = true; initStudentSelect()">
+                <button class="ss-tool" type="button" title="??????" x-on:click="showAddStudentModal = true; setStudentId(null); initStudentSelect()">
                    <i class="fa fa-plus-circle"></i>
                 </button>
             @endif
-            <a class="ss-tool" href="{{ \App\Filament\Admin\Resources\Schedules\ScheduleResource::getUrl('index') }}" title="ត្រឡប់"><i class="fa fa-minus-circle"></i></a>
+            @if(\App\Filament\Admin\Resources\Schedules\ScheduleResource::canEdit($schedule))
+                <a class="ss-tool"
+                   href="{{ \App\Filament\Admin\Resources\Schedules\ScheduleResource::getUrl('edit', ['record' => $schedule]) }}"
+                   title="??????????????">
+                    <i class="fa fa-edit"></i>
+                </a>
+            @endif
+            <a class="ss-tool" href="{{ \App\Filament\Admin\Resources\Schedules\ScheduleResource::getUrl('index') }}" title="??????"><i class="fa fa-minus-circle"></i></a>
             <div class="ss-menu-wrap" x-on:click.outside="showScheduleMenu = false">
                 <button class="ss-tool ss-tool-text"
                         type="button"
-                        title="ជម្រើស"
+                        title="??????"
                         x-on:click="showScheduleMenu = ! showScheduleMenu">
-                    មុខងារ <i class="fas fa-ellipsis-v"></i>
+                    ?????? <i class="fas fa-ellipsis-v"></i>
                 </button>
                 <div class="ss-action-menu" x-show="showScheduleMenu" x-transition x-cloak>
                     <button type="button" x-on:click="printList('print-student-page'); showScheduleMenu = false">
-                        <span class="ss-menu-left"><i class="fas fa-print"></i> បោះពុម្ពបញ្ជីនិស្សិត</span>
+                        <span class="ss-menu-left"><i class="fas fa-print"></i> ????????????????????</span>
                     </button>
                     <a href="{{ \App\Filament\Admin\Resources\Schedules\ScheduleResource::getUrl('attendance-sheet', ['record' => $schedule]) }}">
-                        <span class="ss-menu-left"><i class="fas fa-folder"></i> បញ្ជីវត្តមាន</span>
+                        <span class="ss-menu-left"><i class="fas fa-folder"></i> ????????????</span>
                         <i class="fas fa-chevron-right"></i>
                     </a>
                     <button type="button" x-on:click="printList('print-score-page'); showScheduleMenu = false">
-                        <span class="ss-menu-left"><i class="fas fa-print"></i> បញ្ជីពិន្ទុ</span>
+                        <span class="ss-menu-left"><i class="fas fa-print"></i> ???????????</span>
                     </button>
                     <button type="button" x-on:click="printList('print-task-page'); showScheduleMenu = false">
-                        <span class="ss-menu-left"><i class="fas fa-print"></i> បញ្ជីកិច្ចការ</span>
+                        <span class="ss-menu-left"><i class="fas fa-print"></i> ?????????????</span>
                     </button>
                     <button type="button" x-on:click="printList('print-other-page'); showScheduleMenu = false">
-                        <span class="ss-menu-left"><i class="fas fa-print"></i> បញ្ជីផ្សេងៗ</span>
+                        <span class="ss-menu-left"><i class="fas fa-print"></i> ???????????</span>
                     </button>
                 </div>
             </div>
@@ -902,44 +916,46 @@
 
         @if($canManageScheduleStudents)
             <div class="ss-modal-backdrop"
+                 wire:key="add-student-modal"
                  x-show="showAddStudentModal"
                  x-transition.opacity
                  x-cloak
-                 x-on:keydown.escape.window="showAddStudentModal = false">
+                 x-on:click.self="closeAddStudentModal()"
+                 x-on:keydown.escape.window="closeAddStudentModal()">
                 <form class="ss-modal"
                       x-ref="addStudentModal"
                       wire:submit.prevent="addStudentByCode"
-                      x-on:click.outside="showAddStudentModal = false"
+                      x-on:click.stop
                       x-show="showAddStudentModal"
                       x-transition>
                     <div class="ss-modal-head">
                         <div>
                             <h3 class="ss-modal-title">
                                 <span class="ss-modal-plus"><i class="fa-solid fas fa-user-plus"></i></span>
-                                បញ្ចូលនិស្សិត
+                                ?????????????
                             </h3>
-                            <p class="ss-modal-description">ស្វែងរកនិស្សិតតាមឈ្មោះ ឬ អត្តលេខ ដើម្បីបញ្ចូលទៅក្នុងកាលវិភាគនេះ។</p>
+                            <p class="ss-modal-description">?????????????????????? ? ??????? ???????????????????????????????</p>
                         </div>
-                        <button class="ss-modal-close" type="button" x-on:click="showAddStudentModal = false">×</button>
+                        <button class="ss-modal-close" type="button" x-on:click="closeAddStudentModal()">�</button>
                     </div>
 
                     <div class="ss-modal-body">
                         <div class="ss-modal-field">
                             <label class="ss-modal-label" for="schedule-student-code">
-                                ជ្រើសរើសនិស្សិត <span class="ss-required">*</span>
+                                ??????????????? <span class="ss-required">*</span>
                             </label>
                             <div class="ss-select2-wrap" wire:ignore>
                                 <select id="schedule-student-code"
                                         class="ss-modal-input"
                                         x-ref="studentSelect"
                                         x-init="initStudentSelect()">
-                                    <option value="">ស្វែងរកតាមឈ្មោះ ឬ អត្តលេខ...</option>
+                                    <option value="">??????????????? ? ???????...</option>
                                     @foreach($studentOptions as $studentOption)
                                         @php
                                             $optionName = trim(($studentOption->first_name ?? '').' '.($studentOption->last_name ?? ''));
                                             $optionLabel = trim(($studentOption->student_code ?? '').' - '.$optionName);
                                         @endphp
-                                        <option value="{{ $studentOption->student_id }}">{{ $optionLabel }}</option>
+                                        <option wire:key="schedule-student-option-{{ $studentOption->student_id }}" value="{{ $studentOption->student_id }}">{{ $optionLabel }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -950,11 +966,11 @@
                     </div>
 
                     <div class="ss-modal-foot">
-                        <button class="ss-modal-cancel" type="button" x-on:click="showAddStudentModal = false">បោះបង់</button>
+                        <button class="ss-modal-cancel" type="button" x-on:click="closeAddStudentModal()">??????</button>
                         <button class="ss-modal-add" type="submit" wire:loading.attr="disabled" wire:target="addStudentByCode">
                             <i class="fa fa-plus-circle"></i>
-                            <span wire:loading.remove wire:target="addStudentByCode">ចុះឈ្មោះសិស្ស</span>
-                            <span wire:loading wire:target="addStudentByCode">កំពុងរក្សាទុក...</span>
+                            <span wire:loading.remove wire:target="addStudentByCode">?????????????</span>
+                            <span wire:loading wire:target="addStudentByCode">?????????????...</span>
                         </button>
                     </div>
                 </form>
@@ -962,33 +978,35 @@
         @endif
 
         <div class="ss-modal-backdrop"
+             wire:key="delete-student-modal"
              x-show="showDeleteStudentModal"
              x-transition.opacity
              x-cloak
+             x-on:click.self="showDeleteStudentModal = false"
              x-on:keydown.escape.window="showDeleteStudentModal = false">
             <div class="ss-confirm-modal" 
-                 x-on:click.outside="showDeleteStudentModal = false"
+                 x-on:click.stop
                  x-show="showDeleteStudentModal"
                  x-transition>
                 <div class="ss-confirm-head">
                     <h3 class="ss-confirm-title">
                         <i class="fas fa-exclamation-triangle"></i>
-                        ដកចេញ
+                        ?????
                     </h3>
-                    <button class="ss-modal-close" type="button" x-on:click="showDeleteStudentModal = false">×</button>
+                    <button class="ss-modal-close" type="button" x-on:click="showDeleteStudentModal = false">�</button>
                 </div>
                 <div class="ss-confirm-body">
-                    តើអ្នកពិតជាចង់ដកនិស្សិតចេញពីកាលវិភាគនេះមែនទេ?
+                    ?????????????????????????????????????????????
                 </div>
                 <div class="ss-confirm-foot">
                     <button class="ss-confirm-delete"
                             type="button"
                             x-on:click="$wire.removeStudent(deleteStudentId); showDeleteStudentModal = false">
                         <i class="fas fa-trash-alt"></i>
-                        លុប
+                        ???
                     </button>
                     <button class="ss-confirm-cancel" type="button" x-on:click="showDeleteStudentModal = false">
-                        បោះបង់
+                        ??????
                     </button>
                 </div>
             </div>
@@ -997,48 +1015,48 @@
         <div class="ss-print-page" id="print-student-page" aria-hidden="true">
             <div class="ss-print-header">
                 <div>
-                    <h3>ក្រសួងអប់រំ យុវជន និងកីឡា</h3>
-                    <p>អគ្គនាយកដ្ឋានបច្ចេកវិទ្យា និងអប់រំ</p>
-                    <p>សាកលវិទ្យាល័យ / វិទ្យាស្ថាន</p>
-                    <p class="ss-print-line">លេខ: .................</p>
+                    <h3>??????????? ????? ???????</h3>
+                    <p>????????????????????????? ????????</p>
+                    <p>????????????? / ???????????</p>
+                    <p class="ss-print-line">???: .................</p>
                 </div>
                 <div>
-                    <h3>ព្រះរាជាណាចក្រកម្ពុជា</h3>
-                    <p>ជាតិ សាសនា ព្រះមហាក្សត្រ</p>
+                    <h3>?????????????????????</h3>
+                    <p>???? ????? ?????????????</p>
                     <p>********</p>
                 </div>
             </div>
 
             <div class="ss-print-title">
-                <h2>បញ្ជីរាយនាមសិស្ស</h2>
-                <p>មុខវិជ្ជា: {{ $course?->course_name ?? '-' }}</p>
-                <p>គ្រូបង្រៀន: {{ $teacherName }}</p>
+                <h2>????????????????</h2>
+                <p>?????????: {{ $course?->course_name ?? '-' }}</p>
+                <p>??????????: {{ $teacherName }}</p>
             </div>
 
             <div class="ss-print-meta">
                 <div>
-                    <div>លេខកូដកាលវិភាគ: {{ str_pad((string) $schedule->getKey(), 3, '0', STR_PAD_LEFT) }}</div>
-                    <div>លេខកូដថ្នាក់: {{ $classRoom?->class_code ?? '-' }}</div>
-                    <div>ពេលសិក្សា: {{ $dayLabel }} ({{ $timeLabel }})</div>
+                    <div>??????????????: {{ str_pad((string) $schedule->getKey(), 3, '0', STR_PAD_LEFT) }}</div>
+                    <div>????????????: {{ $classRoom?->class_code ?? '-' }}</div>
+                    <div>?????????: {{ $dayLabel }} ({{ $timeLabel }})</div>
                 </div>
                 <div class="ss-print-meta-right">
-                    <div>ឆ្នាំសិក្សា: {{ $classRoom?->academicYear?->year_name ?? $course?->academicYear?->year_name ?? '-' }}</div>
-                    <div>កាលបរិច្ឆេទ: {{ \Carbon\Carbon::now()->format('d/m/Y') }}</div>
-                    <div>ចំនួន: {{ $totalStudents }} នាក់</div>
+                    <div>???????????: {{ $classRoom?->academicYear?->year_name ?? $course?->academicYear?->year_name ?? '-' }}</div>
+                    <div>???????????: {{ \Carbon\Carbon::now()->format('d/m/Y') }}</div>
+                    <div>?????: {{ $totalStudents }} ????</div>
                 </div>
             </div>
 
             <table class="ss-print-table">
                 <thead>
                     <tr>
-                        <th style="width: 5%;">លេខរៀង</th>
-                        <th style="width: 10%;">អត្តលេខ</th>
-                        <th style="width: 18%;">គោតនាម-នាម</th>
-                        <th style="width: 5%;">ភេទ</th>
-                        <th style="width: 24%;">អត្តសញ្ញាណប័ណ្ណ ឬសំបុត្រកំណើត</th>
-                        <th style="width: 12%;">តួនាទី / មុខរបរ</th>
-                        <th style="width: 14%;">លេខទូរស័ព្ទ</th>
-                        <th style="width: 12%;">ផ្សេងៗ</th>
+                        <th style="width: 5%;">??????</th>
+                        <th style="width: 10%;">???????</th>
+                        <th style="width: 18%;">??????-???</th>
+                        <th style="width: 5%;">???</th>
+                        <th style="width: 24%;">??????????????? ?????????????</th>
+                        <th style="width: 12%;">?????? / ??????</th>
+                        <th style="width: 14%;">???????????</th>
+                        <th style="width: 12%;">??????</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -1052,13 +1070,13 @@
                             <td>{{ $studentName }}</td>
                             <td class="ss-print-center">{{ $student->gender ?? '-' }}</td>
                             <td></td>
-                            <td class="ss-print-center">មន្ត្រី</td>
+                            <td class="ss-print-center">???????</td>
                             <td class="ss-print-center">{{ $student->phone ?? '000 000 000' }}</td>
                             <td></td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="ss-print-center ss-print-note">មិនទាន់មាននិស្សិតក្នុងកាលវិភាគនេះទេ។</td>
+                            <td colspan="7" class="ss-print-center ss-print-note">????????????????????????????????????</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -1071,44 +1089,44 @@
         <div class="ss-print-page" id="print-score-page" aria-hidden="true">
             <div class="ss-print-header">
                 <div>
-                    <h3>ក្រសួងអប់រំ យុវជន និងកីឡា</h3>
-                    <p>អគ្គនាយកដ្ឋានបច្ចេកវិទ្យា និងអប់រំ</p>
-                    <p>សាកលវិទ្យាល័យ / វិទ្យាស្ថាន</p>
-                    <p class="ss-print-line">លេខ: .................</p>
+                    <h3>??????????? ????? ???????</h3>
+                    <p>????????????????????????? ????????</p>
+                    <p>????????????? / ???????????</p>
+                    <p class="ss-print-line">???: .................</p>
                 </div>
                 <div>
-                    <h3>ព្រះរាជាណាចក្រកម្ពុជា</h3>
-                    <p>ជាតិ សាសនា ព្រះមហាក្សត្រ</p>
+                    <h3>?????????????????????</h3>
+                    <p>???? ????? ?????????????</p>
                     <p>********</p>
                 </div>
             </div>
             <div class="ss-print-title">
-                <h2>បញ្ជីពិន្ទុសិក្សា</h2>
-                <p>មុខវិជ្ជា: {{ $course?->course_name ?? '-' }}</p>
-                <p>គ្រូបង្រៀន: {{ $teacherName }}</p>
+                <h2>?????????????????</h2>
+                <p>?????????: {{ $course?->course_name ?? '-' }}</p>
+                <p>??????????: {{ $teacherName }}</p>
             </div>
             <div class="ss-print-meta">
                 <div>
-                    <div>លេខកូដកាលវិភាគ: {{ str_pad((string) $schedule->getKey(), 3, '0', STR_PAD_LEFT) }}</div>
-                    <div>លេខកូដថ្នាក់: {{ $classRoom?->class_code ?? '-' }}</div>
-                    <div>ពេលសិក្សា: {{ $dayLabel }} ({{ $timeLabel }})</div>
+                    <div>??????????????: {{ str_pad((string) $schedule->getKey(), 3, '0', STR_PAD_LEFT) }}</div>
+                    <div>????????????: {{ $classRoom?->class_code ?? '-' }}</div>
+                    <div>?????????: {{ $dayLabel }} ({{ $timeLabel }})</div>
                 </div>
                 <div class="ss-print-meta-right">
-                    <div>ឆ្នាំសិក្សា: {{ $classRoom?->academicYear?->year_name ?? $course?->academicYear?->year_name ?? '-' }}</div>
-                    <div>កាលបរិច្ឆេទ: {{ \Carbon\Carbon::now()->format('d/m/Y') }}</div>
-                    <div>ចំនួន: {{ $totalStudents }} នាក់</div>
+                    <div>???????????: {{ $classRoom?->academicYear?->year_name ?? $course?->academicYear?->year_name ?? '-' }}</div>
+                    <div>???????????: {{ \Carbon\Carbon::now()->format('d/m/Y') }}</div>
+                    <div>?????: {{ $totalStudents }} ????</div>
                 </div>
             </div>
             <table class="ss-print-table">
                 <thead>
                     <tr>
-                        <th style="width: 6%;">លេខរៀង</th>
-                        <th style="width: 12%;">អត្តលេខ</th>
-                        <th style="width: 25%;">គោតនាម-នាម</th>
-                        <th style="width: 6%;">ភេទ</th>
-                        <th style="width: 15%;">ពិន្ទុ</th>
-                        <th style="width: 15%;">និទ្ទេស</th>
-                        <th style="width: 21%;">សម្គាល់</th>
+                        <th style="width: 6%;">??????</th>
+                        <th style="width: 12%;">???????</th>
+                        <th style="width: 25%;">??????-???</th>
+                        <th style="width: 6%;">???</th>
+                        <th style="width: 15%;">??????</th>
+                        <th style="width: 15%;">???????</th>
+                        <th style="width: 21%;">???????</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -1124,7 +1142,7 @@
                             <td></td>
                         </tr>
                     @empty
-                        <tr><td colspan="7" class="ss-print-center ss-print-note">មិនទាន់មាននិស្សិតក្នុងកាលវិភាគនេះទេ។</td></tr>
+                        <tr><td colspan="7" class="ss-print-center ss-print-note">????????????????????????????????????</td></tr>
                     @endforelse
                 </tbody>
             </table>
@@ -1135,46 +1153,46 @@
         <div class="ss-print-page" id="print-task-page" aria-hidden="true">
             <div class="ss-print-header">
                 <div>
-                    <h3>ក្រសួងអប់រំ យុវជន និងកីឡា</h3>
-                    <p>អគ្គនាយកដ្ឋានបច្ចេកវិទ្យា និងអប់រំ</p>
-                    <p>សាកលវិទ្យាល័យ / វិទ្យាស្ថាន</p>
-                    <p class="ss-print-line">លេខ: .................</p>
+                    <h3>??????????? ????? ???????</h3>
+                    <p>????????????????????????? ????????</p>
+                    <p>????????????? / ???????????</p>
+                    <p class="ss-print-line">???: .................</p>
                 </div>
                 <div>
-                    <h3>ព្រះរាជាណាចក្រកម្ពុជា</h3>
-                    <p>ជាតិ សាសនា ព្រះមហាក្សត្រ</p>
+                    <h3>?????????????????????</h3>
+                    <p>???? ????? ?????????????</p>
                     <p>********</p>
                 </div>
             </div>
             <div class="ss-print-title">
-                <h2>បញ្ជីកិច្ចការ</h2>
-                <p>មុខវិជ្ជា: {{ $course?->course_name ?? '-' }}</p>
-                <p>គ្រូបង្រៀន: {{ $teacherName }}</p>
+                <h2>?????????????</h2>
+                <p>?????????: {{ $course?->course_name ?? '-' }}</p>
+                <p>??????????: {{ $teacherName }}</p>
             </div>
             <div class="ss-print-meta">
                 <div>
-                    <div>លេខកូដកាលវិភាគ: {{ str_pad((string) $schedule->getKey(), 3, '0', STR_PAD_LEFT) }}</div>
-                    <div>លេខកូដថ្នាក់: {{ $classRoom?->class_code ?? '-' }}</div>
-                    <div>ពេលសិក្សា: {{ $dayLabel }} ({{ $timeLabel }})</div>
+                    <div>??????????????: {{ str_pad((string) $schedule->getKey(), 3, '0', STR_PAD_LEFT) }}</div>
+                    <div>????????????: {{ $classRoom?->class_code ?? '-' }}</div>
+                    <div>?????????: {{ $dayLabel }} ({{ $timeLabel }})</div>
                 </div>
                 <div class="ss-print-meta-right">
-                    <div>ឆ្នាំសិក្សា: {{ $classRoom?->academicYear?->year_name ?? $course?->academicYear?->year_name ?? '-' }}</div>
-                    <div>កាលបរិច្ឆេទ: {{ \Carbon\Carbon::now()->format('d/m/Y') }}</div>
-                    <div>ចំនួន: {{ $totalStudents }} នាក់</div>
+                    <div>???????????: {{ $classRoom?->academicYear?->year_name ?? $course?->academicYear?->year_name ?? '-' }}</div>
+                    <div>???????????: {{ \Carbon\Carbon::now()->format('d/m/Y') }}</div>
+                    <div>?????: {{ $totalStudents }} ????</div>
                 </div>
             </div>
             <table class="ss-print-table">
                 <thead>
                     <tr>
-                        <th style="width: 5%;">លេខរៀង</th>
-                        <th style="width: 10%;">អត្តលេខ</th>
-                        <th style="width: 18%;">គោតនាម-នាម</th>
-                        <th style="width: 5%;">ភេទ</th>
-                        <th style="width: 12%;">កិច្ចការទី១</th>
-                        <th style="width: 12%;">កិច្ចការទី២</th>
-                        <th style="width: 12%;">វត្តមាន</th>
-                        <th style="width: 12%;">សរុប</th>
-                        <th style="width: 14%;">សម្គាល់</th>
+                        <th style="width: 5%;">??????</th>
+                        <th style="width: 10%;">???????</th>
+                        <th style="width: 18%;">??????-???</th>
+                        <th style="width: 5%;">???</th>
+                        <th style="width: 12%;">???????????</th>
+                        <th style="width: 12%;">???????????</th>
+                        <th style="width: 12%;">???????</th>
+                        <th style="width: 12%;">????</th>
+                        <th style="width: 14%;">???????</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -1192,7 +1210,7 @@
                             <td></td>
                         </tr>
                     @empty
-                        <tr><td colspan="9" class="ss-print-center ss-print-note">មិនទាន់មាននិស្សិតក្នុងកាលវិភាគនេះទេ។</td></tr>
+                        <tr><td colspan="9" class="ss-print-center ss-print-note">????????????????????????????????????</td></tr>
                     @endforelse
                 </tbody>
             </table>
@@ -1203,44 +1221,44 @@
         <div class="ss-print-page" id="print-other-page" aria-hidden="true">
             <div class="ss-print-header">
                 <div>
-                    <h3>ក្រសួងអប់រំ យុវជន និងកីឡា</h3>
-                    <p>អគ្គនាយកដ្ឋានបច្ចេកវិទ្យា និងអប់រំ</p>
-                    <p>សាកលវិទ្យាល័យ / វិទ្យាស្ថាន</p>
-                    <p class="ss-print-line">លេខ: .................</p>
+                    <h3>??????????? ????? ???????</h3>
+                    <p>????????????????????????? ????????</p>
+                    <p>????????????? / ???????????</p>
+                    <p class="ss-print-line">???: .................</p>
                 </div>
                 <div>
-                    <h3>ព្រះរាជាណាចក្រកម្ពុជា</h3>
-                    <p>ជាតិ សាសនា ព្រះមហាក្សត្រ</p>
+                    <h3>?????????????????????</h3>
+                    <p>???? ????? ?????????????</p>
                     <p>********</p>
                 </div>
             </div>
             <div class="ss-print-title">
-                <h2>បញ្ជីផ្សេងៗ</h2>
-                <p>មុខវិជ្ជា: {{ $course?->course_name ?? '-' }}</p>
-                <p>គ្រូបង្រៀន: {{ $teacherName }}</p>
+                <h2>???????????</h2>
+                <p>?????????: {{ $course?->course_name ?? '-' }}</p>
+                <p>??????????: {{ $teacherName }}</p>
             </div>
             <div class="ss-print-meta">
                 <div>
-                    <div>លេខកូដកាលវិភាគ: {{ str_pad((string) $schedule->getKey(), 3, '0', STR_PAD_LEFT) }}</div>
-                    <div>លេខកូដថ្នាក់: {{ $classRoom?->class_code ?? '-' }}</div>
-                    <div>ពេលសិក្សា: {{ $dayLabel }} ({{ $timeLabel }})</div>
+                    <div>??????????????: {{ str_pad((string) $schedule->getKey(), 3, '0', STR_PAD_LEFT) }}</div>
+                    <div>????????????: {{ $classRoom?->class_code ?? '-' }}</div>
+                    <div>?????????: {{ $dayLabel }} ({{ $timeLabel }})</div>
                 </div>
                 <div class="ss-print-meta-right">
-                    <div>ឆ្នាំសិក្សា: {{ $classRoom?->academicYear?->year_name ?? $course?->academicYear?->year_name ?? '-' }}</div>
-                    <div>កាលបរិច្ឆេទ: {{ \Carbon\Carbon::now()->format('d/m/Y') }}</div>
-                    <div>ចំនួន: {{ $totalStudents }} នាក់</div>
+                    <div>???????????: {{ $classRoom?->academicYear?->year_name ?? $course?->academicYear?->year_name ?? '-' }}</div>
+                    <div>???????????: {{ \Carbon\Carbon::now()->format('d/m/Y') }}</div>
+                    <div>?????: {{ $totalStudents }} ????</div>
                 </div>
             </div>
             <table class="ss-print-table">
                 <thead>
                     <tr>
-                        <th style="width: 5%;">លេខរៀង</th>
-                        <th style="width: 12%;">អត្តលេខ</th>
-                        <th style="width: 20%;">គោតនាម-នាម</th>
-                        <th style="width: 5%;">ភេទ</th>
-                        <th style="width: 18%;">ផ្សេងៗ ១</th>
-                        <th style="width: 18%;">ផ្សេងៗ ២</th>
-                        <th style="width: 22%;">សម្គាល់</th>
+                        <th style="width: 5%;">??????</th>
+                        <th style="width: 12%;">???????</th>
+                        <th style="width: 20%;">??????-???</th>
+                        <th style="width: 5%;">???</th>
+                        <th style="width: 18%;">?????? ?</th>
+                        <th style="width: 18%;">?????? ?</th>
+                        <th style="width: 22%;">???????</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -1256,7 +1274,7 @@
                             <td></td>
                         </tr>
                     @empty
-                        <tr><td colspan="7" class="ss-print-center ss-print-note">មិនទាន់មាននិស្សិតក្នុងកាលវិភាគនេះទេ។</td></tr>
+                        <tr><td colspan="7" class="ss-print-center ss-print-note">????????????????????????????????????</td></tr>
                     @endforelse
                 </tbody>
             </table>
@@ -1264,43 +1282,43 @@
         </div>
 
         <div class="ss-card">
-            <div class="ss-ribbon">ថ្មី</div>
+            <div class="ss-ribbon">????</div>
 
             <div class="ss-heading">
-                <h2>{{ $classRoom?->class_name ?? 'បញ្ជីនិស្សិត' }}</h2>
-                <p>មុខវិជ្ជា: {{ $course?->course_name ?? '-' }}</p>
-                <p>គ្រូបង្រៀន: {{ $teacherName }}</p>
+                <h2>{{ $classRoom?->class_name ?? '????????????' }}</h2>
+                <p>?????????: {{ $course?->course_name ?? '-' }}</p>
+                <p>??????????: {{ $teacherName }}</p>
             </div>
 
             <div class="ss-meta">
                 <div>
-                    <div>លេខកូដកាលវិភាគ: {{ str_pad((string) $schedule->getKey(), 3, '0', STR_PAD_LEFT) }}</div>
-                    <div>លេខកូដថ្នាក់: {{ $classRoom?->class_code ?? '-' }}</div>
-                    <div>ពេលសិក្សា: {{ $dayLabel }} ({{ $timeLabel }})</div>
+                    <div>??????????????: {{ str_pad((string) $schedule->getKey(), 3, '0', STR_PAD_LEFT) }}</div>
+                    <div>????????????: {{ $classRoom?->class_code ?? '-' }}</div>
+                    <div>?????????: {{ $dayLabel }} ({{ $timeLabel }})</div>
                 </div>
                 <div class="ss-meta-right">
-                    <div>ឆ្នាំសិក្សា: {{ $classRoom?->academicYear?->year_name ?? $course?->academicYear?->year_name ?? '-' }}</div>
-                    <div>ឆមាស: {{ $course?->semester?->semester_name ?? '-' }}</div>
-                    <div>ចំនួន: {{ $totalStudents }} នាក់</div>
+                    <div>???????????: {{ $classRoom?->academicYear?->year_name ?? $course?->academicYear?->year_name ?? '-' }}</div>
+                    <div>????: {{ $course?->semester?->semester_name ?? '-' }}</div>
+                    <div>?????: {{ $totalStudents }} ????</div>
                 </div>
             </div>
 
             @if($students->isEmpty())
-                <div class="ss-empty">មិនទាន់មាននិស្សិតក្នុងកាលវិភាគនេះទេ។</div>
+                <div class="ss-empty">????????????????????????????????????</div>
             @else
                 <table class="ss-table">
                     <thead>
                         <tr>
-                            <th class="ss-center" style="width: 70px;">ល.រ</th>
-                            <th style="width: 230px;">ឈ្មោះនិស្សិត-លេខកូដ</th>
-                            <th>ព័ត៌មានវគ្គសិក្សា</th>
-                            <th style="width: 160px;">ស្ថានភាពសិក្សា</th>
-                            <th class="ss-center" style="width: 90px;">ពិន្ទុ</th>
-                            <th class="ss-center" style="width: 130px;">ភេទ</th>
-                            <th class="ss-center" style="width: 240px;">វត្តមាន</th>
-                            <th style="width: 150px;">សម្គាល់</th>
-                            <th class="ss-center" style="width: 80px;">សកម្មភាព</th>
-                            <th class="ss-center" style="width: 70px;">ជម្រើស</th>
+                            <th class="ss-center" style="width: 70px;">?.?</th>
+                            <th style="width: 230px;">????????????-??????</th>
+                            <th>?????????????????</th>
+                            <th style="width: 160px;">??????????????</th>
+                            <th class="ss-center" style="width: 90px;">??????</th>
+                            <th class="ss-center" style="width: 130px;">???</th>
+                            <th class="ss-center" style="width: 240px;">???????</th>
+                            <th style="width: 150px;">???????</th>
+                            <th class="ss-center" style="width: 80px;">????????</th>
+                            <th class="ss-center" style="width: 70px;">??????</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -1351,7 +1369,7 @@
                                                 $isAbsent = $attendance?->status === 'absent';
                                             @endphp
                                             <label class="ss-month-day {{ $isPresent ? 'is-present' : ($isAbsent ? 'is-absent' : '') }}"
-                                                   title="{{ $date->format('Y-m-d') }} - {{ $isPresent ? 'មក' : 'អត់មក' }}">
+                                                   title="{{ $date->format('Y-m-d') }} - {{ $isPresent ? '??' : '?????' }}">
                                                 <span class="ss-month-date">{{ $date->format('d') }}</span>
                                                 <input class="ss-month-check"
                                                        type="checkbox"
@@ -1370,7 +1388,7 @@
                                 <td>
                                     <input class="ss-input"
                                            type="text"
-                                           value="{{ $enrollment?->note ?? 'សិក្សា' }}"
+                                           value="{{ $enrollment?->note ?? '??????' }}"
                                            readonly
                                            tabindex="0"
                                            x-on:focus="$el.classList.add('ss-input-active')"
@@ -1384,7 +1402,7 @@
                                                 type="button"
                                                 value="{{ $student->student_id }}"
                                                 x-on:click="deleteStudentId = {{ $student->student_id }}; showDeleteStudentModal = true"
-                                                title="លុប">
+                                                title="???">
                                             <i class="fas fa-trash-alt"></i>
                                         </button>
                                     @else
@@ -1392,14 +1410,14 @@
                                                 id="BtDelete"
                                                 type="button"
                                                 value="{{ $student->student_id }}"
-                                                title="លុប"
+                                                title="???"
                                                 disabled>
                                             <i class="fas fa-trash-alt"></i>
                                         </button>
                                     @endif
                                 </td>
                                 <td class="ss-center">
-                                    <span class="ss-more" title="ជម្រើស">⋮</span>
+                                    <span class="ss-more" title="??????">?</span>
                                 </td>
                             </tr>
                         @endforeach

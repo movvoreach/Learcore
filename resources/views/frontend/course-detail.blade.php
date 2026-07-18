@@ -46,6 +46,118 @@
     $instructorAvatar = optional(optional($instructor)->user)->avatar
         ?: optional($instructor)->avatar
         ?: asset('backend/dist/img/avatar.png');
+    $assetUrl = fn (?string $path): ?string => $path
+        ? (str_starts_with($path, 'http') ? $path : asset('storage/'.$path))
+        : null;
+    $mediaEmbedUrl = function (?string $url): ?string {
+        if (! $url) {
+            return null;
+        }
+
+        if (preg_match('~(?:youtube\.com/watch\?v=|youtu\.be/)([^&?/]+)~', $url, $matches)) {
+            return 'https://www.youtube.com/embed/'.$matches[1];
+        }
+
+        return $url;
+    };
+    $lessonHasVideo = function ($contentLesson): bool {
+        if (! $contentLesson) {
+            return false;
+        }
+
+        return filled($contentLesson->video_url)
+            || (($contentLesson->content_type ?? null) === 'video' && filled($contentLesson->file_path))
+            || ($contentLesson->videos ?? collect())->contains(fn ($video): bool => filled($video->video_url) || filled($video->video_path));
+    };
+    $lessonContentHtml = function ($contentLesson) use ($assetUrl): string {
+        if (! $contentLesson) {
+            return '<div class="course-workspace-empty-state"><i class="fas fa-book-open"></i><span>No lesson content is available yet.</span></div>';
+        }
+
+        $html = '<div class="course-workspace-document">';
+        $html .= '<span>Lesson Content</span>';
+        $html .= '<h4>'.e($contentLesson->title ?: 'Lesson').'</h4>';
+
+        if (filled($contentLesson->summary)) {
+            $html .= '<p>'.e($contentLesson->summary).'</p>';
+        }
+
+        if (filled($contentLesson->body)) {
+            $html .= '<div class="course-workspace-rich">'.$contentLesson->body.'</div>';
+        }
+
+        if (($contentLesson->chapters ?? collect())->isNotEmpty()) {
+            $html .= '<div class="course-workspace-resource-list">';
+            foreach ($contentLesson->chapters as $chapter) {
+                $html .= '<article><strong><i class="fas fa-book-open"></i> '.e($chapter->title).'</strong>';
+                if (filled($chapter->summary)) {
+                    $html .= '<p>'.e($chapter->summary).'</p>';
+                }
+                if (filled($chapter->content)) {
+                    $html .= '<div class="course-workspace-rich">'.$chapter->content.'</div>';
+                }
+                $html .= '</article>';
+            }
+            $html .= '</div>';
+        }
+
+        if (($contentLesson->documents ?? collect())->isNotEmpty() || (($contentLesson->content_type ?? null) === 'file' && filled($contentLesson->file_path))) {
+            $html .= '<div class="course-workspace-resource-list">';
+            if (($contentLesson->content_type ?? null) === 'file' && filled($contentLesson->file_path)) {
+                $html .= '<a class="course-workspace-resource-link" href="'.e($assetUrl($contentLesson->file_path)).'" target="_blank" rel="noopener"><i class="fas fa-file-alt"></i><span>'.e($contentLesson->title ?: 'Lesson file').'</span></a>';
+            }
+            foreach ($contentLesson->documents ?? collect() as $document) {
+                $html .= '<a class="course-workspace-resource-link" href="'.e($assetUrl($document->file_path)).'" target="_blank" rel="noopener"><i class="fas fa-file-pdf"></i><span>'.e($document->title).'</span></a>';
+            }
+            $html .= '</div>';
+        }
+
+        $html .= '</div>';
+
+        return $html;
+    };
+    $lessonMediaHtml = function ($contentLesson) use ($assetUrl, $mediaEmbedUrl): string {
+        if (! $contentLesson) {
+            return '<div class="course-workspace-video"><button type="button" class="course-workspace-play" aria-label="Play lesson"><i class="fas fa-play"></i></button><span>No video selected</span></div>';
+        }
+
+        $videoUrl = $contentLesson->video_url ?: ($contentLesson->videos->first()?->video_url);
+        $videoPath = (($contentLesson->content_type ?? null) === 'video' ? $contentLesson->file_path : null)
+            ?: $contentLesson->videos->first()?->video_path;
+        $videoSource = $assetUrl($videoPath);
+        $embedUrl = $mediaEmbedUrl($videoUrl);
+
+        if ($videoSource) {
+            return '<video class="course-workspace-video-player" controls preload="metadata" src="'.e($videoSource).'"></video>';
+        }
+
+        if ($embedUrl && preg_match('~youtube\.com/embed/~', $embedUrl)) {
+            return '<iframe class="course-workspace-video-player" src="'.e($embedUrl).'" title="'.e($contentLesson->title ?: 'Lesson video').'" allowfullscreen loading="lazy"></iframe>';
+        }
+
+        if ($embedUrl) {
+            return '<video class="course-workspace-video-player" controls preload="metadata" src="'.e($embedUrl).'"></video>';
+        }
+
+        return '<div class="course-workspace-video"><button type="button" class="course-workspace-play" aria-label="Play lesson"><i class="fas fa-play"></i></button><span>'.e($contentLesson->title ?: 'Lesson preview').'</span></div>';
+    };
+    $lessonPayload = $lessons->mapWithKeys(function ($contentLesson) use ($lessonDisplayTitle, $courseTitle, $course, $lessonContentHtml, $lessonMediaHtml, $lessonHasVideo) {
+        return [
+            $contentLesson->slug => [
+                'slug' => $contentLesson->slug,
+                'title' => $lessonDisplayTitle($contentLesson, $courseTitle),
+                'summary' => $contentLesson->summary ?: 'No summary has been added for this lesson yet.',
+                'hasVideo' => $lessonHasVideo($contentLesson),
+                'mediaHtml' => $lessonMediaHtml($contentLesson),
+                'contentHtml' => $lessonContentHtml($contentLesson),
+                'startUrl' => route('frontend.courses.lessons.show', ['course' => $course, 'lesson' => $contentLesson->slug]),
+                'quizzesCount' => $contentLesson->quizzes->count(),
+                'assignmentsCount' => $contentLesson->assignments->count(),
+            ],
+        ];
+    })->toArray();
+    $firstLessonPayload = $firstLesson ? ($lessonPayload[$firstLesson->slug] ?? null) : null;
+    $firstLessonHasVideo = (bool) ($firstLessonPayload['hasVideo'] ?? false);
 @endphp
 
 @extends('frontend.layouts.master')
@@ -59,6 +171,7 @@
             'courseRecord' => $courseRecord,
             'lessons' => $lessons,
             'lesson' => $firstLesson?->slug,
+            'learningFlow' => $learningFlow,
             'compactSidebar' => true,
         ])
 
@@ -120,28 +233,37 @@
                 <h2>{{ $activeLessonTitle }}</h2>
             </header>
 
+            @if(session('assessment_error'))
+                <div class="course-workspace-alert course-workspace-alert--danger">
+                    {{ session('assessment_error') }}
+                </div>
+            @endif
+
             <div class="course-workspace-tabs" role="tablist" aria-label="Lesson content">
-                <button type="button" class="is-active">មេរៀន</button>
-                <button type="button">មេរៀនសកម្មភាពដែលដំណើរ</button>
+                <button type="button" class="{{ $firstLessonHasVideo ? 'is-active' : '' }}" data-course-detail-panel="media" @if(! $firstLessonHasVideo) hidden @endif>វីដេអូ</button>
+                <button type="button" class="{{ $firstLessonHasVideo ? '' : 'is-active' }}" data-course-detail-panel="content">មាតិកាមេរៀន</button>
             </div>
 
             <article class="course-workspace-card">
-                <h3>{{ $firstLesson ? $activeLessonTitle : 'No lessons available' }}</h3>
+                <h3 data-course-detail-title>{{ $firstLesson ? $activeLessonTitle : 'No lessons available' }}</h3>
 
-                <div class="course-workspace-frame">
-                    <div class="course-workspace-video">
-                        <button type="button" class="course-workspace-play" aria-label="Play lesson">
-                            <i class="fas fa-play"></i>
-                        </button>
-                        <span>Lesson preview</span>
+                <div class="course-detail-panel {{ $firstLessonHasVideo ? 'is-active' : '' }}" data-course-detail-panel-content="media" @if(! $firstLessonHasVideo) hidden @endif>
+                    <div class="course-workspace-frame" data-course-detail-media>
+                        {!! $firstLessonPayload['mediaHtml'] ?? '<div class="course-workspace-video"><button type="button" class="course-workspace-play" aria-label="Play lesson"><i class="fas fa-play"></i></button><span>No video selected</span></div>' !!}
+                    </div>
+                </div>
+
+                <div class="course-detail-panel {{ $firstLessonHasVideo ? '' : 'is-active' }}" data-course-detail-panel-content="content">
+                    <div data-course-detail-content>
+                        {!! $firstLessonPayload['contentHtml'] ?? '<div class="course-workspace-empty-state"><i class="fas fa-book-open"></i><span>No lesson content is available yet.</span></div>' !!}
                     </div>
                 </div>
 
                 <div class="course-workspace-copy">
-                    <p>{{ $activeLessonSummary }}</p>
+                    <p data-course-detail-summary>{{ $activeLessonSummary }}</p>
 
                     @if($firstLesson)
-                        <a href="{{ route('frontend.courses.lessons.show', ['course' => $course, 'lesson' => $firstLesson->slug]) }}" class="course-workspace-start">
+                        <a href="{{ route('frontend.courses.lessons.show', ['course' => $course, 'lesson' => $firstLesson->slug]) }}" class="course-workspace-start" data-course-detail-start>
                             Start lesson
                             <i class="fas fa-arrow-right"></i>
                         </a>
@@ -151,11 +273,11 @@
                 <div class="course-workspace-assessment-summary">
                     <span>
                         <i class="fas fa-question-circle"></i>
-                        {{ $quizzesCount }} តេស្តខ្លី
+                        <strong data-course-detail-quizzes>{{ $firstLessonPayload['quizzesCount'] ?? $quizzesCount }}</strong> តេស្តខ្លី
                     </span>
                     <span>
                         <i class="fas fa-clipboard-check"></i>
-                        {{ $assignmentsCount }} កិច្ចការ
+                        <strong data-course-detail-assignments>{{ $firstLessonPayload['assignmentsCount'] ?? $assignmentsCount }}</strong> កិច្ចការ
                     </span>
                 </div>
             </article>
@@ -330,6 +452,15 @@
             text-align: left;
         }
 
+        .course-workspace-module small,
+        .course-detail-menu h2 small {
+            display: block;
+            margin-top: 4px;
+            color: #64748b;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
         .course-workspace-module i {
             flex: 0 0 auto;
             transition: transform .2s ease;
@@ -374,6 +505,60 @@
             background: #edf5ff;
             color: #0f63b7;
             text-decoration: none;
+        }
+
+        .course-workspace-lessons a i {
+            flex: 0 0 auto;
+            color: inherit;
+            font-size: 14px;
+        }
+
+        .course-workspace-lesson-text {
+            min-width: 0;
+            display: grid;
+            gap: 2px;
+            line-height: 1.35;
+        }
+
+        .course-workspace-lesson-text small {
+            color: inherit;
+            font-size: 12px;
+            font-weight: 800;
+            opacity: .84;
+        }
+
+        .course-workspace-lesson-text strong {
+            min-width: 0;
+            color: inherit;
+            font-size: 14px;
+            font-weight: 900;
+            overflow-wrap: anywhere;
+        }
+
+        .course-workspace-lessons a.is-active .course-workspace-lesson-text small {
+            opacity: .92;
+        }
+
+        .course-workspace-lessons a.is-completed {
+            color: #15803d;
+        }
+
+        .course-workspace-lessons a.is-locked,
+        .course-lesson-node a.is-locked {
+            cursor: not-allowed;
+            opacity: .62;
+        }
+
+        .course-workspace-alert {
+            margin-bottom: 20px;
+            padding: 13px 16px;
+            border-radius: 10px;
+            font-weight: 800;
+        }
+
+        .course-workspace-alert--danger {
+            background: #fee2e2;
+            color: #991b1b;
         }
 
         .course-workspace-lessons a.is-active {
@@ -513,6 +698,14 @@
             font-weight: 900;
         }
 
+        .course-detail-panel {
+            display: none;
+        }
+
+        .course-detail-panel.is-active {
+            display: block;
+        }
+
         .course-workspace-frame {
             height: min(58vh, 520px);
             min-height: 360px;
@@ -530,6 +723,109 @@
                 linear-gradient(135deg, rgba(255, 255, 255, .04) 25%, transparent 25%) 0 0 / 160px 160px,
                 linear-gradient(225deg, rgba(255, 255, 255, .035) 25%, transparent 25%) 0 0 / 160px 160px,
                 linear-gradient(180deg, #1499bd, #05667d);
+        }
+
+        .course-workspace-video-player {
+            width: 100%;
+            height: 100%;
+            min-height: 360px;
+            display: block;
+            border: 0;
+            background: #061826;
+            object-fit: contain;
+        }
+
+        .course-workspace-document {
+            display: grid;
+            gap: 14px;
+            padding: 8px 0;
+            color: #52627a;
+            font-size: 16px;
+            line-height: 1.75;
+        }
+
+        .course-workspace-document > span {
+            color: #087281;
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .course-workspace-document h4 {
+            margin: 0;
+            color: #172033;
+            font-size: 24px;
+            font-weight: 700;
+            line-height: 1.35;
+        }
+
+        .course-workspace-rich :where(p, ul, ol) {
+            margin-bottom: 12px;
+        }
+
+        .course-workspace-rich :where(img, video, iframe) {
+            display: block;
+            max-width: 100%;
+            margin: 18px auto;
+            border-radius: 12px;
+        }
+
+        .course-workspace-rich iframe[data-lms-video] {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            height: auto;
+            border: 0;
+        }
+
+        .course-workspace-rich pre {
+            overflow: auto;
+            border-radius: 12px;
+            background: #111827;
+            color: #e5e7eb;
+            padding: 16px;
+        }
+
+        .course-workspace-resource-list {
+            display: grid;
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        .course-workspace-resource-list article,
+        .course-workspace-resource-link,
+        .course-workspace-empty-state {
+            border: 1px solid #dce7f2;
+            border-radius: 12px;
+            background: #f8fbff;
+            padding: 14px 16px;
+        }
+
+        .course-workspace-resource-list article strong,
+        .course-workspace-resource-link {
+            color: #172033;
+            font-weight: 700;
+        }
+
+        .course-workspace-resource-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .course-workspace-resource-link:hover {
+            border-color: #087281;
+            color: #087281;
+            text-decoration: none;
+        }
+
+        .course-workspace-empty-state {
+            min-height: 220px;
+            display: grid;
+            place-items: center;
+            gap: 10px;
+            color: #64748b;
+            text-align: center;
         }
 
         .course-workspace-play {
@@ -1162,6 +1458,88 @@
 @push('scripts')
     <script>
         $(function() {
+            const courseLessons = @json($lessonPayload);
+            let activeLessonSlug = @json($firstLesson?->slug);
+
+            const lessonSlugFromUrl = function(url) {
+                const pathname = new URL(url, window.location.href).pathname.replace(/\/$/, '');
+
+                return pathname.split('/').pop();
+            };
+
+            const openCourseDetailPanel = function(panel) {
+                const selectedPanel = panel || 'content';
+
+                $('[data-course-detail-panel]').removeClass('is-active');
+                $(`[data-course-detail-panel="${selectedPanel}"]`).addClass('is-active');
+                $('[data-course-detail-panel-content]').removeClass('is-active');
+                $(`[data-course-detail-panel-content="${selectedPanel}"]`).addClass('is-active');
+            };
+
+            const updateCourseUrl = function(slug, panel) {
+                const url = new URL(window.location.href);
+
+                if (slug) {
+                    url.searchParams.set('lesson', slug);
+                }
+
+                if (panel && panel !== 'media') {
+                    url.searchParams.set('panel', panel);
+                } else {
+                    url.searchParams.delete('panel');
+                }
+
+                window.history.pushState({ lesson: slug, panel: panel || 'content' }, '', url.toString());
+            };
+
+            const setActiveSidebarLesson = function(slug, panel) {
+                $('.course-workspace-lesson-link').removeClass('is-active');
+                $('.course-workspace-lesson-link').filter(function() {
+                    return lessonSlugFromUrl(this.href) === slug;
+                }).addClass('is-active');
+
+                $('.js-workspace-topic-link').removeClass('is-active');
+                if (panel && panel !== 'media') {
+                    $('.js-workspace-topic-link').filter(function() {
+                        return lessonSlugFromUrl(this.href) === slug;
+                    }).addClass('is-active');
+                }
+            };
+
+            const showCourseLesson = function(slug, panel = null, pushState = true) {
+                const lessonData = courseLessons[slug];
+
+                if (! lessonData) {
+                    return false;
+                }
+
+                const selectedPanel = lessonData.hasVideo
+                    ? (panel || 'media')
+                    : 'content';
+
+                activeLessonSlug = slug;
+                $('[data-course-detail-title]').text(lessonData.title);
+                $('.course-workspace-header h2').text(lessonData.title);
+                $('[data-course-detail-summary]').text(lessonData.summary || '');
+                $('[data-course-detail-media]').html(lessonData.mediaHtml || '');
+                $('[data-course-detail-content]').html(lessonData.contentHtml || '');
+                $('[data-course-detail-start]').attr('href', lessonData.startUrl);
+                $('[data-course-detail-quizzes]').text(lessonData.quizzesCount || 0);
+                $('[data-course-detail-assignments]').text(lessonData.assignmentsCount || 0);
+
+                $('[data-course-detail-panel="media"]').prop('hidden', ! lessonData.hasVideo);
+                $('[data-course-detail-panel-content="media"]').prop('hidden', ! lessonData.hasVideo);
+
+                openCourseDetailPanel(selectedPanel);
+                setActiveSidebarLesson(slug, selectedPanel);
+
+                if (pushState) {
+                    updateCourseUrl(slug, selectedPanel);
+                }
+
+                return true;
+            };
+
             $('.js-course-sidebar-close').on('click', function() {
                 $('.course-workspace').addClass('is-course-sidebar-hidden');
             });
@@ -1205,10 +1583,51 @@
                 }
             });
 
-            $('.course-workspace-tabs button').on('click', function() {
-                $('.course-workspace-tabs button').removeClass('is-active');
-                $(this).addClass('is-active');
+            $('[data-course-detail-panel]').on('click', function() {
+                const panel = $(this).data('course-detail-panel') || 'content';
+
+                openCourseDetailPanel(panel);
+                setActiveSidebarLesson(activeLessonSlug, panel);
+                updateCourseUrl(activeLessonSlug, panel);
             });
+
+            $('.course-workspace-lesson-link').on('click', function(event) {
+                if ($(this).data('locked')) {
+                    event.preventDefault();
+                    return;
+                }
+
+                const slug = lessonSlugFromUrl(this.href);
+
+                if (showCourseLesson(slug, null, true)) {
+                    event.preventDefault();
+                }
+            });
+
+            $('.js-workspace-topic-link').on('click', function(event) {
+                const slug = lessonSlugFromUrl(this.href);
+                const panel = $(this).data('panel') === 'video' ? 'media' : 'content';
+
+                if (showCourseLesson(slug, panel, true)) {
+                    event.preventDefault();
+                }
+            });
+
+            window.addEventListener('popstate', function() {
+                const params = new URLSearchParams(window.location.search);
+                const slug = params.get('lesson') || activeLessonSlug;
+                const panel = params.get('panel') || null;
+
+                showCourseLesson(slug, panel, false);
+            });
+
+            const initialParams = new URLSearchParams(window.location.search);
+            const initialSlug = initialParams.get('lesson');
+            const initialPanel = initialParams.get('panel') || null;
+
+            if (initialSlug) {
+                showCourseLesson(initialSlug, initialPanel, false);
+            }
         });
     </script>
 @endpush

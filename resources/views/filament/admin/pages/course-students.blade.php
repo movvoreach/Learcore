@@ -1,231 +1,407 @@
 <x-filament-panels::page>
+    @once
+        <link rel="stylesheet" href="{{ asset('fonts/battambang.css') }}">
+        <link rel="stylesheet" href="{{ asset('backend/plugins/fontawesome-free/css/all.min.css') }}">
+    @endonce
+
+    @php
+        $averageProgress = $enrollments->count() > 0
+            ? round($enrollments->avg(function ($enrollment) use ($studentSummaries) {
+                $summary = $studentSummaries->get((int) $enrollment->student_id, []);
+                return (float) str_replace('%', '', (string) ($summary['progress'] ?? 0));
+            }))
+            : 0;
+
+        $completedStudents = $enrollments->filter(function ($enrollment) use ($studentSummaries) {
+            $summary = $studentSummaries->get((int) $enrollment->student_id, []);
+            return (float) str_replace('%', '', (string) ($summary['progress'] ?? 0)) >= 100;
+        })->count();
+
+        $averageScore = $enrollments->count() > 0
+            ? round($enrollments->avg(fn ($enrollment) => (float) ($studentSummaries->get((int) $enrollment->student_id, [])['total_score'] ?? 0)))
+            : 0;
+    @endphp
+
     <style>
         .course-roster-page {
-            color: #24304a;
-            font-family: "Battambang", "Kantumruy Pro", "Noto Sans Khmer", "Khmer OS Siemreap", ui-sans-serif, system-ui, sans-serif;
+            color: #0f172a;
+            font-family: "Battambang", "Noto Sans Khmer", "Khmer OS Siemreap", ui-sans-serif, system-ui, sans-serif;
             font-size: 14px;
             line-height: 1.65;
         }
 
-        .course-roster-title {
-            margin: 0 0 6px;
-            color: #273149;
-            font-size: 27px;
-            font-weight: 800;
-            letter-spacing: 0;
+        .cr-hero {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            gap: 18px;
+            align-items: end;
+            margin-bottom: 20px;
+            padding: 22px;
+            border: 1px solid #dbe3ef;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #ffffff 0%, #eef8ff 100%);
+            box-shadow: 0 16px 40px rgba(15, 23, 42, .07);
         }
 
-        .course-roster-breadcrumb {
-            margin-bottom: 24px;
-            color: #929ab0;
+        .cr-breadcrumb {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 8px;
+            color: #64748b;
             font-size: 12px;
+            font-weight: 700;
         }
 
-        .course-roster-card {
-            border: 1px solid #dce2f0;
-            border-radius: 6px;
-            background: #fff;
-            box-shadow: 0 10px 28px rgba(31, 41, 55, .055);
-        }
-
-        .course-roster-summary {
-            margin-bottom: 26px;
-        }
-
-        .course-roster-summary-main {
-            padding: 30px 28px 28px;
-            text-align: center;
-        }
-
-        .course-roster-summary-main h2 {
+        .cr-title {
             margin: 0;
-            color: #1f2a44;
+            color: #0f172a;
             font-size: 30px;
-            font-weight: 800;
+            font-weight: 900;
             letter-spacing: 0;
+            line-height: 1.35;
         }
 
-        .course-roster-summary-main p {
+        .cr-subtitle {
             margin: 8px 0 0;
-            color: #2d3760;
-            font-size: 15px;
-            font-weight: 500;
-        }
-
-        .course-roster-summary-meta {
-            display: flex;
-            justify-content: space-between;
-            gap: 16px;
-            border-top: 1px solid #e0e5f1;
-            background: #fbfcff;
-            padding: 18px 22px;
-            color: #626b83;
+            color: #475569;
             font-size: 14px;
-            line-height: 1.75;
         }
 
-        .course-roster-summary-meta strong {
-            color: #47516a;
-            font-weight: 700;
-        }
-
-        .course-roster-panel-header {
+        .cr-hero-actions {
             display: flex;
-            align-items: center;
+            flex-wrap: wrap;
+            justify-content: flex-end;
             gap: 10px;
-            border-bottom: 1px solid #e0e5f1;
-            padding: 17px 18px;
-            color: #4d5872;
-            font-size: 15px;
-            font-weight: 700;
         }
 
-        .course-roster-add {
+        .cr-btn {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 30px;
-            height: 28px;
-            border-radius: 4px;
-            background: #5865f2;
-            color: #fff;
-            text-decoration: none;
-            font-size: 18px;
+            gap: 8px;
+            min-height: 40px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            background: #fff;
+            color: #0f172a;
+            padding: 0 14px;
+            font-size: 13px;
             font-weight: 800;
-            box-shadow: 0 6px 14px rgba(88, 101, 242, .24);
-            transition: background .15s ease, transform .15s ease;
+            text-decoration: none;
+            transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
         }
 
-        .course-roster-add:hover {
-            background: #4653db;
+        .cr-btn:hover {
+            color: #0f172a;
             transform: translateY(-1px);
+            box-shadow: 0 10px 22px rgba(15, 23, 42, .12);
         }
 
-        .course-roster-table-wrap {
+        .cr-btn-primary {
+            border-color: #5866f5;
+            background: #5866f5;
+            color: #fff;
+        }
+
+        .cr-btn-primary:hover {
+            background: #4351e6;
+            color: #fff;
+        }
+
+        .cr-stats {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+
+        .cr-stat {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            min-height: 104px;
+            border: 1px solid #dbe3ef;
+            border-radius: 8px;
+            background: #fff;
             padding: 18px;
+            box-shadow: 0 10px 28px rgba(15, 23, 42, .055);
+        }
+
+        .cr-stat span {
+            display: block;
+            color: #64748b;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .cr-stat strong {
+            display: block;
+            margin-top: 4px;
+            color: #0f172a;
+            font-size: 28px;
+            font-weight: 900;
+            line-height: 1;
+        }
+
+        .cr-stat-icon {
+            width: 48px;
+            height: 48px;
+            display: grid;
+            place-items: center;
+            border-radius: 8px;
+            background: #e0f2fe;
+            color: #0369a1;
+            font-size: 20px;
+            flex: 0 0 auto;
+        }
+
+        .cr-card {
+            border: 1px solid #dbe3ef;
+            border-radius: 8px;
+            background: #fff;
+            box-shadow: 0 16px 40px rgba(15, 23, 42, .06);
+            overflow: hidden;
+        }
+
+        .cr-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            padding: 16px 18px;
+            border-bottom: 1px solid #e2e8f0;
+            background: #f8fbff;
+        }
+
+        .cr-card-title {
+            margin: 0;
+            color: #0f172a;
+            font-size: 18px;
+            font-weight: 900;
+        }
+
+        .cr-card-subtitle {
+            margin: 3px 0 0;
+            color: #64748b;
+            font-size: 12px;
+        }
+
+        .cr-table-wrap {
             overflow-x: auto;
         }
 
-        .course-roster-table {
+        .cr-table {
             width: 100%;
             min-width: 1180px;
-            border-collapse: collapse;
-            border: 1px solid #1f2937;
+            border-collapse: separate;
+            border-spacing: 0;
             color: #26324d;
+            font-size: 13px;
+        }
+
+        .cr-table th {
+            position: sticky;
+            top: 0;
+            z-index: 1;
+            border-bottom: 1px solid #dbe3ef;
+            background: #f8fafc;
+            padding: 13px 14px;
+            color: #475569;
             font-size: 12px;
-            background: #fff;
-        }
-
-        .course-roster-table th {
-            border: 1px solid #1f2937;
-            background: #e4e7ff;
-            padding: 11px 10px;
+            font-weight: 900;
             text-align: left;
-            vertical-align: top;
-            color: #303852;
-            font-weight: 800;
-            line-height: 1.5;
+            white-space: nowrap;
         }
 
-        .course-roster-table td {
-            border: 1px solid #1f2937;
-            padding: 11px 10px;
+        .cr-table td {
+            border-bottom: 1px solid #eef2f7;
+            padding: 14px;
             vertical-align: middle;
-            line-height: 1.55;
         }
 
-        .course-roster-table tbody tr:hover {
-            background: #f8faff;
+        .cr-table tbody tr:hover {
+            background: #f8fbff;
         }
 
         .text-center {
             text-align: center;
         }
 
+        .cr-student {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 220px;
+        }
+
+        .cr-avatar {
+            width: 42px;
+            height: 42px;
+            display: grid;
+            place-items: center;
+            border-radius: 8px;
+            background: #e0f2fe;
+            color: #0369a1;
+            font-size: 13px;
+            font-weight: 900;
+            flex: 0 0 auto;
+        }
+
         .student-link {
-            color: #4459f0;
-            font-weight: 800;
+            color: #0f172a;
+            font-weight: 900;
             text-decoration: none;
         }
 
         .student-link:hover {
-            color: #2738bc;
+            color: #2563eb;
             text-decoration: underline;
             text-underline-offset: 3px;
         }
 
         .muted {
-            color: #626b80;
+            color: #64748b;
             font-size: 11px;
+            font-weight: 700;
             line-height: 1.5;
         }
 
+        .cr-progress {
+            display: grid;
+            gap: 6px;
+            min-width: 130px;
+        }
+
+        .cr-progress-top {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            color: #0f172a;
+            font-size: 12px;
+            font-weight: 900;
+        }
+
+        .cr-progress-bar {
+            height: 8px;
+            border-radius: 999px;
+            background: #e2e8f0;
+            overflow: hidden;
+        }
+
+        .cr-progress-bar span {
+            display: block;
+            height: 100%;
+            border-radius: inherit;
+            background: #00b390;
+        }
+
+        .cr-score {
+            display: grid;
+            justify-items: center;
+            gap: 6px;
+        }
+
         .score-input {
-            width: 68px;
-            border: 1px solid #c8d0df;
-            border-radius: 5px;
+            width: 82px;
+            min-height: 38px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
             background: #fff;
-            padding: 6px 7px;
-            color: #1f2937;
+            padding: 6px 8px;
+            color: #0f172a;
             text-align: center;
-            font-weight: 700;
+            font-weight: 900;
         }
 
         .score-input:focus {
             outline: none;
-            border-color: #5865f2;
-            box-shadow: 0 0 0 3px rgba(88, 101, 242, .14);
+            border-color: #5866f5;
+            box-shadow: 0 0 0 3px rgba(88, 101, 242, .16);
+        }
+
+        .cr-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 28px;
+            border-radius: 6px;
+            padding: 4px 10px;
+            font-size: 11px;
+            font-weight: 900;
+            white-space: nowrap;
+        }
+
+        .cr-badge-success {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .cr-badge-warning {
+            background: #fff7ed;
+            color: #c2410c;
         }
 
         .action-row {
-            display: flex;
+            display: inline-flex;
             justify-content: center;
-            gap: 10px;
+            gap: 8px;
         }
 
         .action-btn {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            min-width: 30px;
-            min-height: 30px;
+            gap: 7px;
+            min-width: 36px;
+            min-height: 36px;
             border: 0;
-            border-radius: 4px;
+            border-radius: 6px;
             color: #fff;
             text-decoration: none;
             font-size: 12px;
-            font-weight: 800;
+            font-weight: 900;
             cursor: pointer;
-            transition: background .15s ease, transform .15s ease, box-shadow .15s ease;
+            transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
         }
 
         .action-btn-green {
-            min-width: 90px;
-            gap: 6px;
-            background: #22c55e;
-            box-shadow: 0 6px 14px rgba(34, 197, 94, .18);
+            min-width: 88px;
+            padding: 0 12px;
+            background: #16a34a;
+            box-shadow: 0 8px 18px rgba(22, 163, 74, .18);
         }
 
         .action-btn-red {
-            background: #ef233c;
-            box-shadow: 0 6px 14px rgba(239, 35, 60, .18);
+            background: #dc3545;
+            box-shadow: 0 8px 18px rgba(220, 53, 69, .18);
         }
 
         .action-btn-blue {
-            background: #5865f2;
-            box-shadow: 0 6px 14px rgba(88, 101, 242, .18);
+            background: #5866f5;
+            box-shadow: 0 8px 18px rgba(88, 102, 245, .18);
         }
 
         .action-btn:hover {
+            color: #fff;
             transform: translateY(-1px);
-            filter: brightness(.96);
+            filter: brightness(.97);
         }
 
         .empty-state {
-            padding: 42px 18px;
-            color: #68738a;
+            display: grid;
+            justify-items: center;
+            gap: 10px;
+            padding: 54px 18px;
+            color: #64748b;
             text-align: center;
             font-size: 15px;
+        }
+
+        .empty-state i {
+            color: #94a3b8;
+            font-size: 38px;
         }
 
         .toast {
@@ -233,18 +409,70 @@
             right: 24px;
             bottom: 24px;
             z-index: 9999;
-            border-radius: 6px;
+            border-radius: 8px;
             background: #16a34a;
             color: #fff;
             padding: 12px 18px;
             font-size: 14px;
-            font-weight: 700;
-            box-shadow: 0 14px 34px rgba(15, 23, 42, .2);
+            font-weight: 800;
+            box-shadow: 0 18px 44px rgba(15, 23, 42, .22);
+        }
+
+        .dark .cr-hero,
+        .dark .cr-card,
+        .dark .cr-stat {
+            border-color: #334155;
+            background: #1e293b;
+        }
+
+        .dark .cr-card-header,
+        .dark .cr-table th {
+            border-color: #334155;
+            background: #0f172a;
+        }
+
+        .dark .cr-title,
+        .dark .cr-card-title,
+        .dark .cr-stat strong,
+        .dark .student-link,
+        .dark .cr-progress-top {
+            color: #f8fafc;
+        }
+
+        .dark .cr-subtitle,
+        .dark .cr-card-subtitle,
+        .dark .muted,
+        .dark .cr-breadcrumb {
+            color: #94a3b8;
+        }
+
+        .dark .cr-table td {
+            border-color: #334155;
+        }
+
+        .dark .score-input {
+            border-color: #334155;
+            background: #0f172a;
+            color: #f8fafc;
+        }
+
+        @media (max-width: 1100px) {
+            .cr-stats {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
         }
 
         @media (max-width: 768px) {
-            .course-roster-summary-meta {
-                flex-direction: column;
+            .cr-hero {
+                grid-template-columns: 1fr;
+            }
+
+            .cr-hero-actions {
+                justify-content: flex-start;
+            }
+
+            .cr-stats {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -262,49 +490,92 @@
          @notify.window="showNotification($event.detail.message)">
         <div class="toast" x-show="showToast" x-transition x-cloak x-text="toastMessage"></div>
 
-        <h1 class="course-roster-title">គ្រប់គ្រងវឌ្ឍនភាព</h1>
-        <div class="course-roster-breadcrumb">Home &gt; វគ្គសិក្សា &gt; និស្សិតក្នុងវគ្គ</div>
-
-        <section class="course-roster-card course-roster-summary">
-            <div class="course-roster-summary-main">
-                <h2>វគ្គសិក្សា</h2>
-                <p>ឈ្មោះ: {{ $course->course_name }}</p>
+        <section class="cr-hero">
+            <div>
+                <div class="cr-breadcrumb">
+                    <span>Home</span>
+                    <span>/</span>
+                    <span>Courses</span>
+                    <span>/</span>
+                    <span>Students</span>
+                </div>
+                <h1 class="cr-title">{{ $course->course_name }}</h1>
+                <p class="cr-subtitle">
+                    {{ $course->course_code ?? '-' }} · {{ $course->department?->department_name ?? '-' }} · {{ $course->academicYear?->year_name ?? '-' }} · {{ $course->semester?->semester_name ?? '-' }}
+                </p>
             </div>
-            <div class="course-roster-summary-meta">
-                <div>
-                    <div><strong>លេខកូដវគ្គសិក្សា:</strong> {{ $course->course_code ?? '-' }}</div>
-                    <div><strong>កាលបរិច្ឆេទ:</strong> {{ $course->created_at?->format('m/d/Y') ?? '-' }}</div>
-                </div>
-                <div style="text-align: right;">
-                    <div><strong>ឆ្នាំសិក្សា:</strong> {{ $course->academicYear?->year_name ?? '-' }}</div>
-                    <div><strong>ឆមាស:</strong> {{ $course->semester?->semester_name ?? '-' }}</div>
-                </div>
+            <div class="cr-hero-actions">
+                <a class="cr-btn" href="{{ \App\Filament\Admin\Resources\Courses\CourseResource::getUrl('index') }}">
+                    <i class="fas fa-arrow-left"></i>
+                    Back
+                </a>
+                <a class="cr-btn cr-btn-primary" href="{{ \App\Filament\Admin\Resources\Enrollments\EnrollmentResource::getUrl('create') }}">
+                    <i class="fas fa-user-plus"></i>
+                    Add Enrollment
+                </a>
             </div>
         </section>
 
-        <section class="course-roster-card">
-            <div class="course-roster-panel-header">
-                <span>និស្សិតក្នុងវគ្គសិក្សា</span>
-                <a class="course-roster-add" href="{{ \App\Filament\Admin\Resources\Enrollments\EnrollmentResource::getUrl('create') }}" title="Add enrollment">+</a>
+        <section class="cr-stats">
+            <article class="cr-stat">
+                <div>
+                    <span>Total Students</span>
+                    <strong>{{ $totalStudents }}</strong>
+                </div>
+                <div class="cr-stat-icon"><i class="fas fa-users"></i></div>
+            </article>
+            <article class="cr-stat">
+                <div>
+                    <span>Completed</span>
+                    <strong>{{ $completedStudents }}</strong>
+                </div>
+                <div class="cr-stat-icon"><i class="fas fa-check-circle"></i></div>
+            </article>
+            <article class="cr-stat">
+                <div>
+                    <span>Average Progress</span>
+                    <strong>{{ $averageProgress }}%</strong>
+                </div>
+                <div class="cr-stat-icon"><i class="fas fa-chart-line"></i></div>
+            </article>
+            <article class="cr-stat">
+                <div>
+                    <span>Average Score</span>
+                    <strong>{{ $averageScore }}</strong>
+                </div>
+                <div class="cr-stat-icon"><i class="fas fa-star"></i></div>
+            </article>
+        </section>
+
+        <section class="cr-card">
+            <div class="cr-card-header">
+                <div>
+                    <h2 class="cr-card-title">Course Student Roster</h2>
+                    <p class="cr-card-subtitle">Teacher: {{ $teacherName }} · Track lessons, grades, enrollment, and progress from one place.</p>
+                </div>
             </div>
 
             @if($enrollments->isEmpty())
-                <div class="empty-state">មិនទាន់មាននិស្សិតចុះឈ្មោះក្នុងវគ្គសិក្សានេះទេ។</div>
+                <div class="empty-state">
+                    <i class="fas fa-user-graduate"></i>
+                    <strong>No students enrolled in this course yet.</strong>
+                    <span>Add an enrollment to start tracking learning progress.</span>
+                </div>
             @else
-                <div class="course-roster-table-wrap">
-                    <table class="course-roster-table">
+                <div class="cr-table-wrap">
+                    <table class="cr-table">
                         <thead>
                             <tr>
-                                <th class="text-center">ល.រ<br><span class="muted">លេខសម្គាល់</span></th>
-                                <th>និស្សិត<br><span class="muted">វគ្គសិក្សាអនឡាញ</span></th>
-                                <th>គ្រូបង្រៀន<br><span class="muted">លេខកូដ</span></th>
-                                <th>ព័ត៌មានវគ្គ<br><span class="muted">វគ្គ / ថ្នាក់</span></th>
-                                <th class="text-center">វឌ្ឍនភាព<br><span class="muted">មេរៀនបានរៀន</span></th>
-                                <th class="text-center">ពិន្ទុ<br><span class="muted">សរុប</span></th>
-                                <th class="text-center">កាលបរិច្ឆេទ<br><span class="muted">ចុះឈ្មោះ</span></th>
-                                <th class="text-center">វឌ្ឍនភាព</th>
-                                <th class="text-center">លុប</th>
-                                <th class="text-center">មើល</th>
+                                <th class="text-center">No</th>
+                                <th>Student</th>
+                                <th>Teacher</th>
+                                <th>Class / Department</th>
+                                <th>Lesson Progress</th>
+                                <th class="text-center">Assignment Score</th>
+                                <th class="text-center">Enrollment</th>
+                                <th class="text-center">Status</th>
+                                <th class="text-center">Save</th>
+                                <th class="text-center">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -317,45 +588,69 @@
                                     $totalScore = (float) ($summary['total_score'] ?? 0);
                                     $completedLessons = (int) ($summary['completed_lessons'] ?? 0);
                                     $totalLessons = (int) ($summary['total_lessons'] ?? 0);
+                                    $progressPercent = (float) str_replace('%', '', (string) ($summary['progress'] ?? 0));
+                                    $studentName = trim(($student->first_name ?? '').' '.($student->last_name ?? ''));
+                                    $initials = mb_substr($student->first_name ?? 'S', 0, 1).mb_substr($student->last_name ?? '', 0, 1);
                                 @endphp
 
                                 @if($student)
                                     <tr wire:key="course-roster-row-{{ $enrollment->enrollment_id }}">
                                         <td class="text-center">
-                                            <div>{{ $loop->iteration }}</div>
+                                            <strong>{{ $loop->iteration }}</strong>
                                             <div class="muted">{{ $student->student_code ?? str_pad((string) $studentId, 4, '0', STR_PAD_LEFT) }}</div>
                                         </td>
                                         <td>
-                                            <a class="student-link" href="{{ \App\Filament\Admin\Resources\Students\StudentResource::getUrl('edit', ['record' => $studentId]) }}">
-                                                {{ trim(($student->first_name ?? '').' '.($student->last_name ?? '')) ?: 'គ្មានឈ្មោះ' }}
-                                            </a>
-                                            <div class="muted">{{ $course->course_name }}</div>
+                                            <div class="cr-student">
+                                                <div class="cr-avatar">{{ $initials }}</div>
+                                                <div>
+                                                    <a class="student-link" href="{{ \App\Filament\Admin\Resources\Students\StudentResource::getUrl('edit', ['record' => $studentId]) }}">
+                                                        {{ $studentName ?: 'No name' }}
+                                                    </a>
+                                                    <div class="muted">{{ $student->email ?? $student->phone ?? '-' }}</div>
+                                                </div>
+                                            </div>
                                         </td>
                                         <td>
-                                            <a class="student-link" href="#">{{ $teacherName }}</a>
+                                            <strong>{{ $teacherName }}</strong>
                                             <div class="muted">{{ $course->course_code ?? '-' }}</div>
                                         </td>
                                         <td>
-                                            <div>{{ $enrollment->classRoom?->class_name ?? 'Online course' }}</div>
+                                            <strong>{{ $enrollment->classRoom?->class_name ?? 'Online course' }}</strong>
                                             <div class="muted">{{ $course->department?->department_name ?? '-' }}</div>
                                         </td>
-                                        <td class="text-center">
-                                            <div>{{ $summary['progress'] ?? '0%' }}</div>
-                                            <div class="muted">{{ $completedLessons }} / {{ $totalLessons }} មេរៀន</div>
+                                        <td>
+                                            <div class="cr-progress">
+                                                <div class="cr-progress-top">
+                                                    <span>{{ number_format($progressPercent, 0) }}%</span>
+                                                    <span>{{ $completedLessons }}/{{ $totalLessons }}</span>
+                                                </div>
+                                                <div class="cr-progress-bar">
+                                                    <span style="width: {{ min(100, max(0, $progressPercent)) }}%"></span>
+                                                </div>
+                                                <div class="muted">lessons completed</div>
+                                            </div>
                                         </td>
                                         <td class="text-center">
-                                            <input type="number"
-                                                   min="0"
-                                                   max="100"
-                                                   step="0.01"
-                                                   class="score-input"
-                                                   wire:model.live.debounce.400ms="scores.{{ $studentId }}.assignments"
-                                                   title="Assignment score">
-                                            <div class="muted">សរុប {{ number_format($totalScore, 0) }}</div>
+                                            <div class="cr-score">
+                                                <input type="number"
+                                                       min="0"
+                                                       max="100"
+                                                       step="0.01"
+                                                       class="score-input"
+                                                       wire:model.live.debounce.400ms="scores.{{ $studentId }}.assignments"
+                                                       title="Assignment score">
+                                                <div class="muted">Total {{ number_format($totalScore, 0) }}</div>
+                                            </div>
                                         </td>
                                         <td class="text-center">
-                                            <div>{{ $enrollment->enrollment_date?->format('m/d/Y') ?? '-' }}</div>
+                                            <strong>{{ $enrollment->enrollment_date?->format('M d, Y') ?? '-' }}</strong>
                                             <div class="muted">{{ $summary['last_activity'] ?? '-' }}</div>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="cr-badge {{ $progressPercent >= 100 ? 'cr-badge-success' : 'cr-badge-warning' }}">
+                                                {{ $progressPercent >= 100 ? 'Completed' : ($summary['enrollment_status'] ?? 'In Progress') }}
+                                            </span>
+                                            <div class="muted">{{ $summary['grade'] ?? '-' }} · {{ $summary['score_status'] ?? '-' }}</div>
                                         </td>
                                         <td class="text-center">
                                             <button type="button"
@@ -363,24 +658,22 @@
                                                     wire:click="saveGrade({{ $studentId }})"
                                                     wire:loading.attr="disabled"
                                                     wire:target="saveGrade({{ $studentId }})">
-                                                <span wire:loading.remove wire:target="saveGrade({{ $studentId }})">ដាក់ពិន្ទុ</span>
-                                                <span wire:loading wire:target="saveGrade({{ $studentId }})">រក្សា...</span>
+                                                <span wire:loading.remove wire:target="saveGrade({{ $studentId }})">Save</span>
+                                                <span wire:loading wire:target="saveGrade({{ $studentId }})">Saving...</span>
                                             </button>
                                         </td>
                                         <td class="text-center">
-                                            <a class="action-btn action-btn-red" href="{{ \App\Filament\Admin\Resources\Enrollments\EnrollmentResource::getUrl('edit', ['record' => $enrollment->enrollment_id]) }}" title="Edit enrollment">
-                                                <i class="fas fa-trash-alt"></i>
-                                            </a>
-                                        </td>
-                                        <td class="text-center">
                                             <div class="action-row">
+                                                <a class="action-btn action-btn-red" href="{{ \App\Filament\Admin\Resources\Enrollments\EnrollmentResource::getUrl('edit', ['record' => $enrollment->enrollment_id]) }}" title="Edit enrollment">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
                                                 @if($progressId)
                                                     <a class="action-btn action-btn-blue" href="{{ \App\Filament\Admin\Resources\StudentProgresses\StudentProgressResource::getUrl('edit', ['record' => $progressId]) }}" title="Progress detail">
-                                                        <i class="fas fa-ellipsis-v"></i>
+                                                        <i class="fas fa-eye"></i>
                                                     </a>
                                                 @else
                                                     <a class="action-btn action-btn-blue" href="{{ \App\Filament\Admin\Resources\StudentProgresses\StudentProgressResource::getUrl('index') }}" title="Progress list">
-                                                        <i class="fas fa-ellipsis-v"></i>
+                                                        <i class="fas fa-eye"></i>
                                                     </a>
                                                 @endif
                                             </div>

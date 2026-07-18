@@ -18,24 +18,19 @@ class ClassRoomsTable
     {
         return $table
             ->columns([
-                TextColumn::make('course.course_name')
-                    ->label('វគ្គសិក្សា (Course)')
-                    ->searchable(),
-                TextColumn::make('academicYear.year_name')
-                    ->label('ឆ្នាំសិក្សា (Academic Year)')
-                    ->searchable(),
                 TextColumn::make('class_code')
-                    ->label('លេខកូដថ្នាក់ (Class Code)')
+                    ->label('Class Code')
                     ->searchable(),
                 TextColumn::make('class_name')
-                    ->label('ឈ្មោះថ្នាក់ (Class Name)')
+                    ->label('Class Name')
                     ->searchable(),
-                TextColumn::make('room')
-                    ->label('បន្ទប់រៀន (Room)')
+                TextColumn::make('table')
+                    ->label('Table')
                     ->searchable(),
-                TextColumn::make('capacity')
-                    ->label('សមត្ថភាព (Capacity)')
-                    ->numeric()
+                TextColumn::make('status')
+                    ->label('Status')
+                    ->badge()
+                    ->color(fn (string $state): string => $state === 'active' ? 'success' : 'gray')
                     ->sortable(),
                 TextColumn::make('created_at')
                     ->dateTime()

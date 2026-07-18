@@ -4,6 +4,7 @@ namespace App\Filament\Admin\Resources\Schedules\Pages;
 
 use App\Filament\Admin\Resources\Schedules\ScheduleResource;
 use App\Models\ClassRoom;
+use App\Models\Course;
 use App\Models\Schedule;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\Page;
@@ -24,6 +25,7 @@ class ListSchedules extends Page
     public ?int $scheduleDepartmentId = null;
     public ?int $scheduleAcademicYearId = null;
     public ?int $scheduleSemesterId = null;
+    public ?int $scheduleCourseId = null;
     public ?int $scheduleTeacherId = null;
     public ?int $scheduleClassId = null;
     public ?string $scheduleDay = null;
@@ -43,6 +45,7 @@ class ListSchedules extends Page
             'scheduleDepartmentId' => ['nullable', 'integer', 'exists:departments,department_id'],
             'scheduleAcademicYearId' => ['nullable', 'integer', 'exists:academic_years,academic_year_id'],
             'scheduleSemesterId' => ['nullable', 'integer', 'exists:semesters,semester_id'],
+            'scheduleCourseId' => ['nullable', 'integer', 'exists:courses,course_id'],
             'scheduleTeacherId' => ['required', 'integer', 'exists:teachers,teacher_id'],
             'scheduleClassId' => ['required', 'integer', 'exists:class_rooms,class_room_id'],
             'scheduleDay' => ['required', Rule::in(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'])],
@@ -68,20 +71,26 @@ class ListSchedules extends Page
 
         $classAcademicYearId = $classRoom->academic_year_id ?? $classRoom->course?->academic_year_id;
 
-        if ($this->scheduleAcademicYearId && (int) $classAcademicYearId !== (int) $this->scheduleAcademicYearId) {
+        if ($this->scheduleAcademicYearId && $classAcademicYearId && (int) $classAcademicYearId !== (int) $this->scheduleAcademicYearId) {
             $this->addError('scheduleClassId', 'Class does not match selected academic year.');
 
             return;
         }
 
-        if ($this->scheduleDepartmentId && (int) $classRoom->course?->department_id !== (int) $this->scheduleDepartmentId) {
+        if ($this->scheduleDepartmentId && $classRoom->course?->department_id && (int) $classRoom->course?->department_id !== (int) $this->scheduleDepartmentId) {
             $this->addError('scheduleClassId', 'Class does not match selected department.');
 
             return;
         }
 
-        if ($this->scheduleSemesterId && (int) $classRoom->course?->semester_id !== (int) $this->scheduleSemesterId) {
+        if ($this->scheduleSemesterId && $classRoom->course?->semester_id && (int) $classRoom->course?->semester_id !== (int) $this->scheduleSemesterId) {
             $this->addError('scheduleClassId', 'Class does not match selected semester.');
+
+            return;
+        }
+
+        if ($this->scheduleCourseId && $classRoom->course_id && (int) $classRoom->course_id !== (int) $this->scheduleCourseId) {
+            $this->addError('scheduleClassId', 'Class does not match selected course.');
 
             return;
         }
@@ -89,6 +98,7 @@ class ListSchedules extends Page
         Schedule::query()->create([
             'teacher_id' => $data['scheduleTeacherId'],
             'class_id' => $data['scheduleClassId'],
+            'course_id' => $data['scheduleCourseId'] ?? $classRoom->course_id,
             'day' => $data['scheduleDay'],
             'start_time' => $data['scheduleStartTime'],
             'end_time' => $data['scheduleEndTime'],
@@ -108,6 +118,7 @@ class ListSchedules extends Page
         $this->scheduleDepartmentId = null;
         $this->scheduleAcademicYearId = null;
         $this->scheduleSemesterId = null;
+        $this->scheduleCourseId = null;
         $this->scheduleTeacherId = null;
         $this->scheduleClassId = null;
         $this->scheduleDay = null;
@@ -118,7 +129,7 @@ class ListSchedules extends Page
 
     protected function getViewData(): array
     {
-        $query = Schedule::with(['teacher', 'classRoom', 'classRoom.course', 'classRoom.academicYear']);
+        $query = Schedule::with(['teacher', 'course', 'classRoom', 'classRoom.course', 'classRoom.academicYear']);
         $user = auth()->user();
         $isTeacher = $user->hasRole('teacher');
         $isStudent = $user->hasRole('student');
@@ -187,7 +198,14 @@ class ListSchedules extends Page
             'academicYears' => \App\Models\AcademicYear::query()->orderBy('year_name')->get(),
             'semesters' => \App\Models\Semester::query()->orderBy('start_date')->get(),
             'departments' => \App\Models\Department::query()->orderBy('department_name')->get(),
-            'classRooms' => ClassRoom::query()->with('course')->orderBy('class_name')->get(),
+            'courses' => Course::query()
+                ->orderBy('course_name')
+                ->get(['course_id', 'course_code', 'course_name', 'department_id', 'academic_year_id', 'semester_id']),
+            'classRooms' => ClassRoom::query()
+                ->with('course')
+                ->where('status', 'active')
+                ->orderBy('class_name')
+                ->get(),
             'isTeacher' => $isTeacher,
             'isStudent' => $isStudent,
         ];

@@ -3,7 +3,7 @@
         .lc-report {
             display: grid;
             gap: 18px;
-            font-family: Battambang, ui-sans-serif, system-ui, sans-serif;
+            font-family: "Battambang", ui-sans-serif, system-ui, sans-serif;
         }
 
         .lc-report-head {

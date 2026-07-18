@@ -2,7 +2,7 @@
     <style>
         .progress-course-page {
             color: #24304a;
-            font-family: "Battambang", "Kantumruy Pro", "Noto Sans Khmer", "Khmer OS Siemreap", ui-sans-serif, system-ui, sans-serif;
+            font-family: "Battambang", "Noto Sans Khmer", "Khmer OS Siemreap", ui-sans-serif, system-ui, sans-serif;
             font-size: 14px;
             line-height: 1.65;
         }
@@ -270,54 +270,54 @@
     </style>
 
     <div class="progress-course-page">
-        <h1 class="progress-course-title">គ្រប់គ្រងវឌ្ឍនភាព</h1>
-        <div class="progress-course-breadcrumb">Home &gt; វគ្គសិក្សា &gt; វឌ្ឍនភាពសិស្ស</div>
+        <h1 class="progress-course-title">?????????????????</h1>
+        <div class="progress-course-breadcrumb">Home &gt; ?????????? &gt; ?????????????</div>
 
         <section class="progress-course-card progress-course-summary">
             <div class="progress-course-summary-main">
-                <h2>វឌ្ឍនភាពតាមវគ្គសិក្សា</h2>
-                <p>មើលវគ្គសិក្សា ១០ ក្នុងមួយទំព័រ ហើយចុចមើលនិស្សិត ដើម្បីពិនិត្យវឌ្ឍនភាពក្នុងវគ្គនីមួយៗ</p>
+                <h2>?????????????????????</h2>
+                <p>????????????? ?? ????????????? ???????????????? ????????????????????????????????????</p>
             </div>
             <div class="progress-course-summary-meta">
                 <div>
-                    <div><strong>ចំនួនវគ្គសិក្សា:</strong> {{ $totalCourses }}</div>
-                    <div><strong>និស្សិតសរុប:</strong> {{ $totalStudents }}</div>
+                    <div><strong>???????????????:</strong> {{ $totalCourses }}</div>
+                    <div><strong>???????????:</strong> {{ $totalStudents }}</div>
                 </div>
                 <div style="text-align: right;">
-                    <div><strong>ប្រភពវឌ្ឍនភាព:</strong> Website learning</div>
-                    <div><strong>កាលបរិច្ឆេទ:</strong> {{ now()->format('m/d/Y') }}</div>
+                    <div><strong>?????????????:</strong> Website learning</div>
+                    <div><strong>???????????:</strong> {{ now()->format('m/d/Y') }}</div>
                 </div>
             </div>
         </section>
 
         <section class="progress-course-card">
             <div class="progress-course-panel-header">
-                <span>បញ្ជីវគ្គសិក្សា</span>
-                <span class="muted">បង្ហាញ ១០ វគ្គដំបូង · គ្រូបង្រៀនឃើញតែវគ្គដែលខ្លួនបង្រៀន</span>
+                <span>???????????????</span>
+                <span class="muted">?????? ?? ????????? � ?????????????????????????????????</span>
             </div>
 
             @if($courses->isEmpty())
-                <div class="empty-state">មិនទាន់មានវគ្គសិក្សាសម្រាប់បង្ហាញទេ។</div>
+                <div class="empty-state">????????????????????????????????????</div>
             @else
                 <div class="progress-course-table-wrap">
                     <table class="progress-course-table">
                         <thead>
                             <tr>
-                                <th class="text-center">ល.រ<br><span class="muted">លេខកូដ</span></th>
-                                <th>វគ្គសិក្សា<br><span class="muted">ព័ត៌មានសង្ខេប</span></th>
-                                <th>គ្រូបង្រៀន<br><span class="muted">អ្នកទទួលបន្ទុក</span></th>
-                                <th>ឆ្នាំ / ឆមាស<br><span class="muted">វគ្គសិក្សា</span></th>
-                                <th class="text-center">និស្សិត<br><span class="muted">ចុះឈ្មោះ</span></th>
-                                <th class="text-center">មេរៀន<br><span class="muted">Online</span></th>
-                                <th class="text-center">វឌ្ឍនភាព<br><span class="muted">មធ្យមភាគ</span></th>
-                                <th class="text-center">មើលលម្អិត</th>
+                                <th class="text-center">?.?<br><span class="muted">??????</span></th>
+                                <th>??????????<br><span class="muted">?????????????</span></th>
+                                <th>??????????<br><span class="muted">??????????????</span></th>
+                                <th>????? / ????<br><span class="muted">??????????</span></th>
+                                <th class="text-center">???????<br><span class="muted">????????</span></th>
+                                <th class="text-center">?????<br><span class="muted">Online</span></th>
+                                <th class="text-center">????????<br><span class="muted">????????</span></th>
+                                <th class="text-center">?????????</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach($courses as $course)
                                 @php
                                     $teacher = $course->courseAssignments->first()?->teacher;
-                                    $teacherName = $teacher ? trim($teacher->first_name.' '.$teacher->last_name) : 'មិនទាន់កំណត់';
+                                    $teacherName = $teacher ? trim($teacher->first_name.' '.$teacher->last_name) : '????????????';
                                     $averageProgress = round((float) ($course->average_progress_percent ?? 0));
                                 @endphp
 
@@ -352,7 +352,7 @@
                                     </td>
                                     <td class="text-center">
                                         <a class="action-btn" href="{{ \App\Filament\Admin\Pages\CourseStudents::getUrl(['course' => $course->course_id]) }}">
-                                            មើលវឌ្ឍនភាព
+                                            ???????????
                                         </a>
                                     </td>
                                 </tr>
@@ -362,7 +362,7 @@
                 </div>
                 <div class="progress-course-pagination">
                     <div>
-                        បង្ហាញ {{ $courses->firstItem() }} ដល់ {{ $courses->lastItem() }} នៃ {{ $courses->total() }} វគ្គសិក្សា
+                        ?????? {{ $courses->firstItem() }} ??? {{ $courses->lastItem() }} ?? {{ $courses->total() }} ??????????
                     </div>
                     <nav class="pagination-actions" aria-label="Course pagination">
                         <ul class="pagination">

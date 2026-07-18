@@ -297,6 +297,7 @@ class frontendController extends Controller
             'enrollments' => $enrollments,
             'grades' => $grades,
             'schedules' => $schedules,
+            'notifications' => $user->notifications()->latest()->limit(30)->get(),
         ]);
     }
 
@@ -310,6 +311,14 @@ class frontendController extends Controller
                     ->where('is_published', true)
                     ->orderBy('sort_order')
                     ->orderBy('content_chapter_id'),
+                'videos' => fn ($query) => $query
+                    ->where('is_published', true)
+                    ->orderBy('sort_order')
+                    ->orderBy('content_video_id'),
+                'documents' => fn ($query) => $query
+                    ->where('is_published', true)
+                    ->orderBy('sort_order')
+                    ->orderBy('content_document_id'),
                 'assignments' => fn ($query) => $query
                     ->where('is_published', true)
                     ->orderBy('due_at')
@@ -321,11 +330,13 @@ class frontendController extends Controller
                 'assessmentQuestions' => fn ($query) => $query
                     ->where('is_active', true)
                     ->with(['options' => fn ($optionQuery) => $optionQuery->orderBy('sort_order')]),
+                'module',
             ])
             ->orderBy('module_number')
             ->orderBy('position')
             ->get()
             ?? collect();
+        $learningFlow = $this->learningFlowState($courseRecord, $lessons);
         $discussionPosts = $courseRecord
             ? $this->discussionPostsQuery($courseRecord)->whereNull('content_lesson_id')->get()
             : collect();
@@ -334,6 +345,7 @@ class frontendController extends Controller
             'course' => $course,
             'courseRecord' => $courseRecord,
             'lessons' => $lessons,
+            'learningFlow' => $learningFlow,
             'discussionPosts' => $discussionPosts,
         ]);
     }
@@ -348,6 +360,14 @@ class frontendController extends Controller
                     ->where('is_published', true)
                     ->orderBy('sort_order')
                     ->orderBy('content_chapter_id'),
+                'videos' => fn ($query) => $query
+                    ->where('is_published', true)
+                    ->orderBy('sort_order')
+                    ->orderBy('content_video_id'),
+                'documents' => fn ($query) => $query
+                    ->where('is_published', true)
+                    ->orderBy('sort_order')
+                    ->orderBy('content_document_id'),
                 'assignments' => fn ($query) => $query
                     ->where('is_published', true)
                     ->orderBy('due_at')
@@ -359,12 +379,24 @@ class frontendController extends Controller
                 'assessmentQuestions' => fn ($query) => $query
                     ->where('is_active', true)
                     ->with(['options' => fn ($optionQuery) => $optionQuery->orderBy('sort_order')]),
+                'module',
             ])
             ->orderBy('module_number')
             ->orderBy('position')
             ->get()
             ?? collect();
         $lessonRecord = $lessons->firstWhere('slug', $lesson);
+        $learningFlow = $this->learningFlowState($courseRecord, $lessons);
+
+        if ($lessonRecord && ! ($learningFlow['unlocked'][(int) $lessonRecord->content_lesson_id] ?? true)) {
+            return redirect()
+                ->route('frontend.courses.show', $course)
+                ->with('assessment_error', 'Please complete the previous lesson first.');
+        }
+
+        $previousLesson = $lessonRecord
+            ? $lessons->takeUntil(fn ($contentLesson) => $contentLesson->is($lessonRecord))->last()
+            : null;
         $nextLesson = $lessonRecord
             ? $lessons->skipUntil(fn ($contentLesson) => $contentLesson->is($lessonRecord))->skip(1)->first()
             : null;
@@ -388,21 +420,49 @@ class frontendController extends Controller
                 ->keyBy('content_assignment_id')
             : collect();
 
-        if ($student && $courseRecord && $lessonRecord) {
-            app(StudentCourseProgressService::class)->markLessonViewed($student, $courseRecord, $lessonRecord);
-        }
-
         return view('frontend.lesson', [
             'course' => $course,
             'courseRecord' => $courseRecord,
             'lessons' => $lessons,
             'lessonRecord' => $lessonRecord,
+            'previousLesson' => $previousLesson,
             'nextLesson' => $nextLesson,
+            'learningFlow' => $learningFlow,
             'lesson' => $lesson,
             'discussionPosts' => $discussionPosts,
             'quizResults' => $quizResults,
             'assignmentSubmissions' => $assignmentSubmissions,
         ]);
+    }
+
+    public function completeLesson(Request $request, string $course, string $lesson): RedirectResponse
+    {
+        $student = $this->studentForSubmission($request);
+        $courseRecord = $this->resolveCourse($course);
+        abort_unless($courseRecord, 404);
+
+        $lessons = $courseRecord->contentLessons()
+            ->publishedForStudents()
+            ->orderBy('module_number')
+            ->orderBy('position')
+            ->get();
+        $lessonRecord = $lessons->firstWhere('slug', $lesson);
+        abort_unless($lessonRecord, 404);
+
+        $learningFlow = $this->learningFlowState($courseRecord, $lessons);
+
+        abort_unless($learningFlow['unlocked'][(int) $lessonRecord->content_lesson_id] ?? false, 403);
+
+        app(StudentCourseProgressService::class)->markLessonCompleted($student, $courseRecord, $lessonRecord);
+
+        $nextLesson = $lessons->skipUntil(fn ($contentLesson) => $contentLesson->is($lessonRecord))->skip(1)->first();
+
+        return redirect()
+            ->route('frontend.courses.lessons.show', [
+                'course' => $course,
+                'lesson' => $nextLesson?->slug ?? $lessonRecord->slug,
+            ])
+            ->with('assessment_success', 'Lesson completed.');
     }
 
     public function submitQuiz(Request $request, string $course, string $lesson, Quiz $quiz): RedirectResponse
@@ -738,6 +798,40 @@ class frontendController extends Controller
             ->publishedForStudents()
             ->where('slug', $lesson)
             ->firstOrFail();
+    }
+
+    private function learningFlowState(?Course $course, $lessons): array
+    {
+        $student = auth()->user()?->student;
+        $service = app(StudentCourseProgressService::class);
+        $completedIds = $student && $course
+            ? $service->completedLessonIds($student, $course)
+            : [];
+        $unlocked = $service->unlockedLessons($lessons, $completedIds);
+        $totalLessons = max($lessons->count(), 1);
+
+        $moduleProgress = $lessons
+            ->groupBy(fn ($lesson) => ($lesson->course_module_id ?: $lesson->module_number ?: 1))
+            ->map(function ($moduleLessons) use ($completedIds): array {
+                $total = $moduleLessons->count();
+                $completed = $moduleLessons
+                    ->filter(fn ($lesson): bool => in_array((int) $lesson->content_lesson_id, $completedIds, true))
+                    ->count();
+
+                return [
+                    'completed' => $completed,
+                    'total' => $total,
+                    'percent' => $total > 0 ? (int) round(($completed / $total) * 100) : 0,
+                ];
+            })
+            ->all();
+
+        return [
+            'completedIds' => $completedIds,
+            'unlocked' => $unlocked,
+            'percent' => (int) round((count($completedIds) / $totalLessons) * 100),
+            'moduleProgress' => $moduleProgress,
+        ];
     }
 
     private function toggleReaction(HasMany $reactions, int $userId, string $targetKey): void

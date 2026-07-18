@@ -14,6 +14,7 @@ class Schedule extends Model
     protected $fillable = [
         'teacher_id',
         'class_id',
+        'course_id',
         'day',
         'start_time',
         'end_time',
@@ -27,6 +28,11 @@ class Schedule extends Model
     public function classRoom(): BelongsTo
     {
         return $this->belongsTo(ClassRoom::class, 'class_id', 'class_room_id');
+    }
+
+    public function course(): BelongsTo
+    {
+        return $this->belongsTo(Course::class, 'course_id', 'course_id');
     }
 
     public function students(): BelongsToMany

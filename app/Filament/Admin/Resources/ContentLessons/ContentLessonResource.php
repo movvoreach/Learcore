@@ -5,6 +5,7 @@ namespace App\Filament\Admin\Resources\ContentLessons;
 use App\Filament\Admin\Resources\ContentLessons\Pages\CreateContentLesson;
 use App\Filament\Admin\Resources\ContentLessons\Pages\EditContentLesson;
 use App\Filament\Admin\Resources\ContentLessons\Pages\ListContentLessons;
+use App\Filament\Admin\Resources\ContentLessons\Pages\ViewContentLesson;
 use App\Filament\Admin\Resources\ContentLessons\Schemas\ContentLessonForm;
 use App\Filament\Admin\Resources\ContentLessons\Tables\ContentLessonsTable;
 use App\Models\ContentLesson;
@@ -61,6 +62,7 @@ class ContentLessonResource extends Resource
         return [
             'index' => ListContentLessons::route('/'),
             'create' => CreateContentLesson::route('/create'),
+            'show' => ViewContentLesson::route('/{record}/show'),
             'edit' => EditContentLesson::route('/{record}/edit'),
         ];
     }

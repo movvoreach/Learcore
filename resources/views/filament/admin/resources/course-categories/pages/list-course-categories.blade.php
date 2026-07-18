@@ -89,31 +89,6 @@
             box-shadow: 0 2px 8px rgba(44, 50, 89, .08);
         }
 
-        .ss-ribbon {
-            position: absolute;
-            top: 0;
-            left: 22px;
-            width: 90px;
-            height: 94px;
-            padding-top: 33px;
-            background: #5866f5;
-            color: #fff;
-            text-align: center;
-            font-size: 14px;
-            font-weight: 700;
-        }
-
-        .ss-ribbon::after {
-            content: "";
-            position: absolute;
-            left: 0;
-            right: 0;
-            bottom: -26px;
-            border-left: 45px solid transparent;
-            border-right: 45px solid transparent;
-            border-top: 26px solid #5866f5;
-        }
-
         .ss-heading {
             padding: 0 100px 16px;
             border-bottom: 1px solid #d8dbe8;
@@ -152,8 +127,6 @@
 
         /* Hide default Filament header actions globally on this page */
         .fi-header-actions,
-        .fi-ac-actions,
-        .fi-ac,
         .fi-page-header-actions {
             display: none !important;
         }
@@ -165,20 +138,19 @@
                 <!-- No filters needed for course categories table -->
             </div>
             
-            <div class="ss-actions-group" style="display: flex; gap: 6px;">
+            <div class="ss-actions-group" >
                 @if (\App\Filament\Admin\Resources\CourseCategories\CourseCategoryResource::canCreate())
-                    <a class="ss-tool" href="{{ \App\Filament\Admin\Resources\CourseCategories\CourseCategoryResource::getUrl('create') }}" title="បញ្ចូលប្រភេទវគ្គសិក្សា">
-                        <i class="fa fa-plus-circle"></i>
+                    <a class="ss-tool" href="{{ \App\Filament\Admin\Resources\CourseCategories\CourseCategoryResource::getUrl('create') }}" title="??????????????????????">
+                        <i class="fa fa-plus-circle" aria-hidden="true"></i>
                     </a>
                 @endif
             </div>
         </div>
 
         <div class="ss-card">
-            <div class="ss-ribbon">បញ្ជី</div>
 
             <div class="ss-heading">
-                <h2>បញ្ជីប្រភេទវគ្គសិក្សា</h2>
+                <h2>????????????????</h2>
             </div>
 
             <div>

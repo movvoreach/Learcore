@@ -12,31 +12,21 @@ class ClassRoomForm
     {
         return $schema
             ->components([
-                Select::make('course_id')
-                    ->label('វគ្គសិក្សា (Course)')
-                    ->relationship('course', 'course_name')
-                    ->getOptionLabelFromRecordUsing(fn ($record): string => trim(($record->course_code ?? '').' - '.$record->course_name, ' -'))
-                    ->searchable()
-                    ->preload()
-                    ->required(),
-                Select::make('academic_year_id')
-                    ->label('ឆ្នាំសិក្សា (Academic Year)')
-                    ->relationship('academicYear', 'year_name')
-                    ->searchable()
-                    ->preload()
-                    ->required(),
-                TextInput::make('class_code')
-                    ->label('លេខកូដថ្នាក់ (Class Code)')
-                    ->required(),
                 TextInput::make('class_name')
-                    ->label('ឈ្មោះថ្នាក់ (Class Name)')
+                    ->label('Class Name')
+                    ->required()
+                    ->maxLength(150),
+                TextInput::make('table')
+                    ->label('Table')
+                    ->maxLength(255),
+                Select::make('status')
+                    ->label('Status')
+                    ->options([
+                        'active' => 'Active',
+                        'inactive' => 'Inactive',
+                    ])
+                    ->default('active')
                     ->required(),
-                TextInput::make('room')
-                    ->label('បន្ទប់រៀន (Room)'),
-                TextInput::make('capacity')
-                    ->label('សមត្ថភាព (Capacity)')
-                    ->numeric()
-                    ->minValue(1),
             ]);
     }
 }

@@ -1,189 +1,379 @@
 <x-filament-panels::page>
     @once
         <link rel="stylesheet" href="{{ asset('fonts/battambang.css') }}">
-        <script src="{{ asset('backend/plugins/jquery/jquery.min.js') }}"></script>
+        <link rel="stylesheet" href="{{ asset('backend/plugins/fontawesome-free/css/all.min.css') }}">
     @endonce
 
+    @php
+        $lessonModel = \App\Models\ContentLesson::query();
+        $totalLessons = (clone $lessonModel)->count();
+        $publishedLessons = (clone $lessonModel)->where('is_published', true)->count();
+        $draftLessons = max(0, $totalLessons - $publishedLessons);
+        $moduleCount = (clone $lessonModel)->distinct('module_number')->count('module_number');
+    @endphp
+
     <style>
-        .lessons-list-show {
-            color: #3f4566;
+        .content-lessons-index {
+            color: #0f172a;
             font-family: "Battambang", "Noto Sans Khmer", "Khmer OS Siemreap", ui-sans-serif, system-ui, sans-serif;
-            font-size: 100%;
-            font-weight: 400;
-            line-height: 1.65;
             letter-spacing: 0;
         }
 
-        .lessons-list-show * {
+        .content-lessons-index *,
+        .content-lessons-index *::before,
+        .content-lessons-index *::after {
+            box-sizing: border-box;
             font-family: inherit;
             letter-spacing: 0;
         }
 
-        .lessons-list-show .fa,
-        .lessons-list-show .fas,
-        .lessons-list-show .fa-solid {
+        .content-lessons-index .fa,
+        .content-lessons-index .fas,
+        .content-lessons-index .fa-solid {
             font-family: "Font Awesome 5 Free" !important;
             font-weight: 900 !important;
         }
 
-        .lessons-list-show .far {
-            font-family: "Font Awesome 5 Free" !important;
-            font-weight: 400 !important;
-        }
-
-        .lessons-list-show .fab {
-            font-family: "Font Awesome 5 Brands" !important;
-            font-weight: 400 !important;
-        }
-
-        /* Toolbar / Filters */
-        .ss-toolbar {
+        .clx-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 16px;
-            width: 100%;
-            min-height: 64px;
-            margin: 0 auto 30px;
-            padding: 14px 22px;
-            border-radius: 4px;
-            background: #fff;
-            box-shadow: 0 2px 8px rgba(44, 50, 89, .08);
-            flex-wrap: wrap;
+            gap: 18px;
+            margin-bottom: 18px;
+            padding: 20px 22px;
+            border: 1px solid #dbeafe;
+            border-radius: 8px;
+            background:
+                linear-gradient(135deg, rgba(77, 182, 242, .14), rgba(0, 179, 144, .08)),
+                #ffffff;
+            box-shadow: 0 14px 34px rgba(15, 23, 42, .06);
         }
 
-        .ss-filters-group {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
+        .clx-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            color: #0f766e;
+            font-size: 13px;
+            font-weight: 900;
         }
 
-        .ss-tool {
+        .clx-title {
+            margin: 0;
+            color: #071827;
+            font-size: clamp(24px, 2.4vw, 34px);
+            font-weight: 900;
+            line-height: 1.25;
+        }
+
+        .clx-subtitle {
+            margin: 6px 0 0;
+            color: #64748b;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .clx-create {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            min-width: 54px;
-            height: 46px;
-            border: 0;
-            border-radius: 0;
-            background: #5866f5;
-            color: #fff;
-            font-size: 20px;
-            font-weight: 700;
-            text-decoration: none;
-            cursor: pointer;
-            transition: background-color .15s ease;
-        }
-
-        .ss-tool:hover {
-            background: #4351e6;
-        }
-
-        /* Card styles */
-        .ss-card {
-            position: relative;
-            overflow-x: auto;
-            border-radius: 5px;
-            background: #fff;
-            padding: 26px 22px 24px;
-            box-shadow: 0 2px 8px rgba(44, 50, 89, .08);
-        }
-
-        .ss-ribbon {
-            position: absolute;
-            top: 0;
-            left: 22px;
-            width: 90px;
-            height: 94px;
-            padding-top: 33px;
-            background: #5866f5;
-            color: #fff;
-            text-align: center;
+            gap: 9px;
+            min-height: 42px;
+            padding: 0 16px;
+            border: 1px solid #00a884;
+            border-radius: 7px;
+            background: #00B390;
+            color: #001f1a;
             font-size: 14px;
-            font-weight: 700;
+            font-weight: 900;
+            text-decoration: none;
+            white-space: nowrap;
+            box-shadow: 0 12px 24px rgba(0, 179, 144, .18);
+            transition: transform .2s ease, box-shadow .2s ease, background-color .2s ease;
         }
 
-        .ss-ribbon::after {
-            content: "";
-            position: absolute;
-            left: 0;
-            right: 0;
-            bottom: -26px;
-            border-left: 45px solid transparent;
-            border-right: 45px solid transparent;
-            border-top: 26px solid #5866f5;
+        .clx-create:hover {
+            background: #08c49d;
+            color: #001f1a;
+            transform: translateY(-1px);
+            box-shadow: 0 16px 30px rgba(0, 179, 144, .24);
         }
 
-        .ss-heading {
-            padding: 0 100px 16px;
-            border-bottom: 1px solid #d8dbe8;
-            text-align: center;
-            margin-bottom: 24px;
+        .clx-stats {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 12px;
+            margin-bottom: 18px;
         }
 
-        .ss-heading h2 {
+        .clx-stat {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            min-height: 92px;
+            padding: 16px 18px;
+            border: 1px solid #dbe3ef;
+            border-radius: 8px;
+            background: #ffffff;
+            box-shadow: 0 10px 26px rgba(15, 23, 42, .045);
+        }
+
+        .clx-stat-label {
+            color: #64748b;
+            font-size: 13px;
+            font-weight: 800;
+        }
+
+        .clx-stat-value {
+            margin-top: 5px;
+            color: #0f172a;
+            font-size: 26px;
+            font-weight: 900;
+            line-height: 1;
+        }
+
+        .clx-stat-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            border-radius: 8px;
+            background: #eef6ff;
+            color: #0284c7;
+            font-size: 18px;
+            flex: 0 0 auto;
+        }
+
+        .clx-stat-success .clx-stat-icon {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .clx-stat-warning .clx-stat-icon {
+            background: #fef3c7;
+            color: #b45309;
+        }
+
+        .clx-stat-accent .clx-stat-icon {
+            background: #e0f2fe;
+            color: #0369a1;
+        }
+
+        .clx-table-card {
+            overflow: hidden;
+            border: 1px solid #dbe3ef;
+            border-radius: 8px;
+            background: #ffffff;
+            box-shadow: 0 16px 38px rgba(15, 23, 42, .06);
+        }
+
+        .clx-table-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            padding: 16px 18px;
+            border-bottom: 1px solid #e2e8f0;
+            background: #fbfdff;
+        }
+
+        .clx-table-title {
             margin: 0;
-            color: #3a405f;
-            font-size: 36px;
-            font-weight: 400;
-            line-height: 1.35;
+            color: #0f172a;
+            font-size: 18px;
+            font-weight: 900;
         }
 
-        /* Dark mode compatibility */
-        .dark .ss-toolbar {
-            background: #1e293b;
-            box-shadow: none;
-            border: 1px solid #334155;
+        .clx-table-note {
+            margin: 3px 0 0;
+            color: #64748b;
+            font-size: 13px;
+            font-weight: 600;
         }
 
-        .dark .ss-card {
-            background: #1e293b;
-            box-shadow: none;
-            border: 1px solid #334155;
+        .clx-table-wrap {
+            padding: 12px;
         }
 
-        .dark .ss-heading {
-            border-bottom-color: #334155;
+        .content-lessons-index .fi-ta-ctn {
+            border: 0 !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
         }
 
-        .dark .ss-heading h2 {
-            color: #f1f5f9;
+        .content-lessons-index .fi-ta-header,
+        .content-lessons-index .fi-ta-content,
+        .content-lessons-index .fi-ta-footer {
+            border-radius: 0 !important;
         }
 
-        /* Hide default Filament header actions globally on this page */
+        .content-lessons-index .fi-ta-table thead {
+            background: #f8fafc !important;
+        }
+
+        .content-lessons-index .fi-ta-table th {
+            color: #475569 !important;
+            font-size: 12px !important;
+            font-weight: 900 !important;
+            text-transform: none !important;
+        }
+
+        .content-lessons-index .fi-ta-table td {
+            color: #0f172a !important;
+            font-size: 13px !important;
+            font-weight: 650 !important;
+        }
+
+        .content-lessons-index .fi-ta-row:hover {
+            background: #f0f9ff !important;
+        }
+
+        .content-lessons-index .fi-badge {
+            border-radius: 6px !important;
+            font-weight: 900 !important;
+        }
+
         .fi-header-actions,
-        .fi-ac-actions,
-        .fi-ac,
+        .fi-header-actions-ctn,
         .fi-page-header-actions {
             display: none !important;
         }
+
+        .dark .content-lessons-index {
+            color: #e5e7eb;
+        }
+
+        .dark .clx-header,
+        .dark .clx-stat,
+        .dark .clx-table-card {
+            border-color: #334155;
+            background: #111827;
+            box-shadow: none;
+        }
+
+        .dark .clx-header {
+            background:
+                linear-gradient(135deg, rgba(56, 189, 248, .12), rgba(45, 212, 191, .08)),
+                #111827;
+        }
+
+        .dark .clx-title,
+        .dark .clx-stat-value,
+        .dark .clx-table-title,
+        .dark .content-lessons-index .fi-ta-table td {
+            color: #f8fafc !important;
+        }
+
+        .dark .clx-subtitle,
+        .dark .clx-stat-label,
+        .dark .clx-table-note {
+            color: #94a3b8;
+        }
+
+        .dark .clx-table-head,
+        .dark .content-lessons-index .fi-ta-table thead {
+            border-color: #334155;
+            background: #0f172a !important;
+        }
+
+        .dark .content-lessons-index .fi-ta-table th {
+            color: #cbd5e1 !important;
+        }
+
+        .dark .content-lessons-index .fi-ta-row:hover {
+            background: rgba(14, 165, 233, .12) !important;
+        }
+
+        @media (max-width: 1100px) {
+            .clx-stats {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 720px) {
+            .clx-header,
+            .clx-table-head {
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            .clx-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .clx-create {
+                width: 100%;
+            }
+        }
     </style>
 
-    <div class="lessons-list-show">
-        <div class="ss-toolbar">
-            <div class="ss-filters-group">
-                <!-- No filters needed for content lessons table -->
-            </div>
-            
-            <div class="ss-actions-group" style="display: flex; gap: 6px;">
-                @if (\App\Filament\Admin\Resources\ContentLessons\ContentLessonResource::canCreate())
-                    <a class="ss-tool" href="{{ \App\Filament\Admin\Resources\ContentLessons\ContentLessonResource::getUrl('create') }}" title="បញ្ចូលមេរៀន">
-                        <i class="fa fa-plus-circle"></i>
-                    </a>
-                @endif
-            </div>
-        </div>
-
-        <div class="ss-card">
-            <div class="ss-ribbon">បញ្ជី</div>
-
-            <div class="ss-heading">
-                <h2>បញ្ជីមេរៀន</h2>
-            </div>
-
+    <div class="content-lessons-index">
+        <section class="clx-header">
             <div>
+                <div class="clx-eyebrow">
+                    <i class="fas fa-book-open"></i>
+                    Lesson Management
+                </div>
+                <h1 class="clx-title">??????????</h1>
+                <p class="clx-subtitle">?????????????? ?????? ????????????? ??????????????????????????????</p>
+            </div>
+
+            @if (\App\Filament\Admin\Resources\ContentLessons\ContentLessonResource::canCreate())
+                <a class="clx-create" href="{{ \App\Filament\Admin\Resources\ContentLessons\ContentLessonResource::getUrl('create') }}">
+                    <i class="fas fa-plus"></i>
+                    ???????????
+                </a>
+            @endif
+        </section>
+
+        <section class="clx-stats" aria-label="Lesson summary">
+            <div class="clx-stat">
+                <div>
+                    <div class="clx-stat-label">?????????</div>
+                    <div class="clx-stat-value">{{ $totalLessons }}</div>
+                </div>
+                <span class="clx-stat-icon"><i class="fas fa-book"></i></span>
+            </div>
+
+            <div class="clx-stat clx-stat-success">
+                <div>
+                    <div class="clx-stat-label">????????</div>
+                    <div class="clx-stat-value">{{ $publishedLessons }}</div>
+                </div>
+                <span class="clx-stat-icon"><i class="fas fa-check-circle"></i></span>
+            </div>
+
+            <div class="clx-stat clx-stat-warning">
+                <div>
+                    <div class="clx-stat-label">????????????</div>
+                    <div class="clx-stat-value">{{ $draftLessons }}</div>
+                </div>
+                <span class="clx-stat-icon"><i class="fas fa-pen"></i></span>
+            </div>
+
+            <div class="clx-stat clx-stat-accent">
+                <div>
+                    <div class="clx-stat-label">Module</div>
+                    <div class="clx-stat-value">{{ $moduleCount }}</div>
+                </div>
+                <span class="clx-stat-icon"><i class="fas fa-layer-group"></i></span>
+            </div>
+        </section>
+
+        <section class="clx-table-card">
+            <div class="clx-table-head">
+                <div>
+                    <h2 class="clx-table-title">????????????</h2>
+                    <p class="clx-table-note">??????? ?????? ??????? ????????????????????????????????</p>
+                </div>
+            </div>
+
+            <div class="clx-table-wrap">
                 {{ $this->table }}
             </div>
-        </div>
+        </section>
     </div>
 </x-filament-panels::page>

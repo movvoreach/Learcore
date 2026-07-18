@@ -250,7 +250,7 @@
         }
     </style>
 
-    <div class="lesson-create-show">
+    <div class="lesson-create-show" wire:key="content-lesson-create-page">
         <div class="lc-toolbar">
             <div>
                 <h1 class="lc-toolbar-title">បញ្ចូលមេរៀន</h1>

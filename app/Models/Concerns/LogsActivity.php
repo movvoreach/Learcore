@@ -24,19 +24,23 @@ trait LogsActivity
 
     protected static function logAction(Model $model, string $action, ?array $oldValues, ?array $newValues)
     {
-        // Don't log if running in console (unless we want to track artisan commands)
-        // We will log it if there's a user, otherwise system action.
-        $userId = auth()->check() ? auth()->id() : null;
-        $ip = request()->ip();
+        if (app()->runningInConsole()) {
+            return;
+        }
+
+        $user = auth()->user();
+        if (! $user || ! $user->hasAnyRole(['super_admin', 'admin'])) {
+            return;
+        }
 
         ActivityLog::create([
             'action' => $action,
             'model_type' => get_class($model),
             'model_id' => $model->getKey(),
-            'user_id' => $userId,
+            'user_id' => $user->id,
             'old_values' => $oldValues,
             'new_values' => $newValues,
-            'ip_address' => $ip,
+            'ip_address' => request()->ip(),
         ]);
     }
 }

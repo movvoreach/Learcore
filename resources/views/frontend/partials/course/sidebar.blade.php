@@ -16,6 +16,15 @@
             ->orderBy('position')
             ->get() ?? collect());
     $modules = $sidebarLessons->groupBy(fn ($contentLesson) => ($contentLesson->module_number ?? 0).'|'.($contentLesson->module_title ?: 'Course Lessons'));
+    $learningFlow = $learningFlow ?? [
+        'completedIds' => [],
+        'unlocked' => [],
+        'percent' => 0,
+        'moduleProgress' => [],
+    ];
+    $completedLessonIds = $learningFlow['completedIds'] ?? [];
+    $unlockedLessons = $learningFlow['unlocked'] ?? [];
+    $moduleProgress = $learningFlow['moduleProgress'] ?? [];
     $compactSidebar = $compactSidebar ?? false;
     $toKhmerNumber = fn ($number): string => strtr((string) $number, [
         '0' => '០',
@@ -39,6 +48,14 @@
     };
     $lessonDisplayTitle = function ($contentLesson, int $moduleNumber) use ($cleanOutlineTitle, $toKhmerNumber): string {
         return 'មេរៀនទី '.$toKhmerNumber($moduleNumber).' - '.$cleanOutlineTitle($contentLesson?->title);
+    };
+    $lessonDisplayParts = function ($contentLesson, int $fallbackNumber) use ($cleanOutlineTitle, $toKhmerNumber): array {
+        $lessonNumber = (int) ($contentLesson?->position ?: $fallbackNumber);
+
+        return [
+            'number' => 'មេរៀនទី '.$toKhmerNumber($lessonNumber),
+            'title' => $cleanOutlineTitle($contentLesson?->title),
+        ];
     };
     $lessonTopics = function ($contentLesson) use ($cleanOutlineTitle) {
         $topics = collect();
@@ -100,6 +117,8 @@
                 $moduleNumber = (int) ($parts[0] ?? $loop->iteration);
                 $moduleTitle = $parts[1] ?? 'Course Lessons';
                 $moduleId = 'course-workspace-module-'.$loop->iteration;
+                $progressKey = $moduleLessons->first()?->course_module_id ?: $moduleNumber;
+                $progress = $moduleProgress[$progressKey] ?? ['completed' => 0, 'total' => $moduleLessons->count(), 'percent' => 0];
             @endphp
 
             <button
@@ -108,7 +127,10 @@
                 aria-expanded="true"
                 aria-controls="{{ $moduleId }}"
             >
-                <span>Module {{ $moduleNumber }} - {{ $moduleTitle }}</span>
+                <span>
+                    Module {{ $moduleNumber }} - {{ $moduleTitle }}
+                    <small>{{ $progress['completed'] }}/{{ $progress['total'] }} lessons completed ({{ $progress['percent'] }}%)</small>
+                </span>
                 <i class="fas fa-chevron-up"></i>
             </button>
 
@@ -117,14 +139,24 @@
                     @php
                         $topics = $lessonTopics($contentLesson);
                         $lessonUrl = route('frontend.courses.lessons.show', ['course' => $course ?? $courseRecord?->getKey(), 'lesson' => $contentLesson->slug]);
+                        $lessonId = (int) $contentLesson->content_lesson_id;
+                        $isCompleted = in_array($lessonId, $completedLessonIds, true);
+                        $isUnlocked = $unlockedLessons[$lessonId] ?? $loop->first;
+                        $displayTitle = $lessonDisplayParts($contentLesson, $loop->iteration);
                     @endphp
                     <div class="course-workspace-lesson-node">
-                        <a href="{{ $lessonUrl }}"
-                           class="course-workspace-lesson-link {{ ($lesson ?? '') === $contentLesson->slug ? 'is-active' : '' }}">
-                            {{ $lessonDisplayTitle($contentLesson, $moduleNumber) }}
+                        <a href="{{ $isUnlocked ? $lessonUrl : '#' }}"
+                           class="course-workspace-lesson-link {{ ($lesson ?? '') === $contentLesson->slug ? 'is-active' : '' }} {{ $isCompleted ? 'is-completed' : '' }} {{ ! $isUnlocked ? 'is-locked' : '' }}"
+                           data-no-loading
+                           @if(! $isUnlocked) aria-disabled="true" data-locked="true" @endif>
+                            <i class="fas {{ $isCompleted ? 'fa-check-circle' : (($lesson ?? '') === $contentLesson->slug ? 'fa-play-circle' : ($isUnlocked ? 'fa-circle' : 'fa-lock')) }}"></i>
+                            <span class="course-workspace-lesson-text">
+                                <small>{{ $displayTitle['number'] }}</small>
+                                <strong>{{ $displayTitle['title'] }}</strong>
+                            </span>
                         </a>
 
-                        @if($topics->isNotEmpty())
+                        @if($topics->isNotEmpty() && $isUnlocked)
                             <div class="course-workspace-topics" aria-label="Lesson topics">
                                 @foreach($topics as $topic)
                                     <a href="{{ $lessonUrl }}?panel={{ $topic['panel'] }}"
@@ -167,26 +199,39 @@
                 $parts = explode('|', $moduleKey);
                 $moduleNumber = (int) ($parts[0] ?? $loop->iteration);
                 $moduleTitle = $parts[1] ?? 'Course Lessons';
+                $progressKey = $moduleLessons->first()?->course_module_id ?: $moduleNumber;
+                $progress = $moduleProgress[$progressKey] ?? ['completed' => 0, 'total' => $moduleLessons->count(), 'percent' => 0];
             @endphp
-            <h2>Module {{ $moduleNumber }} - {{ $moduleTitle }}</h2>
+            <h2>
+                Module {{ $moduleNumber }} - {{ $moduleTitle }}
+                <small>{{ $progress['completed'] }}/{{ $progress['total'] }} lessons completed ({{ $progress['percent'] }}%)</small>
+            </h2>
             @foreach($moduleLessons as $contentLesson)
                 @php
                     $topics = $lessonTopics($contentLesson);
                     $lessonUrl = route('frontend.courses.lessons.show', ['course' => $course ?? $courseRecord?->getKey(), 'lesson' => $contentLesson->slug]);
+                    $lessonId = (int) $contentLesson->content_lesson_id;
+                    $isCompleted = in_array($lessonId, $completedLessonIds, true);
+                    $isUnlocked = $unlockedLessons[$lessonId] ?? $loop->first;
+                    $displayTitle = $lessonDisplayParts($contentLesson, $loop->iteration);
                 @endphp
                 <div class="course-lesson-node">
-                    <a href="{{ $lessonUrl }}" class="{{ ($lesson ?? '') === $contentLesson->slug ? 'is-active' : '' }}">
-                        <span class="course-check"><i class="fas fa-check"></i></span>
-                        <span class="course-video"><i class="far fa-play-circle"></i></span>
+                    <a href="{{ $isUnlocked ? $lessonUrl : '#' }}"
+                       class="{{ ($lesson ?? '') === $contentLesson->slug ? 'is-active' : '' }} {{ $isCompleted ? 'is-completed' : '' }} {{ ! $isUnlocked ? 'is-locked' : '' }}"
+                       data-no-loading
+                       @if(! $isUnlocked) aria-disabled="true" data-locked="true" @endif>
+                        <span class="course-check"><i class="fas {{ $isCompleted ? 'fa-check' : ($isUnlocked ? 'fa-play' : 'fa-lock') }}"></i></span>
+                        <span class="course-video"><i class="far {{ $isUnlocked ? 'fa-play-circle' : 'fa-lock' }}"></i></span>
                         <strong>
-                            {{ $lessonDisplayTitle($contentLesson, $moduleNumber) }}
+                            <small>{{ $displayTitle['number'] }}</small>
+                            {{ $displayTitle['title'] }}
                             @if($contentLesson->duration_minutes)
                                 <small>({{ $contentLesson->duration_minutes }} min)</small>
                             @endif
                         </strong>
                     </a>
 
-                    @if($topics->isNotEmpty())
+                    @if($topics->isNotEmpty() && $isUnlocked)
                         <div class="course-detail-topics" aria-label="Lesson topics">
                             @foreach($topics as $topic)
                                 <a href="{{ $lessonUrl }}?panel={{ $topic['panel'] }}"

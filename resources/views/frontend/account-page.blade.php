@@ -119,11 +119,29 @@
                 @elseif($section === 'notifications')
                     <article class="learning-account-card">
                         <h2>ការជូនដំណឹង</h2>
-                        <div class="learning-account-empty">
-                            <i class="fa fa-paper-plane"></i>
-                            <strong>មិនទាន់មានការជូនដំណឹងថ្មីទេ</strong>
-                            <span>សារពីវគ្គសិក្សា កិច្ចការ និងប្រព័ន្ធនឹងបង្ហាញនៅទីនេះ។</span>
-                        </div>
+                        @if(($notifications ?? collect())->isEmpty())
+                            <div class="learning-account-empty">
+                                <i class="fa fa-paper-plane"></i>
+                                <strong>មិនទាន់មានការជូនដំណឹងថ្មីទេ</strong>
+                                <span>សារពីវគ្គសិក្សា កិច្ចការ និងប្រព័ន្ធនឹងបង្ហាញនៅទីនេះ។</span>
+                            </div>
+                        @else
+                            <div class="learning-notification-list">
+                                @foreach($notifications as $notification)
+                                    @php($data = $notification->data ?? [])
+                                    <div class="learning-notification-item {{ $notification->read_at ? '' : 'is-unread' }}">
+                                        <div class="learning-notification-icon">
+                                            <i class="fa {{ ($data['type'] ?? '') === 'course_completion_rejected' ? 'fa-times-circle' : 'fa-check-circle' }}"></i>
+                                        </div>
+                                        <div>
+                                            <strong>{{ $data['title'] ?? 'Notification' }}</strong>
+                                            <p>{{ $data['message'] ?? '' }}</p>
+                                            <span>{{ $notification->created_at?->diffForHumans() }}</span>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
                     </article>
                 @elseif($section === 'calendar')
                     @include('frontend.partials.account.calendar-card')
@@ -367,6 +385,47 @@
         .learning-account-empty i {
             color: #f04d00;
             font-size: 34px;
+        }
+
+        .learning-notification-list {
+            display: grid;
+            gap: 12px;
+        }
+
+        .learning-notification-item {
+            display: flex;
+            gap: 14px;
+            padding: 15px;
+            border: 1px solid #e2e8f0;
+            border-radius: .75rem;
+            background: #fff;
+        }
+
+        .learning-notification-item.is-unread {
+            border-color: #93c5fd;
+            background: #eff6ff;
+        }
+
+        .learning-notification-icon {
+            width: 40px;
+            height: 40px;
+            display: grid;
+            place-items: center;
+            border-radius: .65rem;
+            background: #dcfce7;
+            color: #15803d;
+            flex: 0 0 auto;
+        }
+
+        .learning-notification-item p {
+            margin: 4px 0;
+            color: #475569;
+        }
+
+        .learning-notification-item span {
+            color: #94a3b8;
+            font-size: 12px;
+            font-weight: 700;
         }
 
         .learning-account-table {

@@ -24,6 +24,25 @@
     $lessonQuestions = $lessonRecord?->assessmentQuestions ?? collect();
     $quizResults = $quizResults ?? collect();
     $assignmentSubmissions = $assignmentSubmissions ?? collect();
+    $learningFlow = $learningFlow ?? [
+        'completedIds' => [],
+        'unlocked' => [],
+        'percent' => 0,
+        'moduleProgress' => [],
+    ];
+    $completedLessonIds = $learningFlow['completedIds'] ?? [];
+    $lessonCompleted = $lessonRecord && in_array((int) $lessonRecord->content_lesson_id, $completedLessonIds, true);
+    $previousLesson = $previousLesson ?? null;
+    $nextLesson = $nextLesson ?? null;
+    $nextLessonUnlocked = $nextLesson
+        ? ($learningFlow['unlocked'][(int) $nextLesson->content_lesson_id] ?? false)
+        : false;
+    $lessonHasVideo = $lessonRecord
+        && (
+            filled($lessonRecord->video_url)
+            || (($lessonRecord->content_type ?? null) === 'video' && filled($lessonRecord->file_path))
+            || ($lessonRecord->videos ?? collect())->contains(fn ($video): bool => filled($video->video_url) || filled($video->video_path))
+        );
     $assignmentAttachmentUrl = fn (?string $path): ?string => $path
         ? (str_starts_with($path, 'http') ? $path : asset('storage/'.$path))
         : null;
@@ -40,6 +59,7 @@
             'courseRecord' => $courseRecord,
             'lessons' => $lessons,
             'lesson' => $lesson,
+            'learningFlow' => $learningFlow,
             'compactSidebar' => true,
         ])
 
@@ -64,6 +84,16 @@
                 <h2>{{ $lessonTitle }}</h2>
             </header>
 
+            <section class="course-workspace-progress-card">
+                <div>
+                    <span>Course progress</span>
+                    <strong>{{ $learningFlow['percent'] ?? 0 }}%</strong>
+                </div>
+                <div class="course-workspace-progress-track">
+                    <span style="width: {{ $learningFlow['percent'] ?? 0 }}%"></span>
+                </div>
+            </section>
+
             @if(session('assessment_success'))
                 <div class="course-workspace-alert course-workspace-alert--success">
                     {{ session('assessment_success') }}
@@ -77,8 +107,10 @@
             @endif
 
             <div class="course-workspace-tabs" role="tablist" aria-label="Lesson content">
-                <button type="button" class="is-active" data-workspace-panel="video">មេរៀន</button>
-                <button type="button" data-workspace-panel="document">ឯកសារ</button>
+                @if($lessonHasVideo)
+                    <button type="button" class="is-active" data-workspace-panel="video">វីដេអូ</button>
+                @endif
+                <button type="button" class="{{ $lessonHasVideo ? '' : 'is-active' }}" data-workspace-panel="document">មាតិកាមេរៀន</button>
                 <button type="button" data-workspace-panel="quiz">
                     តេស្តខ្លី
                     @if($lessonQuizzes->isNotEmpty())
@@ -96,17 +128,19 @@
             <article class="course-workspace-card">
                 <h3>{{ $lessonTitle }}</h3>
 
-                <div class="course-workspace-panel is-active" data-workspace-panel-content="video">
-                    <div class="course-workspace-frame" id="lessonMediaShell">
-                        <div class="course-workspace-video">
-                            <button type="button" class="course-workspace-play" aria-label="Play lesson">
-                                <i class="fas fa-play"></i>
-                            </button>
+                @if($lessonHasVideo)
+                    <div class="course-workspace-panel is-active" data-workspace-panel-content="video">
+                        <div class="course-workspace-frame" id="lessonMediaShell">
+                            <div class="course-workspace-video">
+                                <button type="button" class="course-workspace-play" aria-label="Play lesson">
+                                    <i class="fas fa-play"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
+                @endif
 
-                <div class="course-workspace-panel" data-workspace-panel-content="document">
+                <div class="course-workspace-panel {{ $lessonHasVideo ? '' : 'is-active' }}" data-workspace-panel-content="document">
                     <div class="course-workspace-document">
                         <span>Lesson Document</span>
                         <h4>{{ $lessonTitle }}</h4>
@@ -315,6 +349,47 @@
                     </div>
                 </div>
             </article>
+
+            <nav class="course-workspace-lesson-actions" aria-label="Lesson navigation">
+                @if($previousLesson)
+                    <a href="{{ route('frontend.courses.lessons.show', ['course' => $course, 'lesson' => $previousLesson->slug]) }}">
+                        <i class="fas fa-arrow-left"></i>
+                        Previous
+                    </a>
+                @else
+                    <span></span>
+                @endif
+
+                @if($lessonRecord && ! $lessonCompleted)
+                    @auth
+                        @if(auth()->user()?->student)
+                            <form action="{{ route('frontend.courses.lessons.complete', ['course' => $course, 'lesson' => $lessonRecord->slug]) }}" method="POST">
+                                @csrf
+                                <button type="submit">
+                                    <i class="fas fa-check-circle"></i>
+                                    Mark completed
+                                </button>
+                            </form>
+                        @endif
+                    @endauth
+                @elseif($lessonRecord)
+                    <strong><i class="fas fa-check-circle"></i> Completed</strong>
+                @endif
+
+                @if($nextLesson)
+                    @if($nextLessonUnlocked)
+                        <a href="{{ route('frontend.courses.lessons.show', ['course' => $course, 'lesson' => $nextLesson->slug]) }}">
+                            Next
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                    @else
+                        <span class="is-locked">
+                            Next locked
+                            <i class="fas fa-lock"></i>
+                        </span>
+                    @endif
+                @endif
+            </nav>
 
             @if($lessonRecord?->allow_comments)
                 <section class="course-workspace-discussion">
@@ -529,6 +604,15 @@
             cursor: pointer;
         }
 
+        .course-workspace-module small,
+        .course-detail-menu h2 small {
+            display: block;
+            margin-top: 4px;
+            color: #64748b;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
         .course-workspace-module i {
             color: #66758c;
             font-size: 14px;
@@ -573,6 +657,48 @@
             background: #edf5ff;
             color: #0f63b7;
             text-decoration: none;
+        }
+
+        .course-workspace-lessons a i {
+            flex: 0 0 auto;
+            color: inherit;
+            font-size: 14px;
+        }
+
+        .course-workspace-lesson-text {
+            min-width: 0;
+            display: grid;
+            gap: 2px;
+            line-height: 1.35;
+        }
+
+        .course-workspace-lesson-text small {
+            color: inherit;
+            font-size: 12px;
+            font-weight: 800;
+            opacity: .84;
+        }
+
+        .course-workspace-lesson-text strong {
+            min-width: 0;
+            color: inherit;
+            font-size: 14px;
+            font-weight: 900;
+            overflow-wrap: anywhere;
+        }
+
+        .course-workspace-lessons a.is-active .course-workspace-lesson-text small {
+            opacity: .92;
+        }
+
+        .course-workspace-lessons a.is-completed {
+            color: #15803d;
+        }
+
+        .course-workspace-lessons a.is-locked,
+        .course-lesson-node a.is-locked {
+            cursor: not-allowed;
+            opacity: .62;
         }
 
         .course-workspace-lessons a.is-active {
@@ -719,6 +845,91 @@
             height: 52px;
             border-bottom: 2px solid #e2e8f0;
             margin-bottom: 28px;
+        }
+
+        .course-workspace-progress-card {
+            display: grid;
+            gap: 10px;
+            margin-bottom: 18px;
+            padding: 16px 18px;
+            border: 1px solid #dbe5f0;
+            border-radius: 12px;
+            background: #fff;
+        }
+
+        .course-workspace-progress-card div:first-child {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            color: #475569;
+            font-size: 13px;
+            font-weight: 800;
+        }
+
+        .course-workspace-progress-card strong {
+            color: #0f63b7;
+            font-size: 18px;
+        }
+
+        .course-workspace-progress-track {
+            height: 10px;
+            overflow: hidden;
+            border-radius: 999px;
+            background: #e2e8f0;
+        }
+
+        .course-workspace-progress-track span {
+            display: block;
+            height: 100%;
+            border-radius: inherit;
+            background: linear-gradient(90deg, #0f63b7, #16a34a);
+        }
+
+        .course-workspace-lesson-actions {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+            align-items: center;
+            gap: 14px;
+            margin: 18px 0 28px;
+        }
+
+        .course-workspace-lesson-actions a,
+        .course-workspace-lesson-actions button,
+        .course-workspace-lesson-actions strong,
+        .course-workspace-lesson-actions .is-locked {
+            min-height: 44px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            border: 0;
+            border-radius: 10px;
+            padding: 0 16px;
+            background: #237dbe;
+            color: #fff;
+            font-weight: 800;
+            text-decoration: none;
+        }
+
+        .course-workspace-lesson-actions form {
+            margin: 0;
+        }
+
+        .course-workspace-lesson-actions button {
+            background: #16a34a;
+            cursor: pointer;
+        }
+
+        .course-workspace-lesson-actions strong {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .course-workspace-lesson-actions .is-locked {
+            justify-self: end;
+            background: #e2e8f0;
+            color: #64748b;
         }
 
         .course-workspace-tabs button {
@@ -869,6 +1080,28 @@
             color: #53657f;
             font-size: 16px;
             line-height: 1.6;
+        }
+
+        .course-workspace-document :where(img, video, iframe) {
+            display: block;
+            max-width: 100%;
+            margin: 18px auto;
+            border-radius: 12px;
+        }
+
+        .course-workspace-document iframe[data-lms-video] {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            height: auto;
+            border: 0;
+        }
+
+        .course-workspace-document pre {
+            overflow: auto;
+            border-radius: 12px;
+            background: #111827;
+            color: #e5e7eb;
+            padding: 16px;
         }
 
         .course-workspace-assessment-list {
@@ -1293,59 +1526,6 @@
                 $(`.js-workspace-topic-link[data-panel="${panel}"]`).addClass('is-active');
             };
 
-            // AJAX loader function
-            const loadLessonViaAjax = function(url, pushState = true) {
-                const $main = $('.course-workspace-main');
-                // Premium micro-animation: fade out
-                $main.animate({ opacity: 0.35 }, 150, function() {
-                    fetch(url)
-                        .then(response => {
-                            if (!response.ok) throw new Error('Response error');
-                            return response.text();
-                        })
-                        .then(html => {
-                            const parser = new DOMParser();
-                            const doc = parser.parseFromString(html, 'text/html');
-
-                            // Swap workspace main content
-                            const newMain = doc.querySelector('.course-workspace-main');
-                            if (newMain) {
-                                $main.html(newMain.innerHTML);
-                            }
-
-                            // Swap sidebar
-                            const newSidebar = doc.querySelector('.course-workspace-sidebar');
-                            if (newSidebar) {
-                                $('.course-workspace-sidebar').html(newSidebar.innerHTML);
-                            } else {
-                                const newDetailSidebar = doc.querySelector('.course-detail-sidebar');
-                                if (newDetailSidebar) {
-                                    $('.course-detail-sidebar').html(newDetailSidebar.innerHTML);
-                                }
-                            }
-
-                            // Update Page Title
-                            document.title = doc.title;
-
-                            // Update address bar
-                            if (pushState) {
-                                window.history.pushState(null, '', url);
-                            }
-
-                            // Activate correct panel tab if specified
-                            const panel = new URLSearchParams(window.location.search).get('panel') || 'video';
-                            openWorkspacePanel(panel);
-
-                            // Premium fade-in animation
-                            $main.animate({ opacity: 1 }, 150);
-                        })
-                        .catch(error => {
-                            console.error('AJAX loading failed:', error);
-                            window.location.href = url;
-                        });
-                });
-            };
-
             // Event delegation for sidebar toggle controls
             $(document).on('click', '.js-course-sidebar-close', function() {
                 $('.course-workspace').addClass('is-course-sidebar-hidden');
@@ -1401,8 +1581,13 @@
                 window.history.pushState(null, '', url.toString());
             });
 
-            // Intercept clicks on lesson and topic links
+            // Keep only locked lesson and same-page topic handling. Lesson links use normal navigation.
             $(document).on('click', '.course-workspace-lesson-link, .course-lesson-node > a, .js-workspace-topic-link', function(event) {
+                if ($(this).data('locked')) {
+                    event.preventDefault();
+                    return;
+                }
+
                 const url = new URL(this.href);
                 const currentUrl = new URL(window.location.href);
 
@@ -1416,17 +1601,6 @@
                     }
                     return;
                 }
-
-                // If it points to a lesson/page inside our workspace (same origin and contains "/lessons/")
-                if (url.origin === currentUrl.origin && url.pathname.includes('/lessons/')) {
-                    event.preventDefault();
-                    loadLessonViaAjax(this.href, true);
-                }
-            });
-
-            // Listen for browser back/forward buttons (popstate)
-            window.addEventListener('popstate', function() {
-                loadLessonViaAjax(window.location.href, false);
             });
 
             // Initial panel activation on page load

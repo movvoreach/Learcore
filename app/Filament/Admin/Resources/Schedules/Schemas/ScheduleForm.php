@@ -2,9 +2,15 @@
 
 namespace App\Filament\Admin\Resources\Schedules\Schemas;
 
+use App\Models\AcademicYear;
+use App\Models\ClassRoom;
+use App\Models\Course;
+use App\Models\Department;
+use App\Models\Semester;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TimePicker;
 use Filament\Schemas\Schema;
+use Illuminate\Database\Eloquent\Builder;
 
 class ScheduleForm
 {
@@ -13,97 +19,145 @@ class ScheduleForm
         return $schema
             ->components([
                 Select::make('department_id')
-                    ->label('ដេប៉ាតឺម៉ង់ (Department)')
-                    ->placeholder('ជ្រើសរើសដេប៉ាតឺម៉ង់ (Department)')
-                    ->options(fn () => \App\Models\Department::pluck('department_name', 'department_id'))
+                    ->label('Department')
+                    ->placeholder('Select Department')
+                    ->options(fn () => Department::pluck('department_name', 'department_id'))
                     ->searchable()
                     ->preload()
                     ->live()
                     ->dehydrated(false)
-                    ->afterStateHydrated(function (Select $component, $record) {
+                    ->afterStateHydrated(function (Select $component, $record): void {
                         if ($record) {
-                            $component->state($record->classRoom?->course?->department_id ?? $record->teacher?->department_id);
+                            $component->state($record->course?->department_id ?? $record->classRoom?->course?->department_id ?? $record->teacher?->department_id);
                         }
                     }),
                 Select::make('academic_year_id')
-                    ->label('ឆ្នាំសិក្សា (Academic Year)')
-                    ->placeholder('ជ្រើសរើសឆ្នាំសិក្សា (Academic Year)')
-                    ->options(fn () => \App\Models\AcademicYear::pluck('year_name', 'academic_year_id'))
+                    ->label('Academic Year')
+                    ->placeholder('Select Academic Year')
+                    ->options(fn () => AcademicYear::pluck('year_name', 'academic_year_id'))
                     ->searchable()
                     ->preload()
                     ->live()
                     ->dehydrated(false)
-                    ->afterStateHydrated(function (Select $component, $record) {
+                    ->afterStateHydrated(function (Select $component, $record): void {
                         if ($record) {
                             $component->state($record->classRoom?->academic_year_id);
                         }
                     }),
                 Select::make('semester_id')
-                    ->label('ឆមាស (Semester)')
-                    ->placeholder('ជ្រើសរើសឆមាស (Semester)')
-                    ->options(fn () => \App\Models\Semester::pluck('semester_name', 'semester_id'))
+                    ->label('Semester')
+                    ->placeholder('Select Semester')
+                    ->options(fn () => Semester::pluck('semester_name', 'semester_id'))
                     ->searchable()
                     ->preload()
                     ->live()
                     ->dehydrated(false)
-                    ->afterStateHydrated(function (Select $component, $record) {
+                    ->afterStateHydrated(function (Select $component, $record): void {
                         if ($record) {
-                            $component->state($record->classRoom?->course?->semester_id);
+                            $component->state($record->course?->semester_id ?? $record->classRoom?->course?->semester_id);
                         }
                     }),
+                Select::make('course_id')
+                    ->label('Course')
+                    ->placeholder('Select Course')
+                    ->options(function ($get) {
+                        $query = Course::query();
+
+                        if ($get('department_id')) {
+                            $query->where('department_id', $get('department_id'));
+                        }
+
+                        if ($get('academic_year_id')) {
+                            $query->where('academic_year_id', $get('academic_year_id'));
+                        }
+
+                        if ($get('semester_id')) {
+                            $query->where('semester_id', $get('semester_id'));
+                        }
+
+                        return $query
+                            ->orderBy('course_name')
+                            ->get()
+                            ->mapWithKeys(fn (Course $course): array => [
+                                $course->course_id => trim(($course->course_code ?? '').' - '.$course->course_name, ' -'),
+                            ]);
+                    })
+                    ->searchable()
+                    ->preload()
+                    ->live(),
                 Select::make('teacher_id')
-                    ->label('គ្រូបង្រៀន (Teacher)')
-                    ->placeholder('ជ្រើសរើសគ្រូបង្រៀន (Teacher)')
-                    ->relationship('teacher', 'first_name', function (\Illuminate\Database\Eloquent\Builder $query, $get) {
+                    ->label('Teacher')
+                    ->placeholder('Select Teacher')
+                    ->relationship('teacher', 'first_name', function (Builder $query, $get): void {
                         if ($get('department_id')) {
                             $query->where('department_id', $get('department_id'));
                         }
                     })
-                    ->getOptionLabelFromRecordUsing(fn ($record) => trim("{$record->first_name} {$record->last_name}"))
+                    ->getOptionLabelFromRecordUsing(fn ($record): string => trim("{$record->teacher_code} - {$record->first_name} {$record->last_name}", ' -'))
                     ->searchable(['teacher_code', 'first_name', 'last_name'])
                     ->preload()
                     ->required(),
                 Select::make('class_id')
-                    ->label('ថ្នាក់រៀន (Class)')
-                    ->placeholder('ជ្រើសរើសថ្នាក់រៀន (Class)')
+                    ->label('Class')
+                    ->placeholder('Select Class')
                     ->options(function ($get) {
-                        $query = \App\Models\ClassRoom::query();
+                        $query = ClassRoom::query()
+                            ->where('status', 'active');
+
                         if ($get('academic_year_id')) {
-                            $query->where('academic_year_id', $get('academic_year_id'));
-                        }
-                        if ($get('department_id') || $get('semester_id')) {
-                            $query->whereHas('course', function ($q) use ($get) {
-                                if ($get('department_id')) {
-                                    $q->where('department_id', $get('department_id'));
-                                }
-                                if ($get('semester_id')) {
-                                    $q->where('semester_id', $get('semester_id'));
-                                }
+                            $query->where(function (Builder $classQuery) use ($get): void {
+                                $classQuery
+                                    ->whereNull('academic_year_id')
+                                    ->orWhere('academic_year_id', $get('academic_year_id'));
                             });
                         }
-                        return $query->pluck('class_name', 'class_room_id');
+
+                        if ($get('department_id') || $get('semester_id') || $get('course_id')) {
+                            $query->where(function (Builder $classQuery) use ($get): void {
+                                $classQuery
+                                    ->whereNull('course_id')
+                                    ->orWhereHas('course', function (Builder $courseQuery) use ($get): void {
+                                        if ($get('course_id')) {
+                                            $courseQuery->where('course_id', $get('course_id'));
+                                        }
+
+                                        if ($get('department_id')) {
+                                            $courseQuery->where('department_id', $get('department_id'));
+                                        }
+
+                                        if ($get('semester_id')) {
+                                            $courseQuery->where('semester_id', $get('semester_id'));
+                                        }
+                                    });
+                            });
+                        }
+
+                        return $query
+                            ->orderBy('class_name')
+                            ->pluck('class_name', 'class_room_id');
                     })
                     ->searchable()
+                    ->preload()
                     ->required(),
                 Select::make('day')
-                    ->label('ថ្ងៃ (Day)')
-                    ->placeholder('ជ្រើសរើសថ្ងៃ (Day)')
+                    ->label('Day')
+                    ->placeholder('Select Day')
                     ->options([
-                        'monday' => 'ចន្ទ (Monday)',
-                        'tuesday' => 'អង្គារ (Tuesday)',
-                        'wednesday' => 'ពុធ (Wednesday)',
-                        'thursday' => 'ព្រហស្បតិ៍ (Thursday)',
-                        'friday' => 'សុក្រ (Friday)',
-                        'saturday' => 'សៅរ៍ (Saturday)',
-                        'sunday' => 'អាទិត្យ (Sunday)',
+                        'monday' => 'Monday',
+                        'tuesday' => 'Tuesday',
+                        'wednesday' => 'Wednesday',
+                        'thursday' => 'Thursday',
+                        'friday' => 'Friday',
+                        'saturday' => 'Saturday',
+                        'sunday' => 'Sunday',
                     ])
                     ->required(),
                 TimePicker::make('start_time')
-                    ->label('ម៉ោងចាប់ផ្តើម (Start Time)')
+                    ->label('Start Time')
                     ->seconds(false)
                     ->required(),
                 TimePicker::make('end_time')
-                    ->label('ម៉ោងបញ្ចប់ (End Time)')
+                    ->label('End Time')
                     ->seconds(false)
                     ->required(),
             ]);

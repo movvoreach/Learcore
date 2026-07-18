@@ -6,7 +6,7 @@
     <style>
         .assignment-submission-page {
             color: #24304a;
-            font-family: "Battambang", "Kantumruy Pro", "Noto Sans Khmer", "Khmer OS Siemreap", ui-sans-serif, system-ui, sans-serif;
+            font-family: "Battambang", "Noto Sans Khmer", "Khmer OS Siemreap", ui-sans-serif, system-ui, sans-serif;
             font-size: 14px;
             line-height: 1.65;
         }
@@ -288,8 +288,6 @@
         }
 
         .fi-header-actions,
-        .fi-ac-actions,
-        .fi-ac,
         .fi-page-header-actions {
             display: none !important;
         }

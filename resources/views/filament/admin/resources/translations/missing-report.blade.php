@@ -1,4 +1,4 @@
-<div class="space-y-3">
+﻿<div class="space-y-3">
     @if($missing->isEmpty())
         <p class="text-sm text-gray-600 dark:text-gray-300">No missing translations detected.</p>
     @else

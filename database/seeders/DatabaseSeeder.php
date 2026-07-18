@@ -76,23 +76,6 @@ class DatabaseSeeder extends Seeder
         $student->syncPermissions(Permission::query()->whereIn('name', $studentPermissions)->where('guard_name', 'web')->get());
 
         $this->call(LocalizationSeeder::class);
-
-        $user = User::query()->updateOrCreate(
-            ['email' => 'test@example.com'],
-            [
-                'name' => 'Test User',
-                'password' => '123',
-            ],
-        );
-
-        $user->assignRole($superAdmin);
-
-        $this->call(AcademicStructureSeeder::class);
         $this->call(PeopleSeeder::class);
-        $this->call(CourseSeeder::class);
-        $this->call(ContentSeeder::class);
-        $this->call(AllFeaturesSeeder::class);
-        $this->call(HistoryWesternArtQuizSeeder::class);
-        $this->call(KhmerBusinessCommunicationSeeder::class);
     }
 }

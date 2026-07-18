@@ -11,9 +11,50 @@ use Illuminate\Support\Arr;
 
 class StudentCourseProgressService
 {
+    public function markLessonCompleted(Student $student, Course $course, ContentLesson $lesson): StudentProgress
+    {
+        return $this->sync($student, $course, [$lesson->content_lesson_id], $lesson->content_lesson_id);
+    }
+
     public function markLessonViewed(Student $student, Course $course, ContentLesson $lesson): StudentProgress
     {
         return $this->sync($student, $course, [$lesson->content_lesson_id], $lesson->content_lesson_id);
+    }
+
+    /**
+     * @return array<int, int>
+     */
+    public function completedLessonIds(Student $student, Course $course): array
+    {
+        $progress = StudentProgress::query()
+            ->where('student_id', $student->student_id)
+            ->where('course_id', $course->course_id)
+            ->first();
+
+        return collect($this->decodeNote($progress?->note)['completed_lesson_ids'] ?? [])
+            ->map(fn ($id): int => (int) $id)
+            ->unique()
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @param  iterable<ContentLesson>  $lessons
+     * @param  array<int, int>  $completedLessonIds
+     * @return array<int, bool>
+     */
+    public function unlockedLessons(iterable $lessons, array $completedLessonIds): array
+    {
+        $unlocked = [];
+        $previousCompleted = true;
+
+        foreach ($lessons as $lesson) {
+            $lessonId = (int) $lesson->content_lesson_id;
+            $unlocked[$lessonId] = $previousCompleted || in_array($lessonId, $completedLessonIds, true);
+            $previousCompleted = in_array($lessonId, $completedLessonIds, true);
+        }
+
+        return $unlocked;
     }
 
     /**

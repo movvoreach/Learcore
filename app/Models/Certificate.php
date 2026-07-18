@@ -12,8 +12,11 @@ class Certificate extends Model
     protected $fillable = [
         'student_id',
         'course_id',
+        'course_completion_request_id',
         'certificate_no',
         'issued_date',
+        'issued_by',
+        'issued_at',
         'status',
         'note',
     ];
@@ -22,6 +25,7 @@ class Certificate extends Model
     {
         return [
             'issued_date' => 'date',
+            'issued_at' => 'datetime',
         ];
     }
 
@@ -33,5 +37,15 @@ class Certificate extends Model
     public function course(): BelongsTo
     {
         return $this->belongsTo(Course::class, 'course_id', 'course_id');
+    }
+
+    public function completionRequest(): BelongsTo
+    {
+        return $this->belongsTo(CourseCompletionRequest::class, 'course_completion_request_id');
+    }
+
+    public function issuedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'issued_by');
     }
 }

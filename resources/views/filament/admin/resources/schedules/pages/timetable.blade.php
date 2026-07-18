@@ -345,8 +345,6 @@
         }
 
         .fi-header-actions,
-        .fi-ac-actions,
-        .fi-ac,
         .fi-page-header-actions {
             display: none !important;
         }
@@ -471,6 +469,34 @@
             box-shadow: 0 3px 6px rgba(88, 102, 245, 0.08);
         }
 
+        .tt-subject-actions {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            padding: 0 10px 8px;
+            background: #f8faff;
+            border-right: 1px solid #e2e8f0;
+            border-bottom: 1px solid #e2e8f0;
+            border-left: 1px solid #e2e8f0;
+            border-radius: 0 0 4px 4px;
+        }
+
+        .tt-subject-edit {
+            display: inline-flex !important;
+            align-items: center;
+            justify-content: center;
+            width: auto !important;
+            min-height: 28px;
+            padding: 4px 10px !important;
+            border: 0 !important;
+            border-radius: 3px !important;
+            background: #22c55e !important;
+            color: #fff !important;
+            font-size: 12px;
+            font-weight: 700;
+            box-shadow: none !important;
+        }
+
         .break-row {
             background-color: #e0f2fe;
             height: 38px;
@@ -554,70 +580,68 @@
     <div class="schedule-show"
          x-data="{
             showCreateScheduleModal: false,
+            scheduleSelects() {
+                return [
+                    this.$refs.scheduleDepartmentSelect,
+                    this.$refs.scheduleAcademicYearSelect,
+                    this.$refs.scheduleSemesterSelect,
+                    this.$refs.scheduleCourseSelect,
+                    this.$refs.scheduleTeacherSelect,
+                    this.$refs.scheduleClassSelect,
+                    this.$refs.scheduleDaySelect,
+                ].filter(Boolean);
+            },
             initScheduleModal() {
                 this.$nextTick(() => {
-                    if (! window.jQuery || ! window.jQuery.fn.select2 || ! this.$refs.scheduleModal) {
+                    if (! this.$refs.scheduleModal) {
                         return;
                     }
 
-                    [
-                        this.$refs.scheduleDepartmentSelect,
-                        this.$refs.scheduleAcademicYearSelect,
-                        this.$refs.scheduleSemesterSelect,
-                        this.$refs.scheduleTeacherSelect,
-                        this.$refs.scheduleClassSelect,
-                        this.$refs.scheduleDaySelect,
-                    ].forEach((element) => {
-                        const select = window.jQuery(element);
-
-                        if (select.hasClass('select2-hidden-accessible')) {
-                            select.select2('destroy');
-                        }
-
-                        select.select2({
-                            theme: 'bootstrap4',
-                            width: '100%',
-                            dropdownParent: window.jQuery(this.$refs.scheduleModal),
-                            placeholder: element.dataset.placeholder || '',
-                            allowClear: ! element.required,
-                        });
-                    });
-
-                    window.jQuery(this.$refs.scheduleDepartmentSelect).off('change.createSchedule').on('change.createSchedule', () => {
-                        this.$wire.set('scheduleDepartmentId', this.nullableInt(this.$refs.scheduleDepartmentSelect.value));
+                    this.$refs.scheduleDepartmentSelect.onchange = () => {
+                        this.setScheduleField('scheduleDepartmentId', this.nullableInt(this.$refs.scheduleDepartmentSelect.value));
                         this.filterScheduleModalOptions();
-                    });
-                    window.jQuery(this.$refs.scheduleAcademicYearSelect).off('change.createSchedule').on('change.createSchedule', () => {
-                        this.$wire.set('scheduleAcademicYearId', this.nullableInt(this.$refs.scheduleAcademicYearSelect.value));
+                    };
+                    this.$refs.scheduleAcademicYearSelect.onchange = () => {
+                        this.setScheduleField('scheduleAcademicYearId', this.nullableInt(this.$refs.scheduleAcademicYearSelect.value));
                         this.filterScheduleModalOptions();
-                    });
-                    window.jQuery(this.$refs.scheduleSemesterSelect).off('change.createSchedule').on('change.createSchedule', () => {
-                        this.$wire.set('scheduleSemesterId', this.nullableInt(this.$refs.scheduleSemesterSelect.value));
+                    };
+                    this.$refs.scheduleSemesterSelect.onchange = () => {
+                        this.setScheduleField('scheduleSemesterId', this.nullableInt(this.$refs.scheduleSemesterSelect.value));
                         this.filterScheduleModalOptions();
-                    });
-                    window.jQuery(this.$refs.scheduleTeacherSelect).off('change.createSchedule').on('change.createSchedule', () => this.$wire.set('scheduleTeacherId', this.nullableInt(this.$refs.scheduleTeacherSelect.value)));
-                    window.jQuery(this.$refs.scheduleClassSelect).off('change.createSchedule').on('change.createSchedule', () => this.$wire.set('scheduleClassId', this.nullableInt(this.$refs.scheduleClassSelect.value)));
-                    window.jQuery(this.$refs.scheduleDaySelect).off('change.createSchedule').on('change.createSchedule', () => this.$wire.set('scheduleDay', this.$refs.scheduleDaySelect.value || null));
+                    };
+                    this.$refs.scheduleCourseSelect.onchange = () => {
+                        this.setScheduleField('scheduleCourseId', this.nullableInt(this.$refs.scheduleCourseSelect.value));
+                        this.filterScheduleModalOptions();
+                    };
+                    this.$refs.scheduleTeacherSelect.onchange = () => this.setScheduleField('scheduleTeacherId', this.nullableInt(this.$refs.scheduleTeacherSelect.value));
+                    this.$refs.scheduleClassSelect.onchange = () => this.setScheduleField('scheduleClassId', this.nullableInt(this.$refs.scheduleClassSelect.value));
+                    this.$refs.scheduleDaySelect.onchange = () => this.setScheduleField('scheduleDay', this.$refs.scheduleDaySelect.value || null);
 
                     this.filterScheduleModalOptions();
                     this.syncScheduleModalValues();
                 });
             },
+            setScheduleField(field, value) {
+                this.$wire.set(field, value, false);
+            },
             syncScheduleModalValues() {
-                this.$wire.set('scheduleDepartmentId', this.nullableInt(this.$refs.scheduleDepartmentSelect?.value));
-                this.$wire.set('scheduleAcademicYearId', this.nullableInt(this.$refs.scheduleAcademicYearSelect?.value));
-                this.$wire.set('scheduleSemesterId', this.nullableInt(this.$refs.scheduleSemesterSelect?.value));
-                this.$wire.set('scheduleTeacherId', this.nullableInt(this.$refs.scheduleTeacherSelect?.value));
-                this.$wire.set('scheduleClassId', this.nullableInt(this.$refs.scheduleClassSelect?.value));
-                this.$wire.set('scheduleDay', this.$refs.scheduleDaySelect?.value || null);
+                this.setScheduleField('scheduleDepartmentId', this.nullableInt(this.$refs.scheduleDepartmentSelect?.value));
+                this.setScheduleField('scheduleAcademicYearId', this.nullableInt(this.$refs.scheduleAcademicYearSelect?.value));
+                this.setScheduleField('scheduleSemesterId', this.nullableInt(this.$refs.scheduleSemesterSelect?.value));
+                this.setScheduleField('scheduleCourseId', this.nullableInt(this.$refs.scheduleCourseSelect?.value));
+                this.setScheduleField('scheduleTeacherId', this.nullableInt(this.$refs.scheduleTeacherSelect?.value));
+                this.setScheduleField('scheduleClassId', this.nullableInt(this.$refs.scheduleClassSelect?.value));
+                this.setScheduleField('scheduleDay', this.$refs.scheduleDaySelect?.value || null);
             },
             filterScheduleModalOptions() {
                 const departmentId = this.$refs.scheduleDepartmentSelect?.value || '';
                 const academicYearId = this.$refs.scheduleAcademicYearSelect?.value || '';
                 const semesterId = this.$refs.scheduleSemesterSelect?.value || '';
+                const courseId = this.$refs.scheduleCourseSelect?.value || '';
 
                 this.filterOptions(this.$refs.scheduleTeacherSelect, { departmentId });
-                this.filterOptions(this.$refs.scheduleClassSelect, { departmentId, academicYearId, semesterId });
+                this.filterOptions(this.$refs.scheduleCourseSelect, { departmentId, academicYearId, semesterId });
+                this.filterOptions(this.$refs.scheduleClassSelect, { departmentId, academicYearId, semesterId, courseId });
             },
             filterOptions(select, filters) {
                 if (! select) {
@@ -631,29 +655,35 @@
                         return;
                     }
 
-                    const visible = (! filters.departmentId || option.dataset.departmentId === filters.departmentId)
-                        && (! filters.academicYearId || option.dataset.academicYearId === filters.academicYearId)
-                        && (! filters.semesterId || option.dataset.semesterId === filters.semesterId);
+                    const visible = (! filters.departmentId || ! option.dataset.departmentId || option.dataset.departmentId === filters.departmentId)
+                        && (! filters.academicYearId || ! option.dataset.academicYearId || option.dataset.academicYearId === filters.academicYearId)
+                        && (! filters.semesterId || ! option.dataset.semesterId || option.dataset.semesterId === filters.semesterId)
+                        && (! filters.courseId || ! option.dataset.courseId || option.dataset.courseId === filters.courseId);
 
                     option.hidden = ! visible;
                     option.disabled = ! visible;
                 });
 
                 if (select.selectedOptions[0]?.disabled) {
-                    window.jQuery(select).val('').trigger('change');
-                } else {
-                    window.jQuery(select).trigger('change.select2');
+                    select.value = '';
+                    select.dispatchEvent(new Event('change', { bubbles: true }));
                 }
             },
             nullableInt(value) {
                 return value ? parseInt(value, 10) : null;
             },
+            resetScheduleModalUi() {
+                this.scheduleSelects().forEach((element) => {
+                    element.value = '';
+                });
+
+            },
             closeScheduleModal() {
                 this.showCreateScheduleModal = false;
-                this.$wire.resetCreateScheduleForm();
+                this.resetScheduleModalUi();
             },
          }"
-         x-on:close-create-schedule-modal.window="showCreateScheduleModal = false">
+         x-on:close-create-schedule-modal.window="showCreateScheduleModal = false; resetScheduleModalUi()">
         <div class="ss-toolbar">
             <div class="ss-filters-group">
                 @if(!$isTeacher && !$isStudent)
@@ -773,7 +803,7 @@
             
             <div class="ss-actions-group" style="display: flex; gap: 6px;">
                 @if (\App\Filament\Admin\Resources\Schedules\ScheduleResource::canCreate())
-                    <button class="ss-tool" type="button" title="បញ្ចូល" x-on:click="showCreateScheduleModal = true; initScheduleModal()">
+                    <button class="ss-tool" type="button" title="បញ្ចូល" x-on:click="showCreateScheduleModal = true; resetScheduleModalUi(); initScheduleModal()">
                         <i class="fa fa-plus-circle"></i>
                     </button>
                 @endif
@@ -786,14 +816,16 @@
 
         @if (\App\Filament\Admin\Resources\Schedules\ScheduleResource::canCreate())
             <div class="ss-modal-backdrop"
+                 wire:key="create-schedule-modal"
                  x-show="showCreateScheduleModal"
                  x-transition.opacity
                  x-cloak
+                 x-on:click.self="closeScheduleModal()"
                  x-on:keydown.escape.window="closeScheduleModal()">
                 <form class="ss-modal"
                       x-ref="scheduleModal"
                       wire:submit.prevent="createSchedule"
-                      x-on:click.outside="closeScheduleModal()"
+                      x-on:click.stop
                       x-show="showCreateScheduleModal"
                       x-transition>
                     <div class="ss-modal-head">
@@ -845,12 +877,31 @@
                         </label>
 
                         <label>
+                            <span class="ss-modal-label">វគ្គសិក្សា (Course)</span>
+                            <div class="ss-select2-wrap" wire:ignore>
+                                <select class="ss-modal-input" x-ref="scheduleCourseSelect" data-placeholder="ជ្រើសរើសវគ្គសិក្សា (Course)">
+                                    <option value="">ជ្រើសរើសវគ្គសិក្សា (Course)</option>
+                                    @foreach($courses as $course)
+                                        <option wire:key="schedule-course-option-{{ $course->course_id }}"
+                                                value="{{ $course->course_id }}"
+                                                data-department-id="{{ $course->department_id }}"
+                                                data-academic-year-id="{{ $course->academic_year_id }}"
+                                                data-semester-id="{{ $course->semester_id }}">
+                                            {{ trim(($course->course_code ?? '').' - '.$course->course_name, ' -') }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            @error('scheduleCourseId')<div class="ss-modal-error">{{ $message }}</div>@enderror
+                        </label>
+
+                        <label>
                             <span class="ss-modal-label">គ្រូបង្រៀន (Teacher)<span class="ss-required">*</span></span>
                             <div class="ss-select2-wrap" wire:ignore>
                                 <select class="ss-modal-input" x-ref="scheduleTeacherSelect" data-placeholder="ជ្រើសរើសគ្រូបង្រៀន (Teacher)" required>
                                     <option value="">ជ្រើសរើសគ្រូបង្រៀន (Teacher)</option>
                                     @foreach($teachers as $teacher)
-                                        <option value="{{ $teacher->teacher_id }}" data-department-id="{{ $teacher->department_id }}">
+                                        <option wire:key="schedule-teacher-option-{{ $teacher->teacher_id }}" value="{{ $teacher->teacher_id }}" data-department-id="{{ $teacher->department_id }}">
                                             {{ trim(($teacher->first_name ?? '').' '.($teacher->last_name ?? '')) }}
                                         </option>
                                     @endforeach
@@ -865,10 +916,11 @@
                                 <select class="ss-modal-input" x-ref="scheduleClassSelect" data-placeholder="ជ្រើសរើសថ្នាក់រៀន (Class)" required>
                                     <option value="">ជ្រើសរើសថ្នាក់រៀន (Class)</option>
                                     @foreach($classRooms as $classRoom)
-                                        <option value="{{ $classRoom->class_room_id }}"
+                                        <option wire:key="schedule-class-option-{{ $classRoom->class_room_id }}" value="{{ $classRoom->class_room_id }}"
                                                 data-department-id="{{ $classRoom->course?->department_id }}"
                                                 data-academic-year-id="{{ $classRoom->academic_year_id ?? $classRoom->course?->academic_year_id }}"
-                                                data-semester-id="{{ $classRoom->course?->semester_id }}">
+                                                data-semester-id="{{ $classRoom->course?->semester_id }}"
+                                                data-course-id="{{ $classRoom->course_id }}">
                                             {{ $classRoom->class_name }}{{ $classRoom->class_code ? ' - '.$classRoom->class_code : '' }}
                                         </option>
                                     @endforeach
@@ -990,7 +1042,7 @@
                                     $hasShownBreak = true;
                                 }
                             @endphp
-                            <tr>
+                            <tr wire:key="schedule-slot-{{ md5($timeKey) }}">
                                 <td class="timetable-time">
                                     {{ $startCarbon->format('H:i') }} - 
                                     {{ \Carbon\Carbon::parse($slotData['end_time'])->format('H:i') }}
@@ -999,15 +1051,27 @@
                                     <td>
                                         @if(isset($slotData['days'][$day]))
                                             @foreach($slotData['days'][$day] as $schedule)
-                                                <div class="tt-subject">
+                                                <div class="tt-subject" wire:key="schedule-item-{{ $schedule->id }}">
                                                     <a href="{{ \App\Filament\Admin\Resources\Schedules\ScheduleResource::getUrl('show', ['record' => $schedule]) }}">
                                                         <div style="font-weight: 600; font-size: 14px; margin-bottom: 2px;">
                                                             {{ $schedule->classRoom->class_name ?? 'Class' }}
+                                                        </div>
+                                                        <div style="font-size: 12px; opacity: 0.9;">
+                                                            {{ $schedule->course?->course_name ?? $schedule->classRoom?->course?->course_name ?? '-' }}
                                                         </div>
                                                         <div style="font-size: 12px; opacity: 0.85;">
                                                             {{ $schedule->teacher->first_name ?? '' }} {{ $schedule->teacher->last_name ?? '' }}
                                                         </div>
                                                     </a>
+                                                    @if(\App\Filament\Admin\Resources\Schedules\ScheduleResource::canEdit($schedule))
+                                                        <div class="tt-subject-actions">
+                                                            <a class="tt-subject-edit"
+                                                               href="{{ \App\Filament\Admin\Resources\Schedules\ScheduleResource::getUrl('edit', ['record' => $schedule]) }}"
+                                                               title="Edit schedule">
+                                                                Edit
+                                                            </a>
+                                                        </div>
+                                                    @endif
                                                 </div>
                                             @endforeach
                                         @endif
@@ -1051,7 +1115,7 @@
             var printWindow = window.open('', '_blank');
             printWindow.document.write('<html><head><title>Print Timetable</title>');
             printWindow.document.write('<style>');
-            printWindow.document.write('body { font-family: Battambang, "Noto Sans Khmer", sans-serif; background: white; margin: 0; padding: 20px; font-weight: 400; letter-spacing: 0; }');
+            printWindow.document.write('body { font-family: "Battambang", "Noto Sans Khmer", sans-serif; background: white; margin: 0; padding: 20px; font-weight: 400; letter-spacing: 0; }');
             printWindow.document.write('a { text-decoration: none; color: inherit; }');
             printWindow.document.write('.timetable-wrapper { margin-top: 20px; border: 1px solid #cbd4ec; border-collapse: collapse; }');
             printWindow.document.write('.ss-table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: center; }');

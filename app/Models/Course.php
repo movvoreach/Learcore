@@ -97,6 +97,13 @@ class Course extends Model
         return $this->hasMany(ContentLesson::class, 'course_id', 'course_id');
     }
 
+    public function modules(): HasMany
+    {
+        return $this->hasMany(CourseModule::class, 'course_id', 'course_id')
+            ->orderBy('module_number')
+            ->orderBy('course_module_id');
+    }
+
     public function classRooms(): HasMany
     {
         return $this->hasMany(ClassRoom::class, 'course_id', 'course_id');
@@ -115,6 +122,11 @@ class Course extends Model
     public function certificates(): HasMany
     {
         return $this->hasMany(Certificate::class, 'course_id', 'course_id');
+    }
+
+    public function completionRequests(): HasMany
+    {
+        return $this->hasMany(CourseCompletionRequest::class, 'course_id', 'course_id');
     }
 
     public function courseAssignments(): HasMany

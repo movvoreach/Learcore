@@ -111,6 +111,7 @@ class ScheduleAttendanceSheet extends Page
         /** @var Schedule $schedule */
         $schedule = $this->getRecord()->loadMissing([
             'teacher',
+            'course.semester',
             'classRoom.course.semester',
             'classRoom.academicYear',
         ]);

@@ -1,4 +1,4 @@
-<div
+﻿<div
     x-data
     x-init="
         document.documentElement.classList.add('lc-schedules-page');

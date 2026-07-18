@@ -39,7 +39,7 @@ class CertificateResource extends Resource
 
     public static function canCreate(): bool
     {
-        return auth()->user()?->hasAnyRole(['super_admin', 'admin', 'teacher']) ?? false;
+        return false;
     }
 
     public static function canEdit(Model $record): bool
