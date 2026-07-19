@@ -140,7 +140,7 @@
             
             <div class="ss-actions-group" >
                 @if (\App\Filament\Admin\Resources\ClassRooms\ClassRoomResource::canCreate())
-                    <a class="ss-tool" href="{{ \App\Filament\Admin\Resources\ClassRooms\ClassRoomResource::getUrl('create') }}" title="???????????????">
+                    <a class="ss-tool" href="{{ \App\Filament\Admin\Resources\ClassRooms\ClassRoomResource::getUrl('create') }}" title="បញ្ចូលថ្នាក់រៀន">
                         <i class="fa fa-plus-circle" aria-hidden="true"></i>
                     </a>
                 @endif
@@ -150,7 +150,7 @@
         <div class="ss-card">
 
             <div class="ss-heading">
-                <h2>?????????</h2>
+                <h2>បញ្ជីថ្នាក់រៀន</h2>
             </div>
 
             <div>

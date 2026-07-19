@@ -31,6 +31,12 @@ class AttendanceResource extends Resource
 
     protected static ?int $navigationSort = 30;
 
+    public static function canAccess(): bool
+    {
+        $user = auth()->user();
+        return $user && ($user->hasRole('super_admin') || $user->can('attendance.view'));
+    }
+
     public static function getNavigationIcon(): string|BackedEnum|Htmlable|null
     {
         return new HtmlString('<img src="'.e(asset('Icons/presence.png')).'" alt="" class="fi-sidebar-item-icon" />');

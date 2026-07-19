@@ -18,11 +18,33 @@ class Faculty extends Model
         'faculty_name',
     ];
 
+    public static function generateNextFacultyCode(): string
+    {
+        $prefix = 'FC';
+        $padding = 3;
+
+        $driver = \Illuminate\Support\Facades\DB::connection()->getDriverName();
+        $castType = $driver === 'pgsql' || $driver === 'sqlite' ? 'INTEGER' : 'UNSIGNED';
+
+        // Use DB MAX() to find the highest existing number
+        $maxCode = static::query()
+            ->where('faculty_code', 'like', "{$prefix}%")
+            ->max(\Illuminate\Support\Facades\DB::raw("CAST(SUBSTRING(faculty_code, " . (strlen($prefix) + 1) . ") AS {$castType})"));
+
+        $nextNumber = ((int) $maxCode) + 1;
+
+        do {
+            $code = sprintf("%s%0{$padding}d", $prefix, $nextNumber++);
+        } while (static::query()->where('faculty_code', $code)->exists());
+
+        return $code;
+    }
+
     protected static function booted(): void
     {
         static::creating(function (Faculty $faculty): void {
             if (blank($faculty->faculty_code)) {
-                $faculty->faculty_code = static::nextCode('faculty_code', 'FAC');
+                $faculty->faculty_code = static::generateNextFacultyCode();
             }
         });
     }

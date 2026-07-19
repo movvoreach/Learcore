@@ -1479,152 +1479,84 @@ textarea:focus,
     pointer-events: none;
 }
 
-.lc-tiptap-toolbar {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    align-items: center;
-    padding: 10px;
-    border-bottom: 1px solid #e2e8f0;
-    background: #f8fafc;
+/* Custom Sidebar Styles */
+.fi-sidebar {
+    background-color: #f8fafc !important; /* clean light slate */
 }
 
-.lc-tiptap-toolbar > span {
-    width: 1px;
-    height: 24px;
-    margin: 0 3px;
-    background: #dbe4ef;
+/* Group headings styling */
+.fi-sidebar-group-label {
+    text-transform: uppercase !important;
+    font-size: 11px !important;
+    letter-spacing: 0.05em !important;
+    color: #64748b !important; /* muted slate */
+    font-weight: 600 !important;
+    padding-top: 18px !important;
+    padding-bottom: 8px !important;
+    border-bottom: 1px solid rgba(226, 232, 240, 0.6) !important;
+    margin-bottom: 8px !important;
 }
 
-.lc-tiptap-toolbar button,
-.lc-tiptap-upload {
-    min-height: 32px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    border: 1px solid #d7e0ec;
-    border-radius: 7px;
-    background: #ffffff;
-    color: #1f2a44;
-    padding: 0 10px;
-    font-size: 12px;
-    font-weight: 800;
-    cursor: pointer;
+/* Sidebar items styling */
+.fi-sidebar-item-btn {
+    padding-top: 9px !important;
+    padding-bottom: 9px !important;
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+    border-radius: 8px !important;
+    margin-bottom: 4px !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
-.lc-tiptap-toolbar button:hover,
-.lc-tiptap-upload:hover {
-    border-color: #2f80ed;
-    color: #0756a7;
+/* Normal item labels - non-bold but clear (bold-shy) */
+.fi-sidebar-item-label {
+    font-family: "Battambang", "Noto Sans Khmer", "Khmer OS Siemreap", sans-serif !important;
+    font-size: 14px !important;
+    font-weight: 500 !important; /* Bold-shy / Medium weight */
+    color: #334155 !important; /* dark slate */
 }
 
-.lc-tiptap-toolbar input[type="color"] {
-    width: 34px;
-    height: 32px;
-    border: 1px solid #d7e0ec;
-    border-radius: 7px;
-    background: #fff;
-    padding: 3px;
+/* Icon hover scale effect */
+.fi-sidebar-item-icon,
+.fi-sidebar-item-btn img {
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), filter 0.2s ease !important;
+    width: 22px !important;
+    height: 22px !important;
 }
 
-.lc-tiptap-upload input {
-    display: none;
+/* Hover state */
+.fi-sidebar-item-btn:hover {
+    background-color: #f1f5f9 !important; /* light slate hover */
 }
 
-.lc-tiptap-editor {
-    min-height: 460px;
-    padding: 28px;
-    background: #ffffff;
+.fi-sidebar-item-btn:hover .fi-sidebar-item-label {
+    color: #0f172a !important; /* darker text on hover */
+    font-weight: 600 !important; /* slightly bolder on hover */
 }
 
-.lc-tiptap-prose {
-    min-height: 400px;
-    color: #111827;
-    line-height: 1.8;
-    outline: none;
+.fi-sidebar-item-btn:hover .fi-sidebar-item-icon,
+.fi-sidebar-item-btn:hover img {
+    transform: scale(1.08) translateY(-1px) !important;
+    filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.08)) !important;
 }
 
-.lc-tiptap-prose h1 {
-    margin: 1.1em 0 .55em;
-    font-size: 2rem;
-    line-height: 1.2;
-    font-weight: 900;
+/* Active item state styling */
+.fi-sidebar-item.fi-active .fi-sidebar-item-btn {
+    background-color: #eff6ff !important; /* extremely soft light blue background */
+    border-right: 3px solid #3b82f6 !important; /* clean blue indicator line on the right */
+    border-radius: 8px 0 0 8px !important; /* round only left corners for indicator alignment */
 }
 
-.lc-tiptap-prose h2 {
-    margin: 1em 0 .5em;
-    font-size: 1.55rem;
-    line-height: 1.25;
-    font-weight: 900;
+.fi-sidebar-item.fi-active .fi-sidebar-item-label {
+    color: #1d4ed8 !important; /* royal blue text for active item */
+    font-weight: 600 !important; /* semi-bold active text */
 }
 
-.lc-tiptap-prose h3 {
-    margin: .9em 0 .45em;
-    font-size: 1.25rem;
-    line-height: 1.35;
-    font-weight: 850;
+.fi-sidebar-item.fi-active .fi-sidebar-item-icon,
+.fi-sidebar-item.fi-active img {
+    transform: scale(1.05) !important;
+    filter: drop-shadow(0 2px 4px rgba(59, 130, 246, 0.15)) !important;
 }
 
-.lc-tiptap-prose p {
-    margin: .75em 0;
-}
 
-.lc-tiptap-prose ul,
-.lc-tiptap-prose ol {
-    margin: .9em 0 .9em 1.5rem;
-}
 
-.lc-tiptap-prose blockquote {
-    margin: 1rem 0;
-    border-left: 4px solid #2f80ed;
-    background: #f2f7ff;
-    padding: .85rem 1rem;
-    color: #1e3a5f;
-}
-
-.lc-tiptap-prose pre {
-    overflow: auto;
-    border-radius: 10px;
-    background: #111827;
-    color: #e5e7eb;
-    padding: 1rem;
-    font-size: 13px;
-}
-
-.lc-tiptap-prose code {
-    border-radius: 5px;
-    background: #eef2ff;
-    color: #3730a3;
-    padding: .15rem .35rem;
-}
-
-.lc-tiptap-prose pre code {
-    background: transparent;
-    color: inherit;
-    padding: 0;
-}
-
-.lc-tiptap-prose img,
-.lc-tiptap-prose video,
-.lc-tiptap-prose iframe {
-    display: block;
-    max-width: 100%;
-    margin: 1.1rem auto;
-    border-radius: 12px;
-}
-
-.lc-tiptap-prose .ProseMirror-selectednode {
-    outline: 3px solid #2f80ed;
-    outline-offset: 3px;
-}
-
-.lc-tiptap-help {
-    margin: 0;
-    border-top: 1px solid #e2e8f0;
-    background: #f8fafc;
-    color: #64748b;
-    padding: 10px 14px;
-    font-size: 12px;
-    font-weight: 700;
-}

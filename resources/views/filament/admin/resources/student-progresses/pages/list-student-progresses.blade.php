@@ -270,54 +270,54 @@
     </style>
 
     <div class="progress-course-page">
-        <h1 class="progress-course-title">?????????????????</h1>
-        <div class="progress-course-breadcrumb">Home &gt; ?????????? &gt; ?????????????</div>
+        <h1 class="progress-course-title">វឌ្ឍនភាពនិស្សិត</h1>
+        <div class="progress-course-breadcrumb">Home &gt; វគ្គសិក្សា &gt; វឌ្ឍនភាព</div>
 
         <section class="progress-course-card progress-course-summary">
             <div class="progress-course-summary-main">
-                <h2>?????????????????????</h2>
-                <p>????????????? ?? ????????????? ???????????????? ????????????????????????????????????</p>
+                <h2>សង្ខេបវឌ្ឍនភាពសិក្សា</h2>
+                <p>តាមដានវឌ្ឍនភាពនិស្សិតតាមវគ្គសិក្សា មេរៀន និងការចូលរួមសិក្សា។</p>
             </div>
             <div class="progress-course-summary-meta">
                 <div>
-                    <div><strong>???????????????:</strong> {{ $totalCourses }}</div>
-                    <div><strong>???????????:</strong> {{ $totalStudents }}</div>
+                    <div><strong>វគ្គសិក្សាសរុប:</strong> {{ $totalCourses }}</div>
+                    <div><strong>និស្សិតសរុប:</strong> {{ $totalStudents }}</div>
                 </div>
                 <div style="text-align: right;">
-                    <div><strong>?????????????:</strong> Website learning</div>
-                    <div><strong>???????????:</strong> {{ now()->format('m/d/Y') }}</div>
+                    <div><strong>ប្រភេទសិក្សា:</strong> Website learning</div>
+                    <div><strong>កាលបរិច្ឆេទ:</strong> {{ now()->format('m/d/Y') }}</div>
                 </div>
             </div>
         </section>
 
         <section class="progress-course-card">
             <div class="progress-course-panel-header">
-                <span>???????????????</span>
-                <span class="muted">?????? ?? ????????? � ?????????????????????????????????</span>
+                <span>បញ្ជីវគ្គសិក្សា</span>
+                <span class="muted">មើលវឌ្ឍនភាព និងចំនួននិស្សិតតាមវគ្គ</span>
             </div>
 
             @if($courses->isEmpty())
-                <div class="empty-state">????????????????????????????????????</div>
+                <div class="empty-state">មិនមានវគ្គសិក្សាត្រូវបង្ហាញទេ</div>
             @else
                 <div class="progress-course-table-wrap">
                     <table class="progress-course-table">
                         <thead>
                             <tr>
-                                <th class="text-center">?.?<br><span class="muted">??????</span></th>
-                                <th>??????????<br><span class="muted">?????????????</span></th>
-                                <th>??????????<br><span class="muted">??????????????</span></th>
-                                <th>????? / ????<br><span class="muted">??????????</span></th>
-                                <th class="text-center">???????<br><span class="muted">????????</span></th>
-                                <th class="text-center">?????<br><span class="muted">Online</span></th>
-                                <th class="text-center">????????<br><span class="muted">????????</span></th>
-                                <th class="text-center">?????????</th>
+                                <th class="text-center">ល.រ<br><span class="muted">លេខកូដ</span></th>
+                                <th>វគ្គសិក្សា<br><span class="muted">ដេប៉ាតឺម៉ង់</span></th>
+                                <th>គ្រូបង្រៀន<br><span class="muted">លេខកូដវគ្គ</span></th>
+                                <th>ឆ្នាំសិក្សា / ឆមាស<br><span class="muted">ព័ត៌មានសិក្សា</span></th>
+                                <th class="text-center">និស្សិត<br><span class="muted">ចុះឈ្មោះ</span></th>
+                                <th class="text-center">មេរៀន<br><span class="muted">Online</span></th>
+                                <th class="text-center">វឌ្ឍនភាព<br><span class="muted">មធ្យមភាគ</span></th>
+                                <th class="text-center">សកម្មភាព</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach($courses as $course)
                                 @php
                                     $teacher = $course->courseAssignments->first()?->teacher;
-                                    $teacherName = $teacher ? trim($teacher->first_name.' '.$teacher->last_name) : '????????????';
+                                    $teacherName = $teacher ? trim($teacher->first_name.' '.$teacher->last_name) : 'មិនទាន់កំណត់';
                                     $averageProgress = round((float) ($course->average_progress_percent ?? 0));
                                 @endphp
 
@@ -352,7 +352,7 @@
                                     </td>
                                     <td class="text-center">
                                         <a class="action-btn" href="{{ \App\Filament\Admin\Pages\CourseStudents::getUrl(['course' => $course->course_id]) }}">
-                                            ???????????
+                                            មើលនិស្សិត
                                         </a>
                                     </td>
                                 </tr>
@@ -362,7 +362,7 @@
                 </div>
                 <div class="progress-course-pagination">
                     <div>
-                        ?????? {{ $courses->firstItem() }} ??? {{ $courses->lastItem() }} ?? {{ $courses->total() }} ??????????
+                        បង្ហាញ {{ $courses->firstItem() }} ដល់ {{ $courses->lastItem() }} នៃ {{ $courses->total() }} វគ្គសិក្សា
                     </div>
                     <nav class="pagination-actions" aria-label="Course pagination">
                         <ul class="pagination">

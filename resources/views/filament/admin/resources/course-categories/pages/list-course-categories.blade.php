@@ -140,7 +140,7 @@
             
             <div class="ss-actions-group" >
                 @if (\App\Filament\Admin\Resources\CourseCategories\CourseCategoryResource::canCreate())
-                    <a class="ss-tool" href="{{ \App\Filament\Admin\Resources\CourseCategories\CourseCategoryResource::getUrl('create') }}" title="??????????????????????">
+                    <a class="ss-tool" href="{{ \App\Filament\Admin\Resources\CourseCategories\CourseCategoryResource::getUrl('create') }}" title="បញ្ចូលប្រភេទវគ្គសិក្សា">
                         <i class="fa fa-plus-circle" aria-hidden="true"></i>
                     </a>
                 @endif
@@ -150,7 +150,7 @@
         <div class="ss-card">
 
             <div class="ss-heading">
-                <h2>????????????????</h2>
+                <h2>បញ្ជីប្រភេទវគ្គសិក្សា</h2>
             </div>
 
             <div>

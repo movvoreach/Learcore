@@ -19,8 +19,24 @@ class CourseAssignmentsTable
         return $table
             ->modifyQueryUsing(fn (Builder $query): Builder => $query->with(['academicYear', 'classRoom', 'course', 'teacher']))
             ->columns([
-                TextColumn::make('teacher.teacher_code')->label('លេខកូដគ្រូ')->searchable()->sortable(),
-                TextColumn::make('teacher.first_name')->label('គ្រូបង្រៀន')->searchable()->sortable(),
+                TextColumn::make('teacher.teacher_code')
+                    ->label('គ្រូបង្រៀន')
+                    ->getStateUsing(fn ($record): string => $record->teacher ? (trim($record->teacher->last_name_kh.' '.$record->teacher->first_name_kh) ?: trim($record->teacher->last_name.' '.$record->teacher->first_name) ?: $record->teacher->teacher_code) : '-')
+                    ->description(fn ($record): string => $record->teacher ? collect([
+                        trim($record->teacher->last_name.' '.$record->teacher->first_name),
+                        $record->teacher->teacher_code
+                    ])->filter()->join(' · ') : '')
+                    ->searchable(query: function (Builder $query, string $search): Builder {
+                        return $query->whereHas('teacher', function (Builder $q) use ($search) {
+                            $q->where('teacher_code', 'like', "%{$search}%")
+                                ->orWhere('first_name', 'like', "%{$search}%")
+                                ->orWhere('last_name', 'like', "%{$search}%")
+                                ->orWhere('first_name_kh', 'like', "%{$search}%")
+                                ->orWhere('last_name_kh', 'like', "%{$search}%");
+                        });
+                    })
+                    ->weight('bold')
+                    ->copyable(),
                 TextColumn::make('course.course_name')->label('វគ្គសិក្សា')->searchable()->sortable(),
                 TextColumn::make('classRoom.class_name')->label('ថ្នាក់រៀន')->searchable()->sortable(),
                 TextColumn::make('academicYear.year_name')->label('ឆ្នាំសិក្សា')->sortable(),
@@ -28,7 +44,16 @@ class CourseAssignmentsTable
                 TextColumn::make('status')->label('ស្ថានភាព')->badge(),
             ])
             ->filters([
-                SelectFilter::make('teacher_id')->label('គ្រូបង្រៀន')->relationship('teacher', 'first_name')->searchable()->preload(),
+                SelectFilter::make('teacher_id')
+                    ->label('គ្រូបង្រៀន')
+                    ->options(fn (): array => \App\Models\Teacher::query()
+                        ->get()
+                        ->mapWithKeys(fn ($teacher) => [
+                            $teacher->teacher_id => trim($teacher->last_name_kh.' '.$teacher->first_name_kh) ?: trim($teacher->last_name.' '.$teacher->first_name) ?: $teacher->teacher_code
+                        ])
+                        ->all())
+                    ->searchable()
+                    ->preload(),
                 SelectFilter::make('course_id')->label('វគ្គសិក្សា')->relationship('course', 'course_name')->searchable()->preload(),
                 SelectFilter::make('status')
                     ->label('ស្ថានភាព')

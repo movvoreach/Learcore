@@ -15,8 +15,15 @@ class CourseAssignmentForm
             ->components([
                 Select::make('teacher_id')
                     ->label('គ្រូបង្រៀន')
-                    ->relationship('teacher', 'first_name')
-                    ->searchable(['teacher_code', 'first_name', 'last_name'])
+                    ->options(fn (): array => \App\Models\Teacher::query()
+                        ->get()
+                        ->mapWithKeys(fn ($teacher) => [
+                            $teacher->teacher_id => trim($teacher->last_name_kh.' '.$teacher->first_name_kh) 
+                                ? (trim($teacher->last_name_kh.' '.$teacher->first_name_kh).' ('.trim($teacher->last_name.' '.$teacher->first_name).') - '.$teacher->teacher_code)
+                                : (trim($teacher->last_name.' '.$teacher->first_name).' - '.$teacher->teacher_code)
+                        ])
+                        ->all())
+                    ->searchable()
                     ->preload()
                     ->required(),
                 Select::make('course_id')

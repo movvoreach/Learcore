@@ -654,10 +654,10 @@
 
             <div class="ss-actions-group">
                 @if (\App\Filament\Admin\Resources\StudentPromotions\StudentPromotionResource::canCreate())
-                    <button class="ss-tool ss-tool--primary" type="button" title="????????????????" x-on:click="openPromotionModal()">
+                    <button class="ss-tool ss-tool--primary" type="button" title="បញ្ចូលការឡើងថ្នាក់" x-on:click="openPromotionModal()">
                         <i class="fa fa-plus-circle" aria-hidden="true"></i>
                     </button>
-                    <button class="ss-tool ss-tool--muted" type="button" title="????????????????" x-on:click="openGroupPromotionModal()">
+                    <button class="ss-tool ss-tool--muted" type="button" title="ឡើងថ្នាក់ជាក្រុម" x-on:click="openGroupPromotionModal()">
                         <i class="fa fa-users"></i>
                     </button>
                     <button class="ss-tool ss-tool--success" type="button" title="Promote Group Next" x-on:click="openNextPromotionModal()">
@@ -670,7 +670,7 @@
         <div class="ss-card">
 
             <div class="ss-heading">
-                <h2>???????????????????</h2>
+                <h2>បញ្ជីការឡើងថ្នាក់និស្សិត</h2>
             </div>
 
             <div>
@@ -694,21 +694,21 @@
                         <div>
                             <h3 class="ss-modal-title">
                                 <span><i class="fa-solid fas fa-level-up-alt"></i></span>
-                                ????????????????
+                                បញ្ចូលការឡើងថ្នាក់
                             </h3>
-                            <p class="ss-modal-subtitle">?????????????????? ??????????????????? ?????????????</p>
+                            <p class="ss-modal-subtitle">ជ្រើសរើសនិស្សិត និងកំណត់ឆ្នាំសិក្សា/ឆមាសថ្មី។</p>
                         </div>
-                        <button class="ss-modal-close" type="button" x-on:click="closePromotionModal()">�</button>
+                        <button class="ss-modal-close" type="button" x-on:click="closePromotionModal()">×</button>
                     </div>
 
                     <div class="ss-modal-body">
                         <div class="ss-modal-section">
-                            <h4 class="ss-section-title"><i class="fa fa-user-graduate"></i> ???????????????</h4>
+                            <h4 class="ss-section-title"><i class="fa fa-user-graduate"></i> ព័ត៌មាននិស្សិត</h4>
                             <div class="ss-modal-grid">
                                 <div class="ss-modal-field--full ss-select2-wrap">
-                                    <label class="ss-modal-label" for="promotion-student-id">??????? <span class="ss-required">*</span></label>
-                                    <select id="promotion-student-id" class="ss-modal-input" x-ref="promotionStudentSelect" data-placeholder="???????????????">
-                                        <option value="">???????????????</option>
+                                    <label class="ss-modal-label" for="promotion-student-id">និស្សិត <span class="ss-required">*</span></label>
+                                    <select id="promotion-student-id" class="ss-modal-input" x-ref="promotionStudentSelect" data-placeholder="ជ្រើសរើសនិស្សិត">
+                                        <option value="">ជ្រើសរើសនិស្សិត</option>
                                         @foreach(\App\Models\Student::query()->with(['department', 'academicYear', 'semester'])->orderBy('student_code')->get() as $student)
                                             @php($studentName = trim(($student->student_code ?? '').' - '.($student->first_name ?? '').' '.($student->last_name ?? '')))
                                             <option value="{{ $student->student_id }}"
@@ -726,30 +726,30 @@
                         </div>
 
                         <div class="ss-modal-section">
-                            <h4 class="ss-section-title"><i class="fa fa-info-circle"></i> ??????????????????</h4>
+                            <h4 class="ss-section-title"><i class="fa fa-info-circle"></i> ទីតាំងបច្ចុប្បន្ន</h4>
                             <div class="ss-modal-grid">
                                 <div class="ss-info-box">
-                                    <span class="ss-info-label">???????????</span>
+                                    <span class="ss-info-label">ដេប៉ាតឺម៉ង់</span>
                                     <span class="ss-info-value" x-text="currentDepartment || '-'"></span>
                                 </div>
                                 <div class="ss-info-box">
-                                    <span class="ss-info-label">???????????</span>
+                                    <span class="ss-info-label">ឆ្នាំសិក្សា</span>
                                     <span class="ss-info-value" x-text="currentYear || '-'"></span>
                                 </div>
                                 <div class="ss-info-box">
-                                    <span class="ss-info-label">????</span>
+                                    <span class="ss-info-label">ឆមាស</span>
                                     <span class="ss-info-value" x-text="currentSemester || '-'"></span>
                                 </div>
                             </div>
                         </div>
 
                         <div class="ss-modal-section">
-                            <h4 class="ss-section-title"><i class="fa fa-bullseye"></i> ?????</h4>
+                            <h4 class="ss-section-title"><i class="fa fa-bullseye"></i> គោលដៅ</h4>
                             <div class="ss-modal-grid ss-modal-grid--two">
                                 <div class="ss-select2-wrap">
-                                    <label class="ss-modal-label" for="promotion-to-year-id">??????????????? <span class="ss-required">*</span></label>
-                                    <select id="promotion-to-year-id" class="ss-modal-input" x-ref="promotionToYearSelect" data-placeholder="???????????????????????">
-                                        <option value="">???????????????????????</option>
+                                    <label class="ss-modal-label" for="promotion-to-year-id">ឆ្នាំសិក្សាគោលដៅ <span class="ss-required">*</span></label>
+                                    <select id="promotion-to-year-id" class="ss-modal-input" x-ref="promotionToYearSelect" data-placeholder="ជ្រើសរើសឆ្នាំសិក្សាគោលដៅ">
+                                        <option value="">ជ្រើសរើសឆ្នាំសិក្សាគោលដៅ</option>
                                         @foreach(\App\Models\AcademicYear::query()->orderByDesc('start_date')->orderBy('year_name')->get() as $academicYear)
                                             <option value="{{ $academicYear->academic_year_id }}" @selected((int) $promotionToYearId === (int) $academicYear->academic_year_id)>
                                                 {{ $academicYear->year_name }}
@@ -760,9 +760,9 @@
                                 </div>
 
                                 <div class="ss-select2-wrap">
-                                    <label class="ss-modal-label" for="promotion-to-semester-id">???????? <span class="ss-required">*</span></label>
-                                    <select id="promotion-to-semester-id" class="ss-modal-input" x-ref="promotionToSemesterSelect" data-placeholder="????????????????" @disabled(blank($promotionToYearId))>
-                                        <option value="">????????????????</option>
+                                    <label class="ss-modal-label" for="promotion-to-semester-id">ឆមាសគោលដៅ <span class="ss-required">*</span></label>
+                                    <select id="promotion-to-semester-id" class="ss-modal-input" x-ref="promotionToSemesterSelect" data-placeholder="ជ្រើសរើសឆមាសគោលដៅ" @disabled(blank($promotionToYearId))>
+                                        <option value="">ជ្រើសរើសឆមាសគោលដៅ</option>
                                         @foreach(\App\Models\Semester::query()->orderBy('start_date')->orderBy('semester_name')->get() as $semester)
                                             <option value="{{ $semester->semester_id }}" data-year="{{ $semester->academic_year_id }}" @selected((int) $promotionToSemesterId === (int) $semester->semester_id)>
                                                 {{ $semester->semester_name }}
@@ -773,7 +773,7 @@
                                 </div>
 
                                 <div class="ss-modal-field--full">
-                                    <label class="ss-modal-label" for="promotion-note">????????????</label>
+                                    <label class="ss-modal-label" for="promotion-note">កំណត់ចំណាំ</label>
                                     <textarea id="promotion-note" class="ss-modal-input" x-ref="promotionNoteInput">{{ $promotionNote }}</textarea>
                                     @error('promotionNote') <div class="ss-modal-error">{{ $message }}</div> @enderror
                                 </div>
@@ -782,10 +782,10 @@
                     </div>
 
                     <div class="ss-modal-foot">
-                        <button class="ss-modal-cancel" type="button" x-on:click="closePromotionModal()">??????</button>
+                        <button class="ss-modal-cancel" type="button" x-on:click="closePromotionModal()">បោះបង់</button>
                         <button class="ss-modal-submit" type="submit" wire:loading.attr="disabled" wire:target="createStudentPromotion">
-                            <span wire:loading.remove wire:target="createStudentPromotion">?????????</span>
-                            <span wire:loading wire:target="createStudentPromotion">??????????...</span>
+                            <span wire:loading.remove wire:target="createStudentPromotion">រក្សាទុក</span>
+                            <span wire:loading wire:target="createStudentPromotion">កំពុងរក្សាទុក...</span>
                         </button>
                     </div>
                 </form>
@@ -806,21 +806,21 @@
                         <div>
                             <h3 class="ss-modal-title">
                                 <span><i class="fa-solid fas fa-users"></i></span>
-                                ????????????????
+                                ឡើងថ្នាក់ជាក្រុម
                             </h3>
-                            <p class="ss-modal-subtitle">????????????????????????????????????????????????????????? ???????????????? ????? ????????? ????????? ?????????????????????????</p>
+                            <p class="ss-modal-subtitle">ជ្រើសរើសក្រុមនិស្សិតតាមដេប៉ាតឺម៉ង់ ឆ្នាំសិក្សា និងឆមាស ដើម្បីឡើងថ្នាក់ទៅគោលដៅថ្មី។</p>
                         </div>
-                        <button class="ss-modal-close" type="button" x-on:click="closeGroupPromotionModal()">�</button>
+                        <button class="ss-modal-close" type="button" x-on:click="closeGroupPromotionModal()">×</button>
                     </div>
 
                     <div class="ss-modal-body">
                         <div class="ss-modal-section">
-                            <h4 class="ss-section-title"><i class="fa fa-map-marker-alt"></i> ??</h4>
+                            <h4 class="ss-section-title"><i class="fa fa-map-marker-alt"></i> ប្រភព</h4>
                             <div class="ss-modal-grid">
                                 <div class="ss-select2-wrap">
-                                    <label class="ss-modal-label" for="group-from-department-id">??????????? <span class="ss-required">*</span></label>
-                                    <select id="group-from-department-id" class="ss-modal-input" x-ref="groupFromDepartmentSelect" data-placeholder="???????????????????">
-                                        <option value="">???????????????????</option>
+                                    <label class="ss-modal-label" for="group-from-department-id">ដេប៉ាតឺម៉ង់ <span class="ss-required">*</span></label>
+                                    <select id="group-from-department-id" class="ss-modal-input" x-ref="groupFromDepartmentSelect" data-placeholder="ជ្រើសរើសដេប៉ាតឺម៉ង់">
+                                        <option value="">ជ្រើសរើសដេប៉ាតឺម៉ង់</option>
                                         @foreach(\App\Models\Department::query()->orderBy('department_name')->get() as $department)
                                             <option value="{{ $department->department_id }}" @selected((int) $groupFromDepartmentId === (int) $department->department_id)>
                                                 {{ $department->department_name }}
@@ -831,9 +831,9 @@
                                 </div>
 
                                 <div class="ss-select2-wrap">
-                                    <label class="ss-modal-label" for="group-from-year-id">??????????? <span class="ss-required">*</span></label>
-                                    <select id="group-from-year-id" class="ss-modal-input" x-ref="groupFromYearSelect" data-placeholder="???????????????????">
-                                        <option value="">???????????????????</option>
+                                    <label class="ss-modal-label" for="group-from-year-id">ឆ្នាំសិក្សា <span class="ss-required">*</span></label>
+                                    <select id="group-from-year-id" class="ss-modal-input" x-ref="groupFromYearSelect" data-placeholder="ជ្រើសរើសឆ្នាំសិក្សា">
+                                        <option value="">ជ្រើសរើសឆ្នាំសិក្សា</option>
                                         @foreach(\App\Models\AcademicYear::query()->orderByDesc('start_date')->orderBy('year_name')->get() as $academicYear)
                                             <option value="{{ $academicYear->academic_year_id }}" @selected((int) $groupFromYearId === (int) $academicYear->academic_year_id)>
                                                 {{ $academicYear->year_name }}
@@ -844,9 +844,9 @@
                                 </div>
 
                                 <div class="ss-select2-wrap">
-                                    <label class="ss-modal-label" for="group-from-semester-id">???? <span class="ss-required">*</span></label>
-                                    <select id="group-from-semester-id" class="ss-modal-input" x-ref="groupFromSemesterSelect" data-placeholder="????????????" @disabled(blank($groupFromYearId))>
-                                        <option value="">????????????</option>
+                                    <label class="ss-modal-label" for="group-from-semester-id">ឆមាស <span class="ss-required">*</span></label>
+                                    <select id="group-from-semester-id" class="ss-modal-input" x-ref="groupFromSemesterSelect" data-placeholder="ជ្រើសរើសឆមាស" @disabled(blank($groupFromYearId))>
+                                        <option value="">ជ្រើសរើសឆមាស</option>
                                         @foreach(\App\Models\Semester::query()->orderBy('start_date')->orderBy('semester_name')->get() as $semester)
                                             <option value="{{ $semester->semester_id }}" data-year="{{ $semester->academic_year_id }}" @selected((int) $groupFromSemesterId === (int) $semester->semester_id)>
                                                 {{ $semester->semester_name }}
@@ -859,12 +859,12 @@
                         </div>
 
                         <div class="ss-modal-section">
-                            <h4 class="ss-section-title"><i class="fa fa-bullseye"></i> ??</h4>
+                            <h4 class="ss-section-title"><i class="fa fa-bullseye"></i> គោលដៅ</h4>
                             <div class="ss-modal-grid ss-modal-grid--two">
                                 <div class="ss-select2-wrap">
-                                    <label class="ss-modal-label" for="group-to-year-id">??????????????? <span class="ss-required">*</span></label>
-                                    <select id="group-to-year-id" class="ss-modal-input" x-ref="groupToYearSelect" data-placeholder="???????????????????????">
-                                        <option value="">???????????????????????</option>
+                                    <label class="ss-modal-label" for="group-to-year-id">ឆ្នាំសិក្សាគោលដៅ <span class="ss-required">*</span></label>
+                                    <select id="group-to-year-id" class="ss-modal-input" x-ref="groupToYearSelect" data-placeholder="ជ្រើសរើសឆ្នាំសិក្សាគោលដៅ">
+                                        <option value="">ជ្រើសរើសឆ្នាំសិក្សាគោលដៅ</option>
                                         @foreach(\App\Models\AcademicYear::query()->orderByDesc('start_date')->orderBy('year_name')->get() as $academicYear)
                                             <option value="{{ $academicYear->academic_year_id }}" @selected((int) $groupToYearId === (int) $academicYear->academic_year_id)>
                                                 {{ $academicYear->year_name }}
@@ -875,9 +875,9 @@
                                 </div>
 
                                 <div class="ss-select2-wrap">
-                                    <label class="ss-modal-label" for="group-to-semester-id">???????? <span class="ss-required">*</span></label>
-                                    <select id="group-to-semester-id" class="ss-modal-input" x-ref="groupToSemesterSelect" data-placeholder="????????????????" @disabled(blank($groupToYearId))>
-                                        <option value="">????????????????</option>
+                                    <label class="ss-modal-label" for="group-to-semester-id">ឆមាសគោលដៅ <span class="ss-required">*</span></label>
+                                    <select id="group-to-semester-id" class="ss-modal-input" x-ref="groupToSemesterSelect" data-placeholder="ជ្រើសរើសឆមាសគោលដៅ" @disabled(blank($groupToYearId))>
+                                        <option value="">ជ្រើសរើសឆមាសគោលដៅ</option>
                                         @foreach(\App\Models\Semester::query()->orderBy('start_date')->orderBy('semester_name')->get() as $semester)
                                             <option value="{{ $semester->semester_id }}" data-year="{{ $semester->academic_year_id }}" @selected((int) $groupToSemesterId === (int) $semester->semester_id)>
                                                 {{ $semester->semester_name }}
@@ -888,7 +888,7 @@
                                 </div>
 
                                 <div class="ss-modal-field--full">
-                                    <label class="ss-modal-label" for="group-note">????????????</label>
+                                    <label class="ss-modal-label" for="group-note">កំណត់ចំណាំ</label>
                                     <textarea id="group-note" class="ss-modal-input" x-ref="groupNoteInput">{{ $groupNote }}</textarea>
                                     @error('groupNote') <div class="ss-modal-error">{{ $message }}</div> @enderror
                                 </div>
@@ -897,10 +897,10 @@
                     </div>
 
                     <div class="ss-modal-foot">
-                        <button class="ss-modal-cancel" type="button" x-on:click="closeGroupPromotionModal()">??????</button>
+                        <button class="ss-modal-cancel" type="button" x-on:click="closeGroupPromotionModal()">បោះបង់</button>
                         <button class="ss-modal-submit" type="submit" wire:loading.attr="disabled" wire:target="createGroupPromotion">
-                            <span wire:loading.remove wire:target="createGroupPromotion">????????????????</span>
-                            <span wire:loading wire:target="createGroupPromotion">??????????...</span>
+                            <span wire:loading.remove wire:target="createGroupPromotion">ឡើងថ្នាក់ជាក្រុម</span>
+                            <span wire:loading wire:target="createGroupPromotion">កំពុងរក្សាទុក...</span>
                         </button>
                     </div>
                 </form>
@@ -925,7 +925,7 @@
                             </h3>
                             <p class="ss-modal-subtitle">Promotes every matching active student to the next semester in sequence while preserving academic history.</p>
                         </div>
-                        <button class="ss-modal-close" type="button" x-on:click="closeNextPromotionModal()">�</button>
+                        <button class="ss-modal-close" type="button" x-on:click="closeNextPromotionModal()">×</button>
                     </div>
 
                     <div class="ss-modal-body">

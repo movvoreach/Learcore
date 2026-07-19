@@ -55,6 +55,8 @@ use App\Http\Middleware\EnsureStudentFilamentAccess;
 use BackedEnum;
 use Closure;
 use Filament\FontProviders\LocalFontProvider;
+use Filament\Support\Assets\Css;
+use Filament\Support\Assets\Js;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -122,6 +124,12 @@ class AdminPanelProvider extends PanelProvider
                 'primary' => Color::Amber,
             ])
             ->viteTheme('resources/css/filament/admin/theme.css')
+            ->assets([
+                Js::make('jquery-cdn', 'https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js'),
+                Css::make('select2-cdn-css', 'https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css'),
+                Css::make('select2-bootstrap4-cdn-css', 'https://cdnjs.cloudflare.com/ajax/libs/select2-bootstrap4-theme/1.5.2/select2-bootstrap4.min.css'),
+                Js::make('select2-cdn-js', 'https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.full.min.js'),
+            ])
             ->sidebarWidth('20rem')
             ->collapsedSidebarWidth('4.75rem')
             ->sidebarCollapsibleOnDesktop()
@@ -560,7 +568,7 @@ HTML);
             $this->resourceNavItem($this->adminLabel('nav.course_categories'), self::GROUP_CONTENT, 10, asset('Icons/course.png'), CourseCategoryResource::class),
             $this->resourceNavItem($this->adminLabel('nav.courses'), self::GROUP_CONTENT, 15, asset('Icons/courses.png'), CourseResource::class),
             $this->resourceNavItem($this->adminLabel('nav.class_rooms'), self::GROUP_CONTENT, 18, asset('Icons/course.png'), ClassRoomResource::class),
-            $this->resourceNavItem('Modules', self::GROUP_CONTENT, 19, Heroicon::OutlinedQueueList, CourseModuleResource::class),
+            $this->resourceNavItem($this->adminLabel('nav.modules'), self::GROUP_CONTENT, 19, asset('Icons/modules.png'), CourseModuleResource::class),
             // $this->resourceNavItem($this->adminLabel('nav.chapters'), self::GROUP_CONTENT, 20, asset('Icons/content-chapters.png'), ContentChapterResource::class),
             $this->resourceNavItem($this->adminLabel('nav.lessons'), self::GROUP_CONTENT, 30, asset('Icons/ducs.png'), ContentLessonResource::class),
             $this->resourceNavItem($this->adminLabel('nav.videos'), self::GROUP_CONTENT, 40, $this->sidebarIcon('fas fa-play-circle', '#0284c7'), ContentVideoResource::class),
@@ -610,7 +618,7 @@ HTML);
             ->icon($icon)
             ->sort($sort)
             ->url($url ?? '#')
-            ->visible(fn (): bool => auth()->user()?->hasAnyRole(['super_admin', 'admin']) ?? false);
+            ->visible(fn (): bool => $this->canShowNavItem($group));
     }
 
     private function resourceNavItem(string|Closure $label, string $group, int $sort, string|BackedEnum|HtmlString|null $icon, string $resource, ?Closure $isActiveWhen = null, array $urlParameters = []): NavigationItem
@@ -626,14 +634,88 @@ HTML);
             ->isActiveWhen(fn (): bool => request()->routeIs($page::getRouteName()));
     }
 
+    private function canShowNavItem(string $group): bool
+    {
+        $user = auth()->user();
+        if (!$user) {
+            return false;
+        }
+
+        if ($user->hasRole('super_admin')) {
+            return true;
+        }
+
+        return match ($group) {
+            self::GROUP_USERS => $user->can('users.view') || $user->can('roles.view'),
+            self::GROUP_ACADEMIC => $user->can('academic.view'),
+            self::GROUP_TEACHERS => $user->can('lessons.view') || $user->can('courses.view'),
+            self::GROUP_CONTENT => $user->can('courses.view') || $user->can('lessons.view'),
+            self::GROUP_STUDENTS => $user->can('students.view'),
+            self::GROUP_ASSESSMENT => $user->can('assessments.view'),
+            self::GROUP_REPORTS => $user->can('view reports'),
+            self::GROUP_SETTINGS => $user->can('manage settings') || $user->hasRole('admin'),
+            default => $user->hasRole('admin'),
+        };
+    }
+
     private function canShowResourceNavItem(string $resource): bool
     {
         $user = auth()->user();
-
-        if ($user?->hasAnyRole(['super_admin', 'admin'])) {
-            return $resource::canAccess();
+        if (!$user) {
+            return false;
         }
 
-        return false;
+        if ($user->hasRole('super_admin')) {
+            return true;
+        }
+
+        // Map resources to specific Spatie permissions
+        $permissionMap = [
+            // User Management
+            UserResource::class => 'users.view',
+            RoleResource::class => 'roles.view',
+            PermissionResource::class => 'roles.view',
+
+            // Academic Management
+            FacultyResource::class => 'academic.view',
+            DepartmentResource::class => 'academic.view',
+            AcademicYearResource::class => 'academic.view',
+            SemesterResource::class => 'academic.view',
+
+            // Teacher Management
+            TeacherResource::class => 'users.view',
+            CourseAssignmentResource::class => 'courses.view',
+            ScheduleResource::class => 'courses.view',
+
+            // Learning Content
+            CourseCategoryResource::class => 'courses.view',
+            CourseResource::class => 'courses.view',
+            ClassRoomResource::class => 'courses.view',
+            CourseModuleResource::class => 'courses.view',
+            ContentLessonResource::class => 'lessons.view',
+            ContentVideoResource::class => 'lessons.view',
+            ContentDocumentResource::class => 'lessons.view',
+            ContentAssignmentResource::class => 'lessons.view',
+
+            // Student Management
+            StudentResource::class => 'students.view',
+            EnrollmentResource::class => 'students.view',
+            AttendanceResource::class => 'attendance.view',
+            StudentPromotionResource::class => 'promotions.view',
+
+            // Assessment
+            ExamSubmissionResource::class => 'assessments.view',
+            AssignmentSubmissionResource::class => 'assessments.view',
+            StudentProgressResource::class => 'assessments.view',
+            CertificateResource::class => 'assessments.view',
+        ];
+
+        $permission = $permissionMap[$resource] ?? null;
+
+        if ($permission && !$user->can($permission)) {
+            return false;
+        }
+
+        return $resource::canAccess();
     }
 }

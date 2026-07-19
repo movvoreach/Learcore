@@ -11,12 +11,14 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\CheckboxList;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 class PermissionResource extends Resource
 {
@@ -32,7 +34,8 @@ class PermissionResource extends Resource
 
     public static function canAccess(): bool
     {
-        return auth()->user()?->hasAnyRole(['super_admin', 'admin']) ?? false;
+        $user = auth()->user();
+        return $user && ($user->hasRole('super_admin') || $user->can('roles.view'));
     }
 
     public static function form(Schema $schema): Schema
@@ -51,6 +54,11 @@ class PermissionResource extends Resource
                         ->default('web')
                         ->required()
                         ->maxLength(255),
+                    CheckboxList::make('roles')
+                        ->label('តួនាទីដែលទទួលបានសិទ្ធិនេះ')
+                        ->relationship('roles', 'name')
+                        ->default(fn () => Role::whereIn('name', ['super_admin', 'admin'])->pluck('id')->toArray())
+                        ->columnSpanFull(),
                 ])
                 ->columnSpanFull(),
         ]);

@@ -140,7 +140,7 @@
             
             <div class="ss-actions-group" >
                 @if (\App\Filament\Admin\Resources\Departments\DepartmentResource::canCreate())
-                    <a class="ss-tool" href="{{ \App\Filament\Admin\Resources\Departments\DepartmentResource::getUrl('create') }}" title="?????????????????">
+                    <a class="ss-tool" href="{{ \App\Filament\Admin\Resources\Departments\DepartmentResource::getUrl('create') }}" title="បញ្ចូលដេប៉ាតឺម៉ង់">
                         <i class="fa fa-plus-circle" aria-hidden="true"></i>
                     </a>
                 @endif
@@ -150,7 +150,7 @@
         <div class="ss-card">
 
             <div class="ss-heading">
-                <h2>???????????</h2>
+                <h2>បញ្ជីដេប៉ាតឺម៉ង់</h2>
             </div>
 
             <div>

@@ -140,7 +140,7 @@
             
             <div class="ss-actions-group" >
                 @if (\App\Filament\Admin\Resources\Faculties\FacultyResource::canCreate())
-                    <a class="ss-tool" href="{{ \App\Filament\Admin\Resources\Faculties\FacultyResource::getUrl('create') }}" title="??????????????????">
+                    <a class="ss-tool" href="{{ \App\Filament\Admin\Resources\Faculties\FacultyResource::getUrl('create') }}" title="បញ្ចូលមហាវិទ្យាល័យ">
                         <i class="fa fa-plus-circle" aria-hidden="true"></i>
                     </a>
                 @endif
@@ -150,7 +150,7 @@
         <div class="ss-card">
 
             <div class="ss-heading">
-                <h2>????????????</h2>
+                <h2>បញ្ជីមហាវិទ្យាល័យ</h2>
             </div>
 
             <div>

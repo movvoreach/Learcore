@@ -317,14 +317,14 @@
                     <i class="fas fa-book-open"></i>
                     Lesson Management
                 </div>
-                <h1 class="clx-title">??????????</h1>
-                <p class="clx-subtitle">?????????????? ?????? ????????????? ??????????????????????????????</p>
+                <h1 class="clx-title">បញ្ជីមេរៀន</h1>
+                <p class="clx-subtitle">គ្រប់គ្រងមេរៀន វីដេអូ ឯកសារ និងសកម្មភាពសិក្សា។</p>
             </div>
 
             @if (\App\Filament\Admin\Resources\ContentLessons\ContentLessonResource::canCreate())
                 <a class="clx-create" href="{{ \App\Filament\Admin\Resources\ContentLessons\ContentLessonResource::getUrl('create') }}">
                     <i class="fas fa-plus"></i>
-                    ???????????
+                    បញ្ចូលមេរៀន
                 </a>
             @endif
         </section>
@@ -332,7 +332,7 @@
         <section class="clx-stats" aria-label="Lesson summary">
             <div class="clx-stat">
                 <div>
-                    <div class="clx-stat-label">?????????</div>
+                    <div class="clx-stat-label">មេរៀនសរុប</div>
                     <div class="clx-stat-value">{{ $totalLessons }}</div>
                 </div>
                 <span class="clx-stat-icon"><i class="fas fa-book"></i></span>
@@ -340,7 +340,7 @@
 
             <div class="clx-stat clx-stat-success">
                 <div>
-                    <div class="clx-stat-label">????????</div>
+                    <div class="clx-stat-label">បានផ្សព្វផ្សាយ</div>
                     <div class="clx-stat-value">{{ $publishedLessons }}</div>
                 </div>
                 <span class="clx-stat-icon"><i class="fas fa-check-circle"></i></span>
@@ -348,7 +348,7 @@
 
             <div class="clx-stat clx-stat-warning">
                 <div>
-                    <div class="clx-stat-label">????????????</div>
+                    <div class="clx-stat-label">ព្រាង</div>
                     <div class="clx-stat-value">{{ $draftLessons }}</div>
                 </div>
                 <span class="clx-stat-icon"><i class="fas fa-pen"></i></span>
@@ -366,8 +366,8 @@
         <section class="clx-table-card">
             <div class="clx-table-head">
                 <div>
-                    <h2 class="clx-table-title">????????????</h2>
-                    <p class="clx-table-note">??????? ?????? ??????? ????????????????????????????????</p>
+                    <h2 class="clx-table-title">តារាងមេរៀន</h2>
+                    <p class="clx-table-note">រៀបចំ មើល និងកែប្រែមេរៀនតាមវគ្គសិក្សា។</p>
                 </div>
             </div>
 

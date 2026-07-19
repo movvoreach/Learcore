@@ -260,7 +260,7 @@
                         let select = window.jQuery(this.$refs.selectElement).select2({
                             theme: 'bootstrap4',
                             width: '100%',
-                            placeholder: '?????????????? (All Roles)',
+                            placeholder: 'ជ្រើសរើសតួនាទី (All Roles)',
                             allowClear: true
                         });
                         if (this.value) {
@@ -275,7 +275,7 @@
                     }
                 }" x-init="initSelect2()">
                     <select x-ref="selectElement" class="ss-select">
-                        <option value="">?????????????? (All Roles)</option>
+                        <option value="">ជ្រើសរើសតួនាទី (All Roles)</option>
                         @foreach(\Spatie\Permission\Models\Role::all() as $role)
                             <option value="{{ $role->id }}">{{ $role->name }}</option>
                         @endforeach
@@ -285,7 +285,7 @@
             
             <div class="ss-actions-group" >
                 @if (\App\Filament\Admin\Resources\Users\UserResource::canCreate())
-                    <a class="ss-tool" href="{{ \App\Filament\Admin\Resources\Users\UserResource::getUrl('create') }}" title="????????????????????">
+                    <a class="ss-tool" href="{{ \App\Filament\Admin\Resources\Users\UserResource::getUrl('create') }}" title="បញ្ចូលអ្នកប្រើប្រាស់">
                         <i class="fa fa-plus-circle" aria-hidden="true"></i>
                     </a>
                 @endif
@@ -295,7 +295,7 @@
         <div class="ss-card">
 
             <div class="ss-heading">
-                <h2>??????????????</h2>
+                <h2>បញ្ជីអ្នកប្រើប្រាស់</h2>
             </div>
 
             <div>

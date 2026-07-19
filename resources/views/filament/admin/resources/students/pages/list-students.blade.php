@@ -260,7 +260,7 @@
                         let select = window.jQuery(this.$refs.selectElement).select2({
                             theme: 'bootstrap4',
                             width: '100%',
-                            placeholder: '??????????????????? (All Departments)',
+                            placeholder: 'ជ្រើសរើសដេប៉ាតឺម៉ង់ (All Departments)',
                             allowClear: true
                         });
                         if (this.value) {
@@ -275,7 +275,7 @@
                     }
                 }" x-init="initSelect2()">
                     <select x-ref="selectElement" class="ss-select">
-                        <option value="">??????????? (All Departments)</option>
+                        <option value="">ជ្រើសរើសដេប៉ាតឺម៉ង់ (All Departments)</option>
                         @foreach(\App\Models\Department::all() as $dept)
                             <option value="{{ $dept->department_id }}">{{ $dept->department_name }}</option>
                         @endforeach
@@ -288,7 +288,7 @@
                         let select = window.jQuery(this.$refs.selectElement).select2({
                             theme: 'bootstrap4',
                             width: '100%',
-                            placeholder: '??????????? (All Academic Years)',
+                            placeholder: 'ជ្រើសរើសឆ្នាំសិក្សា (All Academic Years)',
                             allowClear: true
                         });
                         if (this.value) {
@@ -303,7 +303,7 @@
                     }
                 }" x-init="initSelect2()">
                     <select x-ref="selectElement" class="ss-select">
-                        <option value="">??????????? (All Academic Years)</option>
+                        <option value="">ជ្រើសរើសឆ្នាំសិក្សា (All Academic Years)</option>
                         @foreach(\App\Models\AcademicYear::all() as $ay)
                             <option value="{{ $ay->academic_year_id }}">{{ $ay->year_name }}</option>
                         @endforeach
@@ -316,7 +316,7 @@
                         let select = window.jQuery(this.$refs.selectElement).select2({
                             theme: 'bootstrap4',
                             width: '100%',
-                            placeholder: '???? (All Semesters)',
+                            placeholder: 'ជ្រើសរើសឆមាស (All Semesters)',
                             allowClear: true
                         });
                         if (this.value) {
@@ -331,7 +331,7 @@
                     }
                 }" x-init="initSelect2()">
                     <select x-ref="selectElement" class="ss-select">
-                        <option value="">???? (All Semesters)</option>
+                        <option value="">ជ្រើសរើសឆមាស (All Semesters)</option>
                         @foreach(\App\Models\Semester::all() as $sem)
                             <option value="{{ $sem->semester_id }}">{{ $sem->semester_name }}</option>
                         @endforeach
@@ -341,7 +341,7 @@
             
             <div class="ss-actions-group" >
                 @if (\App\Filament\Admin\Resources\Students\StudentResource::canCreate())
-                    <a class="ss-tool" href="{{ \App\Filament\Admin\Resources\Students\StudentResource::getUrl('create') }}" title="?????????????">
+                    <a class="ss-tool" href="{{ \App\Filament\Admin\Resources\Students\StudentResource::getUrl('create') }}" title="បញ្ចូលនិស្សិត">
                         <i class="fa fa-plus-circle" aria-hidden="true"></i>
                     </a>
                 @endif
@@ -351,7 +351,7 @@
         <div class="ss-card">
 
             <div class="ss-heading">
-                <h2>???????</h2>
+                <h2>បញ្ជីនិស្សិត</h2>
             </div>
 
             <div>

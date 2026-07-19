@@ -14,7 +14,9 @@ class CourseCategoryForm
             ->components([
                 TextInput::make('category_code')
                     ->label('លេខកូដប្រភេទវគ្គសិក្សា')
-                    ->required()
+                    ->default(fn () => \App\Models\CourseCategory::generateNextCategoryCode())
+                    ->disabled()
+                    ->dehydrated(true)
                     ->maxLength(30)
                     ->unique(ignoreRecord: true),
                 TextInput::make('category_name')

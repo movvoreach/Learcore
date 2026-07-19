@@ -259,8 +259,57 @@
                 @endif
 
                 @if(filled($lesson->body))
-                    <div class="lesson-body">{!! $lesson->body !!}</div>
-                @elseif(filled($lesson->external_url))
+                    <div class="lesson-body" style="margin-bottom: 18px;">{!! $lesson->body !!}</div>
+                @endif
+
+                @if($lesson->content_type === 'video')
+                    @php
+                        $embedUrl = null;
+                        $isYouTube = false;
+                        if (filled($lesson->video_url)) {
+                            if (preg_match('%(?:youtube(?:-nocookie)?\.com/(?:[^/]+/.+/|(?:v|e(?:mbed)?)/|.*[?&]v=)|youtu\.be/)([^"&?/ ]{11})%i', $lesson->video_url, $match)) {
+                                $isYouTube = true;
+                                $embedUrl = 'https://www.youtube.com/embed/' . $match[1];
+                            }
+                        }
+                    @endphp
+
+                    <div style="margin-bottom: 18px;">
+                        @if($isYouTube && $embedUrl)
+                            <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 8px; border: 1px solid #e2e8f0; background: #000;">
+                                <iframe src="{{ $embedUrl }}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                            </div>
+                        @elseif(filled($lesson->video_url))
+                            <div style="border-radius: 8px; border: 1px solid #e2e8f0; background: #000; overflow: hidden;">
+                                <video controls style="width: 100%; max-height: 480px; display: block;" preload="metadata">
+                                    <source src="{{ $lesson->video_url }}">
+                                    Your browser does not support the video tag.
+                                </video>
+                            </div>
+                        @elseif(filled($lesson->file_path))
+                            <div style="border-radius: 8px; border: 1px solid #e2e8f0; background: #000; overflow: hidden;">
+                                <video controls style="width: 100%; max-height: 480px; display: block;" preload="metadata">
+                                    <source src="{{ asset('storage/'.$lesson->file_path) }}">
+                                    Your browser does not support the video tag.
+                                </video>
+                            </div>
+                        @else
+                            <div class="empty-note">មិនទាន់មានវីដេអូទេ (No video file or URL has been uploaded yet)</div>
+                        @endif
+                    </div>
+
+                    @if(filled($lesson->video_url) || filled($lesson->file_path))
+                        <div class="asset-item" style="margin-top: 10px;">
+                            <div>
+                                <div class="asset-name">ព័ត៌មានវីដេអូ / Video Metadata</div>
+                                <div class="asset-note">{{ $lesson->video_url ?: $lesson->file_path }}</div>
+                            </div>
+                            <a class="lesson-btn" href="{{ filled($lesson->video_url) ? $lesson->video_url : asset('storage/'.$lesson->file_path) }}" target="_blank" rel="noopener">
+                                <i class="fas fa-external-link-alt"></i> បើកក្នុងផ្ទាំងថ្មី (Open)
+                            </a>
+                        </div>
+                    @endif
+                @elseif($lesson->content_type === 'url' && filled($lesson->external_url))
                     <div class="asset-item">
                         <div>
                             <div class="asset-name">External lesson link</div>
@@ -268,15 +317,7 @@
                         </div>
                         <a class="lesson-btn" href="{{ $lesson->external_url }}" target="_blank" rel="noopener">Open</a>
                     </div>
-                @elseif(filled($lesson->video_url))
-                    <div class="asset-item">
-                        <div>
-                            <div class="asset-name">Video URL</div>
-                            <div class="asset-note">{{ $lesson->video_url }}</div>
-                        </div>
-                        <a class="lesson-btn" href="{{ $lesson->video_url }}" target="_blank" rel="noopener">Open</a>
-                    </div>
-                @elseif(filled($lesson->file_path))
+                @elseif($lesson->content_type === 'file' && filled($lesson->file_path))
                     <div class="asset-item">
                         <div>
                             <div class="asset-name">Lesson file</div>
@@ -284,7 +325,7 @@
                         </div>
                         <a class="lesson-btn" href="{{ asset('storage/'.$lesson->file_path) }}" target="_blank" rel="noopener">Open</a>
                     </div>
-                @else
+                @elseif(!filled($lesson->body) && !filled($lesson->summary))
                     <div class="empty-note">No lesson content has been added yet.</div>
                 @endif
             </section>

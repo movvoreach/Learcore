@@ -1035,7 +1035,7 @@
                         let select = window.jQuery(this.$refs.selectElement).select2({
                             theme: 'bootstrap4',
                             width: '100%',
-                            placeholder: '?????????????????? (All Courses)',
+                            placeholder: 'ជ្រើសរើសវគ្គសិក្សា (All Courses)',
                             allowClear: true
                         });
                         if (this.value) {
@@ -1050,7 +1050,7 @@
                     }
                 }" x-init="initSelect2()">
                     <select x-ref="selectElement" class="ss-select">
-                        <option value="">?????????????????? (All Courses)</option>
+                        <option value="">ជ្រើសរើសវគ្គសិក្សា (All Courses)</option>
                         @foreach(\App\Models\Course::all() as $course)
                             <option value="{{ $course->course_id }}">{{ $course->course_name }}</option>
                         @endforeach
@@ -1063,7 +1063,7 @@
                         let select = window.jQuery(this.$refs.selectElement).select2({
                             theme: 'bootstrap4',
                             width: '100%',
-                            placeholder: '??????????? (All Academic Years)',
+                            placeholder: 'ជ្រើសរើសឆ្នាំសិក្សា (All Academic Years)',
                             allowClear: true
                         });
                         if (this.value) {
@@ -1078,7 +1078,7 @@
                     }
                 }" x-init="initSelect2()">
                     <select x-ref="selectElement" class="ss-select">
-                        <option value="">??????????? (All Academic Years)</option>
+                        <option value="">ជ្រើសរើសឆ្នាំសិក្សា (All Academic Years)</option>
                         @foreach(\App\Models\AcademicYear::all() as $ay)
                             <option value="{{ $ay->academic_year_id }}">{{ $ay->year_name }}</option>
                         @endforeach
@@ -1091,7 +1091,7 @@
                         let select = window.jQuery(this.$refs.selectElement).select2({
                             theme: 'bootstrap4',
                             width: '100%',
-                            placeholder: '???? (All Semesters)',
+                            placeholder: 'ជ្រើសរើសឆមាស (All Semesters)',
                             allowClear: true
                         });
                         if (this.value) {
@@ -1106,7 +1106,7 @@
                     }
                 }" x-init="initSelect2()">
                     <select x-ref="selectElement" class="ss-select">
-                        <option value="">???? (All Semesters)</option>
+                        <option value="">ជ្រើសរើសឆមាស (All Semesters)</option>
                         @foreach(\App\Models\Semester::all() as $sem)
                             <option value="{{ $sem->semester_id }}">{{ $sem->semester_name }}</option>
                         @endforeach
@@ -1116,7 +1116,7 @@
             
             <div class="ss-actions-group" >
                 @if (\App\Filament\Admin\Resources\Enrollments\EnrollmentResource::canCreate())
-                    <button class="ss-tool" type="button" title="??????????????" x-on:click="openEnrollmentModal()">
+                    <button class="ss-tool" type="button" title="បញ្ចូលការចុះឈ្មោះ" x-on:click="openEnrollmentModal()">
                         <i class="fa fa-plus-circle" aria-hidden="true"></i>
                     </button>
                 @endif
@@ -1126,21 +1126,21 @@
         <div class="ss-card">
 
             <div class="ss-heading">
-                <h2>?????????????????</h2>
+                <h2>បញ្ជីការចុះឈ្មោះ</h2>
             </div>
 
             <div>
                 <div class="enrollment-summary-row">
                     <div>
-                        <strong>????:</strong> {{ $totalEnrollments }} enrollments �
-                        <strong>???????????:</strong> {{ $studyingEnrollments }} �
-                        <strong>?????????:</strong> {{ $completedEnrollments }}
+                        <strong>សរុប:</strong> {{ $totalEnrollments }} enrollments ·
+                        <strong>កំពុងសិក្សា:</strong> {{ $studyingEnrollments }} ·
+                        <strong>បានបញ្ចប់:</strong> {{ $completedEnrollments }}
                     </div>
-                    <div>?????? 10 records first � enroll students to online courses</div>
+                    <div>បង្ហាញ 10 records first · enroll students to online courses</div>
                 </div>
 
                 @if($enrollments->isEmpty())
-                    <div class="empty-state">?????????????????????????????????????</div>
+                    <div class="empty-state">មិនមានការចុះឈ្មោះត្រូវបង្ហាញទេ</div>
                 @else
                     <div class="enrollment-table-wrap">
                         <table class="enrollment-table">
@@ -1163,9 +1163,9 @@
                                         $studentName = trim(($student?->first_name ?? '').' '.($student?->last_name ?? '')) ?: 'Unknown student';
                                         $status = $enrollment->status ?: 'studying';
                                         $statusLabel = match ($status) {
-                                            'completed' => '?????????',
-                                            'cancelled' => '?????????',
-                                            default => '???????????',
+                                            'completed' => 'បានបញ្ចប់',
+                                            'cancelled' => 'បានបោះបង់',
+                                            default => 'កំពុងសិក្សា',
                                         };
                                     @endphp
 
@@ -1192,21 +1192,21 @@
                                             @else
                                                 <span>No course</span>
                                             @endif
-                                            <div class="muted">{{ $course?->course_code ?? '-' }} � {{ $course?->department?->department_name ?? 'Online course' }}</div>
+                                            <div class="muted">{{ $course?->course_code ?? '-' }} · {{ $course?->department?->department_name ?? 'Online course' }}</div>
                                         </td>
                                         <td>
                                             <div>{{ $enrollment->classRoom?->class_name ?? 'Online course' }}</div>
-                                            <div class="muted">{{ $enrollment->academicYear?->year_name ?? '-' }} � {{ $enrollment->semester?->semester_name ?? '-' }}</div>
+                                            <div class="muted">{{ $enrollment->academicYear?->year_name ?? '-' }} · {{ $enrollment->semester?->semester_name ?? '-' }}</div>
                                         </td>
                                         <td class="text-center">{{ $enrollment->enrollment_date?->format('m/d/Y') ?? '-' }}</td>
                                             <td style="text-align: center; vertical-align: middle">
                                                 @if($status === 'studying')
                                                     <button type="button" class="btn course-status-badge status-in-progress" id="BtChangeStatus" value="{{ $enrollment->enrollment_id }}">
-                                                        <i class="fa fa-spinner"></i> ????????
+                                                        <i class="fa fa-spinner"></i> កំពុងសិក្សា
                                                     </button>
                                                 @else
                                                     <button type="button" class="btn course-status-badge status-complete" id="BtChangeStatus" value="{{ $enrollment->enrollment_id }}">
-                                                        <i class="fa fa-check-circle"></i> ???
+                                                        <i class="fa fa-check-circle"></i> បញ្ចប់
                                                     </button>
                                                 @endif
                                             </td>
@@ -1230,7 +1230,7 @@
                                                          aria-labelledby="dropdownMenuLink{{ $enrollment->enrollment_id }}">
                                                         @if($course)
                                                             <a class="row-menu-item" href="{{ \App\Filament\Admin\Pages\CourseStudents::getUrl(['course' => $course->course_id]) }}">
-                                                                <span><i class="fas fa-users"></i> ??????????</span>
+                                                                <span><i class="fas fa-users"></i> និស្សិតក្នុងវគ្គ</span>
                                                                 <i class="fas fa-chevron-right"></i>
                                                             </a>
 
@@ -1238,19 +1238,19 @@
                                                         @endif
 
                                                         <a class="row-menu-item" href="{{ \App\Filament\Admin\Resources\Enrollments\EnrollmentResource::getUrl('show', ['record' => $enrollment->enrollment_id]) }}">
-                                                            <span><i class="fas fa-eye"></i> ?????</span>
+                                                            <span><i class="fas fa-eye"></i> មើល</span>
                                                             <i class="fas fa-chevron-right"></i>
                                                         </a>
 
                                                         <hr class="row-menu-separator">
 
                                                         <button type="button" class="row-menu-item" x-on:click="open = false; openEnrollmentModal(@js($course?->course_id), @js($enrollment->class_room_id), @js($enrollment->academic_year_id), @js($enrollment->semester_id))">
-                                                            <span><i class="fa fa-plus-circle" aria-hidden="true"></i> ????????</span>
+                                                            <span><i class="fa fa-plus-circle" aria-hidden="true"></i> បញ្ចូល</span>
                                                             <i class="fas fa-chevron-right"></i>
                                                         </button>
 
                                                         <a class="row-menu-item" href="{{ \App\Filament\Admin\Resources\Enrollments\EnrollmentResource::getUrl('edit', ['record' => $enrollment->enrollment_id]) }}">
-                                                            <span><i class="fa fa-minus-circle"></i> ????????</span>
+                                                            <span><i class="fa fa-minus-circle"></i> កែប្រែ</span>
                                                             <i class="fas fa-chevron-right"></i>
                                                         </a>
 
@@ -1258,13 +1258,13 @@
 
                                                         @if($course)
                                                             <a class="row-menu-item" href="{{ \App\Filament\Admin\Pages\CourseStudents::getUrl(['course' => $course->course_id]) }}">
-                                                                <span><i class="fa fa-file"></i> ??????????????</span>
+                                                                <span><i class="fa fa-file"></i> របាយការណ៍វគ្គ</span>
                                                                 <i class="fas fa-chevron-right"></i>
                                                             </a>
                                                         @endif
 
                                                         <a class="row-menu-item" href="{{ \App\Filament\Admin\Resources\Attendances\AttendanceResource::getUrl('index') }}">
-                                                            <span><i class="fa fa-file"></i> ????????????</span>
+                                                            <span><i class="fa fa-file"></i> របាយការណ៍វត្តមាន</span>
                                                             <i class="fas fa-chevron-right"></i>
                                                         </a>
                                                     </div>
@@ -1294,7 +1294,7 @@
                         @endphp
 
                         <div class="pagination-summary">
-                            ?????? {{ $enrollments->firstItem() }} ??? {{ $enrollments->lastItem() }} ?? {{ $enrollments->total() }} records
+                            បង្ហាញ {{ $enrollments->firstItem() }} ដល់ {{ $enrollments->lastItem() }} នៃ {{ $enrollments->total() }} records
                         </div>
                         <nav aria-label="Enrollment pagination">
                             <ul class="pagination">
@@ -1353,15 +1353,15 @@
                     <div class="ss-modal-head">
                         <h3 class="ss-modal-title">
                             <span class="ss-modal-plus"><i class="fa-solid fas fa-user-plus"></i></span>
-                            ?????????????? (Course Enrollment)
+                            បញ្ចូលការចុះឈ្មោះ (Course Enrollment)
                         </h3>
-                        <button class="ss-modal-close" type="button" x-on:click="closeEnrollmentModal()">�</button>
+                        <button class="ss-modal-close" type="button" x-on:click="closeEnrollmentModal()">×</button>
                     </div>
 
                     <div class="ss-modal-body">
                         <div class="ss-modal-grid">
                             <div class="ss-modal-field--full quick-enroll-field">
-                                <label class="ss-modal-label" for="PoliceId_Enroll">???????????????? (Student ID) <span class="ss-required">*</span></label>
+                                <label class="ss-modal-label" for="PoliceId_Enroll">លេខសម្គាល់និស្សិត (Student ID) <span class="ss-required">*</span></label>
                                 <select id="PoliceId_Enroll"
                                         class="ss-modal-input"
                                         x-ref="enrollmentQuickStudentSelect"
@@ -1395,9 +1395,9 @@
                                 @error('enrollmentCourseId') <div class="ss-modal-error">{{ $message }}</div> @enderror
                             </div>
                             <div class="ss-modal-field--full">
-                                <label class="ss-modal-label" for="enrollment-department-id">???????????</label>
-                                <select id="enrollment-department-id" class="ss-modal-input" x-ref="enrollmentDepartmentSelect" data-placeholder="???????????????????" data-allow-clear="true">
-                                    <option value="">???????????????????</option>
+                                <label class="ss-modal-label" for="enrollment-department-id">ដេប៉ាតឺម៉ង់</label>
+                                <select id="enrollment-department-id" class="ss-modal-input" x-ref="enrollmentDepartmentSelect" data-placeholder="ជ្រើសរើសដេប៉ាតឺម៉ង់" data-allow-clear="true">
+                                    <option value="">ជ្រើសរើសដេប៉ាតឺម៉ង់</option>
                                     @foreach(\App\Models\Department::query()->orderBy('department_code')->orderBy('department_name')->get() as $department)
                                         <option value="{{ $department->department_id }}" @selected((int) $enrollmentDepartmentId === (int) $department->department_id)>
                                             {{ trim(($department->department_code ?? '').' - '.$department->department_name, ' -') }}
@@ -1408,9 +1408,9 @@
                             </div>
 
                             <div>
-                                <label class="ss-modal-label" for="enrollment-student-id">??????? <span class="ss-required">*</span></label>
-                                <select id="enrollment-student-id" class="ss-modal-input" x-ref="enrollmentStudentSelect" data-placeholder="???????????????">
-                                    <option value="">???????????????</option>
+                                <label class="ss-modal-label" for="enrollment-student-id">និស្សិត <span class="ss-required">*</span></label>
+                                <select id="enrollment-student-id" class="ss-modal-input" x-ref="enrollmentStudentSelect" data-placeholder="ជ្រើសរើសនិស្សិត">
+                                    <option value="">ជ្រើសរើសនិស្សិត</option>
                                     @foreach(\App\Models\Student::query()->orderBy('student_code')->orderBy('first_name')->get() as $student)
                                         @php($studentName = trim(($student->student_code ?? '').' - '.($student->first_name ?? '').' '.($student->last_name ?? '')))
                                         <option value="{{ $student->student_id }}" data-department="{{ $student->department_id }}" @selected((int) $enrollmentStudentId === (int) $student->student_id)>{{ $studentName }}</option>
@@ -1420,9 +1420,9 @@
                             </div>
 
                             <div>
-                                <label class="ss-modal-label" for="enrollment-course-id">?????????? <span class="ss-required">*</span></label>
-                                <select id="enrollment-course-id" class="ss-modal-input" x-ref="enrollmentCourseSelect" data-placeholder="??????????????????">
-                                    <option value="">??????????????????</option>
+                                <label class="ss-modal-label" for="enrollment-course-id">វគ្គសិក្សា <span class="ss-required">*</span></label>
+                                <select id="enrollment-course-id" class="ss-modal-input" x-ref="enrollmentCourseSelect" data-placeholder="ជ្រើសរើសវគ្គសិក្សា">
+                                    <option value="">ជ្រើសរើសវគ្គសិក្សា</option>
                                     @foreach(\App\Models\Course::query()->orderBy('course_name')->get() as $course)
                                         <option value="{{ $course->course_id }}" data-department="{{ $course->department_id }}" @selected((int) $enrollmentCourseId === (int) $course->course_id)>{{ $course->course_name }}</option>
                                     @endforeach
@@ -1431,9 +1431,9 @@
                             </div>
 
                             <div>
-                                <label class="ss-modal-label" for="enrollment-academic-year-id">???????????</label>
-                                <select id="enrollment-academic-year-id" class="ss-modal-input" x-ref="enrollmentAcademicYearSelect" data-placeholder="???????????????????" data-allow-clear="true">
-                                    <option value="">???????????????????</option>
+                                <label class="ss-modal-label" for="enrollment-academic-year-id">ឆ្នាំសិក្សា</label>
+                                <select id="enrollment-academic-year-id" class="ss-modal-input" x-ref="enrollmentAcademicYearSelect" data-placeholder="ជ្រើសរើសឆ្នាំសិក្សា" data-allow-clear="true">
+                                    <option value="">ជ្រើសរើសឆ្នាំសិក្សា</option>
                                     @foreach(\App\Models\AcademicYear::query()->orderByDesc('start_date')->orderBy('year_name')->get() as $academicYear)
                                         <option value="{{ $academicYear->academic_year_id }}" @selected((int) $enrollmentAcademicYearId === (int) $academicYear->academic_year_id)>{{ $academicYear->year_name }}</option>
                                     @endforeach
@@ -1442,9 +1442,9 @@
                             </div>
 
                             <div>
-                                <label class="ss-modal-label" for="enrollment-semester-id">????</label>
-                                <select id="enrollment-semester-id" class="ss-modal-input" x-ref="enrollmentSemesterSelect" data-placeholder="????????????" data-allow-clear="true" @disabled(blank($enrollmentAcademicYearId))>
-                                    <option value="">????????????</option>
+                                <label class="ss-modal-label" for="enrollment-semester-id">ឆមាស</label>
+                                <select id="enrollment-semester-id" class="ss-modal-input" x-ref="enrollmentSemesterSelect" data-placeholder="ជ្រើសរើសឆមាស" data-allow-clear="true" @disabled(blank($enrollmentAcademicYearId))>
+                                    <option value="">ជ្រើសរើសឆមាស</option>
                                     @foreach(\App\Models\Semester::query()->orderBy('start_date')->get() as $semester)
                                         <option value="{{ $semester->semester_id }}" data-year="{{ $semester->academic_year_id }}" @selected((int) $enrollmentSemesterId === (int) $semester->semester_id)>{{ $semester->semester_name }}</option>
                                     @endforeach
@@ -1453,23 +1453,23 @@
                             </div>
 
                             <div>
-                                <label class="ss-modal-label" for="enrollment-date">????????????</label>
+                                <label class="ss-modal-label" for="enrollment-date">កាលបរិច្ឆេទចុះឈ្មោះ</label>
                                 <input id="enrollment-date" class="ss-modal-input" type="date" x-ref="enrollmentDateInput" value="{{ $enrollmentDate }}">
                                 @error('enrollmentDate') <div class="ss-modal-error">{{ $message }}</div> @enderror
                             </div>
 
                             <div>
-                                <label class="ss-modal-label" for="enrollment-status">???????? <span class="ss-required">*</span></label>
-                                <select id="enrollment-status" class="ss-modal-input" x-ref="enrollmentStatusSelect" data-placeholder="????????????????">
-                                    <option value="studying" @selected($enrollmentStatus === 'studying')>???????????</option>
-                                    <option value="completed" @selected($enrollmentStatus === 'completed')>?????????</option>
-                                    <option value="cancelled" @selected($enrollmentStatus === 'cancelled')>?????????</option>
+                                <label class="ss-modal-label" for="enrollment-status">ស្ថានភាព <span class="ss-required">*</span></label>
+                                <select id="enrollment-status" class="ss-modal-input" x-ref="enrollmentStatusSelect" data-placeholder="ជ្រើសរើសស្ថានភាព">
+                                    <option value="studying" @selected($enrollmentStatus === 'studying')>កំពុងសិក្សា</option>
+                                    <option value="completed" @selected($enrollmentStatus === 'completed')>បានបញ្ចប់</option>
+                                    <option value="cancelled" @selected($enrollmentStatus === 'cancelled')>បានបោះបង់</option>
                                 </select>
                                 @error('enrollmentStatus') <div class="ss-modal-error">{{ $message }}</div> @enderror
                             </div>
 
                             <div class="ss-modal-field--full">
-                                <label class="ss-modal-label" for="enrollment-note">????????????</label>
+                                <label class="ss-modal-label" for="enrollment-note">កំណត់ចំណាំ</label>
                                 <textarea id="enrollment-note" class="ss-modal-input" x-ref="enrollmentNoteInput">{{ $enrollmentNote }}</textarea>
                                 @error('enrollmentNote') <div class="ss-modal-error">{{ $message }}</div> @enderror
                             </div>
@@ -1477,10 +1477,10 @@
                     </div>
 
                     <div class="ss-modal-foot">
-                        <button class="ss-modal-cancel ss-modal-cancel-dark" type="button" x-on:click="closeEnrollmentModal()">???????</button>
+                        <button class="ss-modal-cancel ss-modal-cancel-dark" type="button" x-on:click="closeEnrollmentModal()">បោះបង់</button>
                         <button class="ss-modal-submit ss-modal-submit-green" style="width: 120px;" type="submit" wire:loading.attr="disabled" wire:target="createEnrollmentByStudentCode">
-                            <span wire:loading.remove wire:target="createEnrollmentByStudentCode"><i class="fa fa-plus-circle" aria-hidden="true"></i> ????????</span>
-                            <span wire:loading wire:target="createEnrollmentByStudentCode">?????...</span>
+                            <span wire:loading.remove wire:target="createEnrollmentByStudentCode"><i class="fa fa-plus-circle" aria-hidden="true"></i> បញ្ចូល</span>
+                            <span wire:loading wire:target="createEnrollmentByStudentCode">កំពុងរក្សាទុក...</span>
                         </button>
                     </div>
                 </form>

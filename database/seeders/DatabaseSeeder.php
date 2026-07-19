@@ -20,14 +20,14 @@ class DatabaseSeeder extends Seeder
 
         // ── Admin / Global permissions ────────────────────────────
         $adminPermissions = [
-            'manage users',
-            'manage roles',
-            'manage academic structure',
-            'manage students',
-            'manage courses',
-            'manage lessons',
-            'manage assessments',
-            'manage promotions',
+            'users.view', 'users.create', 'users.update', 'users.delete',
+            'roles.view', 'roles.create', 'roles.update', 'roles.delete',
+            'academic.view', 'academic.create', 'academic.update', 'academic.delete',
+            'students.view', 'students.create', 'students.update', 'students.delete',
+            'courses.view', 'courses.create', 'courses.update', 'courses.delete',
+            'lessons.view', 'lessons.create', 'lessons.update', 'lessons.delete',
+            'assessments.view', 'assessments.create', 'assessments.update', 'assessments.delete',
+            'promotions.view', 'promotions.create', 'promotions.update', 'promotions.delete',
         ];
 
         // ── Student permissions ───────────────────────────────────
@@ -38,7 +38,7 @@ class DatabaseSeeder extends Seeder
             'view assignments',
             'view quizzes',
             'view grades',
-            'view attendance',
+            'attendance.view',
             'view certificates',
         ];
 
@@ -52,7 +52,10 @@ class DatabaseSeeder extends Seeder
             'manage assignments',
             'manage quizzes',
             'manage gradebook',
-            'manage attendance',
+            'attendance.view',
+            'attendance.create',
+            'attendance.update',
+            'attendance.delete',
             'view reports',
         ];
 

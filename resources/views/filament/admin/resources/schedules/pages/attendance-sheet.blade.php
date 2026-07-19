@@ -196,7 +196,7 @@
         @media print {
             @page {
                 size: A4 landscape;
-                margin: 8mm;
+                margin: 0;
             }
 
             html,
@@ -206,7 +206,10 @@
                 margin: 0 !important;
                 padding: 0 !important;
                 overflow: visible !important;
-                background: #fff !important;
+                background: url('{{ asset("backend/pdf/បញ្ជីរាយនាមសិស្ស.png") }}') no-repeat top center !important;
+                background-size: 100% 100% !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
             }
 
             .fi-sidebar,
@@ -232,7 +235,7 @@
                 margin: 0 !important;
                 padding: 0 !important;
                 overflow: visible !important;
-                background: #fff !important;
+                background: transparent !important;
                 box-shadow: none !important;
             }
 
@@ -240,7 +243,8 @@
                 display: block !important;
                 width: 100% !important;
                 overflow: visible !important;
-                background: #fff !important;
+                background: transparent !important;
+                padding: 82mm 10mm 10mm !important;
             }
 
             .as-table {
@@ -316,7 +320,7 @@
         function printSheet() {
             var table = document.querySelector('.as-page .as-table');
             if (!table) {
-                alert('???????????!');
+                alert('បានរក្សាទុក!');
                 return;
             }
 
@@ -348,7 +352,9 @@
                 '<title>\u1794\u1789\u17d2\u1787\u17b9\u179c\u178f\u17d2\u178f\u1798\u17b6\u1793</title>' +
                 '<link rel="stylesheet" href="' + fontUrl + '">' +
                 '<style>' +
-                'html,body{margin:0;padding:2mm;background:#fff;font-family:"Battambang","Noto Sans Khmer",sans-serif;font-size:9px;color:#111827;}' +
+                '@page{size:A4 landscape;margin:0;}' +
+                'html,body{margin:0;padding:0;background:url("' + '{{ asset("backend/pdf/បញ្ជីរាយនាមសិស្ស.png") }}' + '") no-repeat top center !important;background-size:100% 100% !important;font-family:"Battambang","Noto Sans Khmer",sans-serif;font-size:8px;color:#111827;-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important;}' +
+                '.as-print-wrapper{display:block;width:100%;min-height:200mm;background:transparent !important;padding:82mm 10mm 10mm;}' +
                 'table{width:100%;border-collapse:collapse;table-layout:fixed;}' +
                 'th,td{border:1px solid #000;padding:2px 3px;vertical-align:middle;color:#111827;background:#fff;}' +
                 'tr.as-meta td{height:20px;font-size:9px;}' +
@@ -361,7 +367,9 @@
                 'input[type=checkbox]{width:9px;height:9px;accent-color:#111;}' +
                 '</' + 'style>' +
                 '</' + 'head><body>' +
+                '<div class="as-print-wrapper">' +
                 tableHtml +
+                '</div>' +
                 '</' + 'body></' + 'html>'
             );
             doc.close();
@@ -386,7 +394,7 @@
 
     <div class="as-page">
         <div class="as-toolbar">
-            <button class="as-print" type="button" onclick="printSheet()" title="????????">
+            <button class="as-print" type="button" onclick="printSheet()" title="បោះពុម្ព">
                 <i class="fas fa-print"></i>
             </button>
         </div>
@@ -394,33 +402,33 @@
 
         <div class="as-filter">
             <div class="as-filter-row">
-                <label class="as-label" for="days-count">?????????</label>
+                <label class="as-label" for="days-count">ចំនួនថ្ងៃ</label>
                 <input id="days-count" class="as-input" type="number" min="1" max="62" wire:model.defer="daysCount">
 
-                <label class="as-label" for="start-date">?????????????</label>
+                <label class="as-label" for="start-date">កាលបរិច្ឆេទចាប់ផ្តើម</label>
                 <input id="start-date" class="as-input" type="date" wire:model.defer="startDate">
 
-                <button class="as-search" type="button" wire:click="$refresh" title="???????">
+                <button class="as-search" type="button" wire:click="$refresh" title="ស្វែងរក">
                     <i class="fas fa-search"></i>
                 </button>
             </div>
         </div>
 
         @if($students->isEmpty())
-            <div class="as-empty">??????????????????????????????????????????</div>
+            <div class="as-empty">មិនមាននិស្សិតសម្រាប់តារាងវត្តមាននេះទេ</div>
         @else
             <div class="as-table-wrap">
                 <table class="as-table">
                     <tbody>
                         <tr class="as-meta">
-                            <td colspan="4">????????????</td>
-                            <td colspan="16">????????????: {{ $classRoom?->class_code ?? '-' }}</td>
-                            <td colspan="{{ max($dates->count() - 16, 1) }}">?????????: {{ $course?->course_name ?? '-' }}</td>
+                            <td colspan="4">តារាងវត្តមាន</td>
+                            <td colspan="16">ថ្នាក់រៀន: {{ $classRoom?->class_code ?? '-' }}</td>
+                            <td colspan="{{ max($dates->count() - 16, 1) }}">វគ្គសិក្សា: {{ $course?->course_name ?? '-' }}</td>
                         </tr>
                         <tr class="as-meta">
-                            <td colspan="4">?????????: {{ $timeLabel }}</td>
-                            <td colspan="16">??????????: {{ $teacherName }}</td>
-                            <td colspan="{{ max($dates->count() - 16, 1) }}">??: {{ $monthLabel }}</td>
+                            <td colspan="4">ពេលវេលា: {{ $timeLabel }}</td>
+                            <td colspan="16">គ្រូបង្រៀន: {{ $teacherName }}</td>
+                            <td colspan="{{ max($dates->count() - 16, 1) }}">ខែ: {{ $monthLabel }}</td>
                         </tr>
                         <tr>
                             <td colspan="4" class="as-signature">Instructor's Signature</td>

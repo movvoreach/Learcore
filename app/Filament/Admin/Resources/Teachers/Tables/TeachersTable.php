@@ -19,9 +19,17 @@ class TeachersTable
         return $table
             ->modifyQueryUsing(fn (Builder $query): Builder => $query->with(['department']))
             ->columns([
-                TextColumn::make('teacher_code')->label('លេខកូដគ្រូ')->searchable()->sortable(),
-                TextColumn::make('first_name')->label('នាមខ្លួន')->searchable()->sortable(),
-                TextColumn::make('last_name')->label('នាមត្រកូល')->searchable()->sortable(),
+                TextColumn::make('teacher_code')
+                    ->label('គ្រូបង្រៀន')
+                    ->getStateUsing(fn (\App\Models\Teacher $record): string => trim($record->last_name_kh.' '.$record->first_name_kh) ?: trim($record->last_name.' '.$record->first_name) ?: $record->teacher_code)
+                    ->description(fn (\App\Models\Teacher $record): string => collect([
+                        trim($record->last_name.' '.$record->first_name),
+                        $record->teacher_code
+                    ])->filter()->join(' · '))
+                    ->searchable(['teacher_code', 'first_name', 'last_name', 'first_name_kh', 'last_name_kh', 'email'])
+                    ->sortable()
+                    ->weight('bold')
+                    ->copyable(),
                 TextColumn::make('department.department_name')->label('ដេប៉ាតឺម៉ង់')->searchable()->sortable(),
                 TextColumn::make('employment_type')
                     ->label('ប្រភេទការងារ')

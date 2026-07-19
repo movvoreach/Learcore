@@ -45,4 +45,31 @@ class EditRole extends EditRecord
         return parent::getCancelFormAction()
             ->label('ត្រឡប់');
     }
+
+    protected function afterSave(): void
+    {
+        $this->syncPermissions();
+    }
+
+    private function syncPermissions(): void
+    {
+        $data = $this->form->getRawState();
+
+        $permissionIds = array_merge(
+            $data['users_permissions'] ?? [],
+            $data['roles_permissions'] ?? [],
+            $data['academic_permissions'] ?? [],
+            $data['students_permissions'] ?? [],
+            $data['courses_permissions'] ?? [],
+            $data['lessons_permissions'] ?? [],
+            $data['assessments_permissions'] ?? [],
+            $data['promotions_permissions'] ?? [],
+            $data['teacher_permissions'] ?? [],
+            $data['student_permissions'] ?? [],
+            $data['settings_permissions'] ?? [],
+            $data['other_permissions'] ?? []
+        );
+
+        $this->record->syncPermissions($permissionIds);
+    }
 }

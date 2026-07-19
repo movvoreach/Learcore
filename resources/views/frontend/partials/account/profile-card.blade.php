@@ -1,47 +1,76 @@
 @php
-    $firstName = $student?->first_name ?: strtok($user->name, ' ');
-    $lastName = $student?->last_name ?: trim(str_replace($firstName, '', $user->name));
-    $badgesCount = $student ? $student->certificates()->count() : 0;
-    $completedCount = $student ? $student->enrollments()->where('status', 'completed')->count() : 0;
-    $learningLocale = session('learning_locale', 'en');
+    // --- Names ---
+    $firstName  = $student?->first_name  ?: (strtok($user->name, ' ') ?: 'Student');
+    $lastName   = $student?->last_name   ?: (trim(str_replace($firstName, '', $user->name)) ?: '');
+    $firstNameKh = $student?->first_name_kh ?: '';
+    $lastNameKh  = $student?->last_name_kh  ?: '';
+    $displayName = trim("$firstName $lastName") ?: $user->name ?: 'Student';
+    $displayNameKh = trim("$lastNameKh $firstNameKh");
+
+    // --- Avatar ---
     $avatarUrl = $user->avatar
         ? (str_starts_with($user->avatar, 'http') ? $user->avatar : asset('storage/'.$user->avatar))
         : asset('backend/dist/img/avatar.png');
-    $roleLabel = $user->isStudent() ? 'Learner' : ($user->isTeacher() ? 'Instructor' : 'Administrator');
-    $academyLabel = $student?->department?->department_name ?: 'Networking Academy';
-    $achievementCards = collect([
-        ['kind' => 'Achievement', 'icon' => 'fa-shield-alt', 'label' => 'Module', 'title' => 'Network Defense'],
-        ['kind' => 'Achievement', 'icon' => 'fa-laptop-code', 'label' => 'Module', 'title' => 'Operating System and Endpoint...'],
-        ['kind' => 'Achievement', 'icon' => 'fa-globe', 'label' => 'Module', 'title' => 'Network Security Basics'],
-        ['kind' => 'Badge', 'icon' => 'fa-book-open', 'label' => 'Training', 'title' => 'CCNA: Introduction to Networks'],
-    ]);
+
+    // --- Student info ---
+    $studentCode   = $student?->student_code  ?: '—';
+    $gender        = $student?->gender        ?: 'Prefer not to say';
+    $dob           = $student?->date_of_birth ? $student->date_of_birth->format('d/m/Y') : '—';
+    $phone         = $student?->phone         ?: '—';
+    $email         = $student?->email         ?: $user->email ?: '—';
+    $address       = $student?->address       ?: '—';
+    $status        = ucfirst($student?->status ?: 'active');
+
+    // --- Academic info ---
+    $deptName      = $student?->department?->department_name  ?: '—';
+    $yearName      = $student?->academicYear?->year_name       ?: '—';
+    $semesterName  = $student?->semester?->semester_name       ?: '—';
+
+    // --- Role / labels ---
+    $roleLabel   = $user->isStudent() ? 'Learner' : ($user->isTeacher() ? 'Instructor' : 'Administrator');
+    $academyLabel = $student?->department?->department_name ?: 'Saint Paul Institute';
+
+    // --- Stats ---
+    $badgesCount     = $student ? $student->certificates()->count()                              : 0;
+    $completedCount  = $student ? $student->enrollments()->where('status', 'completed')->count() : 0;
+    $enrollCount     = $student ? $student->enrollments()->count()                               : 0;
+
+    // --- Language ---
+    $learningLocale = session('learning_locale', 'en');
 @endphp
 
 <div class="netacad-profile">
+    {{-- Back button --}}
     <a href="{{ route('dashboard') }}" class="netacad-back-btn" aria-label="Back to learning">
         <i class="fas fa-arrow-left"></i>
         <span>Back</span>
     </a>
 
+    {{-- Alerts --}}
     @if(session('success'))
         <div class="netacad-alert netacad-alert--success">
             <i class="fas fa-check-circle"></i> {{ session('success') }}
         </div>
     @endif
-
     @if($errors->any())
         <div class="netacad-alert netacad-alert--danger">
             <i class="fas fa-exclamation-circle"></i> {{ $errors->first() }}
         </div>
     @endif
 
+    {{-- ── Hero banner ── --}}
     <section class="netacad-hero">
         <div class="netacad-hero__inner">
-            <form method="POST" action="{{ route('frontend.account.profile.update') }}" enctype="multipart/form-data" class="netacad-identity" id="netacadProfileForm">
+            <form method="POST"
+                  action="{{ route('frontend.account.profile.update') }}"
+                  enctype="multipart/form-data"
+                  class="netacad-identity"
+                  id="netacadProfileForm">
                 @csrf
                 <input type="hidden" name="firstName" value="{{ old('firstName', $firstName) }}">
-                <input type="hidden" name="lastName" value="{{ old('lastName', $lastName ?: $user->name) }}">
-                <input type="hidden" name="gender" value="{{ old('gender', $student?->gender ?: 'Prefer not to say') }}">
+                <input type="hidden" name="lastName"  value="{{ old('lastName',  $lastName) }}">
+                <input type="hidden" name="gender"    value="{{ old('gender',    $gender) }}">
+
                 <div class="netacad-avatar">
                     <img src="{{ $avatarUrl }}" alt="{{ $displayName }}" id="netacadAvatarPreview">
                     <label for="file-input" class="netacad-avatar__edit" title="Change photo">
@@ -53,35 +82,44 @@
                 <div class="netacad-user">
                     <span>Welcome,</span>
                     <h1>{{ $displayName }}</h1>
+                    @if($displayNameKh)
+                        <p class="netacad-user-kh">{{ $displayNameKh }}</p>
+                    @endif
                     <p>{{ $roleLabel }} <b></b> {{ $academyLabel }}</p>
+                    @if($studentCode !== '—')
+                        <span class="netacad-badge-code">ID: {{ $studentCode }}</span>
+                    @endif
                 </div>
             </form>
 
             <div class="netacad-stats" aria-label="Learning summary">
                 <div class="netacad-stat">
                     <i class="fas fa-award"></i>
-                    <strong>{{ $badgesCount ?: 1 }}</strong>
+                    <strong>{{ $badgesCount ?: 0 }}</strong>
                     <span>Badges Earned</span>
                 </div>
                 <div class="netacad-stat">
                     <i class="fas fa-book-open"></i>
+                    <strong>{{ $enrollCount }}</strong>
+                    <span>Enrolled Courses</span>
+                </div>
+                <div class="netacad-stat">
+                    <i class="fas fa-graduation-cap"></i>
                     <strong>{{ $completedCount }}</strong>
-                    <span>Courses Completed</span>
+                    <span>Completed</span>
                 </div>
             </div>
         </div>
     </section>
 
+    {{-- ── Tabs ── --}}
     <section class="netacad-body">
         <nav class="netacad-tabs" aria-label="Profile tabs">
-            <button type="button" class="netacad-tab" data-netacad-tab="profile">
+            <button type="button" class="netacad-tab is-active" data-netacad-tab="profile">
                 <i class="far fa-user"></i><span>Profile</span>
             </button>
-            <button type="button" class="netacad-tab is-active" data-netacad-tab="badges">
+            <button type="button" class="netacad-tab" data-netacad-tab="badges">
                 <i class="fas fa-award"></i><span>Badges &amp; Certificates</span>
-            </button>
-            <button type="button" class="netacad-tab" data-netacad-tab="discounts">
-                <i class="fas fa-percent"></i><span>Discounts</span>
             </button>
             <button type="button" class="netacad-tab" data-netacad-tab="history">
                 <i class="fas fa-history"></i><span>Learning History</span>
@@ -91,120 +129,228 @@
             </button>
         </nav>
 
-        <div class="netacad-panel" data-netacad-panel="badges">
-            <div class="netacad-subtabs">
-                <button type="button" class="is-active">My Learning Achievements</button>
-                <button type="button">My Awards</button>
-            </div>
+        {{-- ── Profile Tab ── --}}
+        <div class="netacad-panel" data-netacad-panel="profile">
+            <div class="netacad-two-col">
 
-            <div class="netacad-toolbar">
-                <label class="netacad-search">
-                    <input type="search" placeholder="Search by name, course" aria-label="Search by name or course">
-                    <i class="fas fa-search"></i>
-                </label>
-
-                <div class="netacad-filters">
-                    <label>Offering
-                        <select><option>All Offerings</option></select>
-                    </label>
-                    <label>Type
-                        <select><option>All</option></select>
-                    </label>
-                    <label>Sort
-                        <select><option>Latest</option></select>
-                    </label>
-                </div>
-            </div>
-
-            <div class="netacad-card-grid">
-                @foreach($achievementCards as $card)
-                    <article class="netacad-achievement-card">
-                        <div class="netacad-ribbon">{{ $card['kind'] }}</div>
-                        <div class="netacad-medal {{ $card['kind'] === 'Badge' ? 'netacad-medal--badge' : '' }}">
-                            <i class="fas {{ $card['icon'] }}"></i>
+                {{-- Personal Info Card --}}
+                <div class="netacad-info-card">
+                    <div class="netacad-info-card__head">
+                        <i class="fas fa-user-circle"></i>
+                        <h2>Personal Information</h2>
+                    </div>
+                    <dl class="netacad-info-list">
+                        <div>
+                            <dt>Full Name (EN)</dt>
+                            <dd>{{ $displayName ?: '—' }}</dd>
                         </div>
-                        <span>{{ $card['label'] }}</span>
-                        <h2>{{ $card['title'] }}</h2>
-                    </article>
-                @endforeach
-            </div>
-        </div>
-
-        <div class="netacad-panel is-hidden" data-netacad-panel="profile">
-            <form method="POST" action="{{ route('frontend.account.profile.update') }}" enctype="multipart/form-data" class="netacad-form">
-                @csrf
-                <h2>Basic Information</h2>
-                <div class="netacad-form-grid">
-                    <label>First Name
-                        <input name="firstName" type="text" required value="{{ old('firstName', $firstName) }}">
-                    </label>
-                    <label>Last Name
-                        <input name="lastName" type="text" required value="{{ old('lastName', $lastName ?: $user->name) }}">
-                    </label>
-                    <label>Default Language
-                        <select name="defaultLanguage">
-                            <option value="en" {{ $learningLocale === 'en' ? 'selected' : '' }}>English (English)</option>
-                            <option value="km" {{ $learningLocale === 'km' ? 'selected' : '' }}>Khmer</option>
-                        </select>
-                    </label>
-                    <label>Email
-                        <input type="email" value="{{ $user->email }}" disabled>
-                    </label>
-                    <label>Gender
-                        <select name="gender">
-                            @foreach(['Prefer not to say', 'Male', 'Female', 'Non-binary'] as $gender)
-                                <option value="{{ $gender }}" {{ ($student?->gender === $gender) ? 'selected' : '' }}>{{ $gender }}</option>
-                            @endforeach
-                        </select>
-                    </label>
+                        @if($displayNameKh)
+                        <div>
+                            <dt>Full Name (KH)</dt>
+                            <dd>{{ $displayNameKh }}</dd>
+                        </div>
+                        @endif
+                        <div>
+                            <dt>Student Code</dt>
+                            <dd>{{ $studentCode }}</dd>
+                        </div>
+                        <div>
+                            <dt>Gender</dt>
+                            <dd>{{ $gender }}</dd>
+                        </div>
+                        <div>
+                            <dt>Date of Birth</dt>
+                            <dd>{{ $dob }}</dd>
+                        </div>
+                        <div>
+                            <dt>Phone</dt>
+                            <dd>{{ $phone }}</dd>
+                        </div>
+                        <div>
+                            <dt>Email</dt>
+                            <dd>{{ $email }}</dd>
+                        </div>
+                        <div>
+                            <dt>Address</dt>
+                            <dd>{{ $address }}</dd>
+                        </div>
+                        <div>
+                            <dt>Status</dt>
+                            <dd><span class="netacad-status netacad-status--{{ strtolower($student?->status ?? 'active') }}">{{ $status }}</span></dd>
+                        </div>
+                    </dl>
                 </div>
-                <button type="submit" class="netacad-save">Save Changes</button>
-            </form>
+
+                {{-- Academic Info + Edit Form --}}
+                <div class="netacad-info-col-right">
+                    {{-- Academic Card --}}
+                    <div class="netacad-info-card">
+                        <div class="netacad-info-card__head">
+                            <i class="fas fa-university"></i>
+                            <h2>Academic Information</h2>
+                        </div>
+                        <dl class="netacad-info-list">
+                            <div>
+                                <dt>Department</dt>
+                                <dd>{{ $deptName }}</dd>
+                            </div>
+                            <div>
+                                <dt>Academic Year</dt>
+                                <dd>{{ $yearName }}</dd>
+                            </div>
+                            <div>
+                                <dt>Semester</dt>
+                                <dd>{{ $semesterName }}</dd>
+                            </div>
+                            <div>
+                                <dt>Role</dt>
+                                <dd>{{ $roleLabel }}</dd>
+                            </div>
+                        </dl>
+                    </div>
+
+                    {{-- Edit Form --}}
+                    <form method="POST"
+                          action="{{ route('frontend.account.profile.update') }}"
+                          enctype="multipart/form-data"
+                          class="netacad-form">
+                        @csrf
+                        <h2>Edit Basic Info</h2>
+                        <div class="netacad-form-grid">
+                            <label>First Name
+                                <input name="firstName" type="text" required value="{{ old('firstName', $firstName) }}">
+                            </label>
+                            <label>Last Name
+                                <input name="lastName" type="text" required value="{{ old('lastName', $lastName) }}">
+                            </label>
+                            <label>Default Language
+                                <select name="defaultLanguage">
+                                    <option value="en" {{ $learningLocale === 'en' ? 'selected' : '' }}>English</option>
+                                    <option value="km" {{ $learningLocale === 'km' ? 'selected' : '' }}>ខ្មែរ</option>
+                                </select>
+                            </label>
+                            <label>Email
+                                <input type="email" value="{{ $user->email }}" disabled>
+                            </label>
+                            <label>Gender
+                                <select name="gender">
+                                    @foreach(['Prefer not to say', 'Male', 'Female', 'Non-binary'] as $g)
+                                        <option value="{{ $g }}" {{ ($student?->gender === $g || $gender === $g) ? 'selected' : '' }}>{{ $g }}</option>
+                                    @endforeach
+                                </select>
+                            </label>
+                        </div>
+                        <button type="submit" class="netacad-save">Save Changes</button>
+                    </form>
+                </div>
+
+            </div>
         </div>
 
-        <div class="netacad-panel is-hidden" data-netacad-panel="discounts">
-            <div class="netacad-empty"><i class="fas fa-tags"></i><p>No active discount vouchers available right now.</p></div>
+        {{-- ── Badges Tab ── --}}
+        <div class="netacad-panel is-hidden" data-netacad-panel="badges">
+            @if($badgesCount > 0)
+                <div class="netacad-card-grid">
+                    @foreach($student->certificates as $cert)
+                        <article class="netacad-achievement-card">
+                            <div class="netacad-ribbon">Certificate</div>
+                            <div class="netacad-medal">
+                                <i class="fas fa-certificate"></i>
+                            </div>
+                            <span>Achievement</span>
+                            <h2>{{ $cert->course?->course_name ?? 'Course Certificate' }}</h2>
+                            @if($cert->issued_at)
+                                <p class="netacad-cert-date">{{ $cert->issued_at->format('d/m/Y') }}</p>
+                            @endif
+                        </article>
+                    @endforeach
+                </div>
+            @else
+                <div class="netacad-empty">
+                    <i class="fas fa-award"></i>
+                    <p>No badges or certificates earned yet. Complete a course to earn your first certificate!</p>
+                </div>
+            @endif
         </div>
 
+        {{-- ── Learning History Tab ── --}}
         <div class="netacad-panel is-hidden" data-netacad-panel="history">
-            <div class="table-responsive">
-                <table class="table table-bordered">
-                    <thead><tr><th>Course Code</th><th>Course Name</th><th>Enrollment Date</th><th>Status</th></tr></thead>
-                    <tbody>
-                        @forelse($enrollments as $enroll)
+            @if($enrollments->isNotEmpty())
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
                             <tr>
-                                <td>{{ $enroll->course?->course_code }}</td>
-                                <td>{{ $enroll->course?->course_name }}</td>
-                                <td>{{ $enroll->enrollment_date?->format('d/m/Y') }}</td>
-                                <td>{{ ucfirst($enroll->status) }}</td>
+                                <th>#</th>
+                                <th>Course Code</th>
+                                <th>Course Name</th>
+                                <th>Enrollment Date</th>
+                                <th>Status</th>
                             </tr>
-                        @empty
-                            <tr><td colspan="4" class="text-center text-muted">No learning history recorded.</td></tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
+                        </thead>
+                        <tbody>
+                            @foreach($enrollments as $enroll)
+                                <tr>
+                                    <td>{{ $loop->iteration }}</td>
+                                    <td>{{ $enroll->course?->course_code ?? '—' }}</td>
+                                    <td>{{ $enroll->course?->course_name ?? '—' }}</td>
+                                    <td>{{ $enroll->enrollment_date?->format('d/m/Y') ?? '—' }}</td>
+                                    <td>
+                                        <span class="netacad-status netacad-status--{{ strtolower($enroll->status) }}">
+                                            {{ ucfirst($enroll->status) }}
+                                        </span>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @else
+                <div class="netacad-empty">
+                    <i class="fas fa-book-open"></i>
+                    <p>No learning history recorded. Enroll in a course to get started!</p>
+                </div>
+            @endif
         </div>
 
+        {{-- ── Transcript Tab ── --}}
         <div class="netacad-panel is-hidden" data-netacad-panel="transcript">
-            <div class="table-responsive">
-                <table class="table table-bordered">
-                    <thead><tr><th>Assessment</th><th>Category</th><th>Graded At</th><th>Score</th></tr></thead>
-                    <tbody>
-                        @forelse($grades as $grade)
+            @if($grades->isNotEmpty())
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
                             <tr>
-                                <td>{{ $grade->exam?->title ?? $grade->quiz?->title ?? $grade->assignment?->title ?? 'Assessment Item' }}</td>
-                                <td>{{ $grade->exam ? 'Exam' : ($grade->quiz ? 'Quiz' : 'Assignment') }}</td>
-                                <td>{{ $grade->graded_at?->format('d/m/Y H:i') }}</td>
-                                <td>{{ number_format((float)$grade->score, 1) }}%</td>
+                                <th>#</th>
+                                <th>Assessment</th>
+                                <th>Category</th>
+                                <th>Graded At</th>
+                                <th>Score</th>
                             </tr>
-                        @empty
-                            <tr><td colspan="4" class="text-center text-muted">No graded items found.</td></tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
+                        </thead>
+                        <tbody>
+                            @foreach($grades as $grade)
+                                <tr>
+                                    <td>{{ $loop->iteration }}</td>
+                                    <td>{{ $grade->exam?->title ?? $grade->quiz?->title ?? $grade->assignment?->title ?? '—' }}</td>
+                                    <td>{{ $grade->exam ? 'Exam' : ($grade->quiz ? 'Quiz' : 'Assignment') }}</td>
+                                    <td>{{ $grade->graded_at?->format('d/m/Y H:i') ?? '—' }}</td>
+                                    <td>
+                                        <strong class="{{ (float)$grade->score >= 50 ? 'text-success' : 'text-danger' }}">
+                                            {{ number_format((float)$grade->score, 1) }}%
+                                        </strong>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @else
+                <div class="netacad-empty">
+                    <i class="far fa-file-alt"></i>
+                    <p>No graded items found yet.</p>
+                </div>
+            @endif
         </div>
+
     </section>
 </div>
 
@@ -216,6 +362,7 @@
         background: #fff;
     }
 
+    /* Back button */
     .netacad-back-btn {
         position: fixed;
         top: 18px;
@@ -226,30 +373,27 @@
         align-items: center;
         gap: 10px;
         padding: 0 16px;
-        border: 1px solid rgba(255, 255, 255, .28);
+        border: 1px solid rgba(255,255,255,.28);
         border-radius: 999px;
-        background: rgba(7, 21, 47, .72);
+        background: rgba(7,21,47,.72);
         color: #fff;
         font-size: 14px;
         font-weight: 800;
         text-decoration: none;
-        box-shadow: 0 12px 28px rgba(0, 0, 0, .18);
+        box-shadow: 0 12px 28px rgba(0,0,0,.18);
         backdrop-filter: blur(10px);
         transition: transform .18s ease, background .18s ease, box-shadow .18s ease;
     }
-
     .netacad-back-btn:hover {
-        background: rgba(7, 21, 47, .92);
+        background: rgba(7,21,47,.92);
         color: #fff;
         text-decoration: none;
         transform: translateY(-1px);
-        box-shadow: 0 16px 34px rgba(0, 0, 0, .22);
+        box-shadow: 0 16px 34px rgba(0,0,0,.22);
     }
+    .netacad-back-btn i { font-size: 13px; }
 
-    .netacad-back-btn i {
-        font-size: 13px;
-    }
-
+    /* Alerts */
     .netacad-alert {
         max-width: 1574px;
         margin: 18px auto;
@@ -257,26 +401,18 @@
         border-radius: 4px;
         font-weight: 700;
     }
+    .netacad-alert--success { background: #eaf8ee; color: #207a35; }
+    .netacad-alert--danger  { background: #fdecec; color: #b91c1c; }
 
-    .netacad-alert--success {
-        background: #eaf8ee;
-        color: #207a35;
-    }
-
-    .netacad-alert--danger {
-        background: #fdecec;
-        color: #b91c1c;
-    }
-
+    /* Hero */
     .netacad-hero {
         min-height: 248px;
         color: #fff;
         background:
-            radial-gradient(ellipse at 71% -46%, transparent 0 39%, rgba(0, 183, 255, .42) 39.2% 39.7%, transparent 40% 43%, rgba(0, 183, 255, .36) 43.2% 43.7%, transparent 44% 47%, rgba(0, 183, 255, .3) 47.2% 47.7%, transparent 48%),
+            radial-gradient(ellipse at 71% -46%, transparent 0 39%, rgba(0,183,255,.42) 39.2% 39.7%, transparent 40% 43%, rgba(0,183,255,.36) 43.2% 43.7%, transparent 44% 47%, rgba(0,183,255,.3) 47.2% 47.7%, transparent 48%),
             linear-gradient(117deg, #15315e 0%, #063f50 50%, #00704d 100%);
         overflow: hidden;
     }
-
     .netacad-hero__inner {
         max-width: 1600px;
         min-height: 248px;
@@ -287,7 +423,6 @@
         margin: 0 auto;
         padding: 36px 8%;
     }
-
     .netacad-identity {
         display: flex;
         align-items: center;
@@ -295,36 +430,28 @@
         margin: 0;
     }
 
+    /* Avatar */
     .netacad-avatar {
         position: relative;
         width: 156px;
         height: 156px;
         flex: 0 0 156px;
-        border: 8px solid rgba(255, 255, 255, .95);
+        border: 8px solid rgba(255,255,255,.95);
         border-radius: 50%;
         background: #e7ebf0;
         box-shadow: inset 0 0 0 8px #f7f9fb;
     }
-
     .netacad-avatar img {
-        width: 100%;
-        height: 100%;
+        width: 100%; height: 100%;
         border-radius: 50%;
         object-fit: cover;
     }
-
-    .netacad-avatar input {
-        display: none;
-    }
-
+    .netacad-avatar input { display: none; }
     .netacad-avatar__edit {
         position: absolute;
-        right: -12px;
-        bottom: 15px;
-        width: 45px;
-        height: 45px;
-        display: grid;
-        place-items: center;
+        right: -12px; bottom: 15px;
+        width: 45px; height: 45px;
+        display: grid; place-items: center;
         margin: 0;
         border: 7px solid #fff;
         border-radius: 50%;
@@ -333,471 +460,345 @@
         cursor: pointer;
     }
 
+    /* User block */
     .netacad-user span {
         display: block;
         margin-bottom: 8px;
         font-size: 24px;
         line-height: 1;
     }
-
     .netacad-user h1 {
-        margin: 0 0 12px;
+        margin: 0 0 8px;
         color: #fff;
         font-size: 42px;
         font-weight: 300;
         line-height: 1.1;
     }
-
+    .netacad-user-kh {
+        margin: 0 0 6px;
+        color: rgba(255,255,255,.85);
+        font-size: 18px;
+    }
     .netacad-user p {
-        margin: 0;
-        color: rgba(255, 255, 255, .74);
+        margin: 4px 0 0;
+        color: rgba(255,255,255,.74);
         font-size: 16px;
     }
-
     .netacad-user b {
-        width: 7px;
-        height: 7px;
+        width: 7px; height: 7px;
         display: inline-block;
         margin: 0 7px 2px;
         border-radius: 50%;
-        background: rgba(255, 255, 255, .7);
+        background: rgba(255,255,255,.7);
+    }
+    .netacad-badge-code {
+        display: inline-block;
+        margin-top: 8px;
+        padding: 3px 12px;
+        border-radius: 999px;
+        background: rgba(255,255,255,.18);
+        color: #fff;
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        border: 1px solid rgba(255,255,255,.3);
     }
 
+    /* Stats */
     .netacad-stats {
         display: flex;
         align-items: center;
         gap: 48px;
     }
-
     .netacad-stat {
         position: relative;
         display: grid;
         grid-template-columns: 44px auto;
         align-items: center;
         column-gap: 10px;
-        min-width: 220px;
+        min-width: 180px;
     }
-
     .netacad-stat + .netacad-stat {
-        border-left: 1px solid rgba(255, 255, 255, .22);
+        border-left: 1px solid rgba(255,255,255,.22);
         padding-left: 48px;
     }
+    .netacad-stat i { grid-row: span 2; color: #b45cff; font-size: 35px; }
+    .netacad-stat:first-child i  { color: #f4b82f; }
+    .netacad-stat:nth-child(2) i { color: #05aae8; }
+    .netacad-stat:nth-child(3) i { color: #6abb46; }
+    .netacad-stat strong { color: #6abb46; font-size: 36px; font-weight: 300; line-height: 1; }
+    .netacad-stat span   { color: #fff; font-size: 13px; font-weight: 700; }
 
-    .netacad-stat i {
-        grid-row: span 2;
-        color: #b45cff;
-        font-size: 35px;
-    }
-
-    .netacad-stat:first-child i {
-        color: #f4b82f;
-    }
-
-    .netacad-stat strong {
-        color: #6abb46;
-        font-size: 36px;
-        font-weight: 300;
-        line-height: 1;
-    }
-
-    .netacad-stat span {
-        color: #fff;
-        font-size: 14px;
-        font-weight: 700;
-    }
-
+    /* Body */
     .netacad-body {
         max-width: 1574px;
         margin: 0 auto;
-        padding: 60px 0 0;
+        padding: 0 24px 60px;
     }
 
+    /* Tabs */
     .netacad-tabs {
         display: flex;
         align-items: center;
-        gap: 0;
         overflow-x: auto;
         border-bottom: 1px solid #d9dee5;
+        margin-bottom: 0;
     }
-
     .netacad-tab {
         position: relative;
         min-height: 54px;
         display: inline-flex;
         align-items: center;
         gap: 14px;
-        padding: 0 34px;
+        padding: 0 32px;
         border: 0;
         border-right: 2px solid #e0e4e8;
         background: transparent;
         color: #273241;
-        font-size: 20px;
+        font-size: 18px;
         font-weight: 700;
         white-space: nowrap;
         cursor: pointer;
+        transition: color .15s;
     }
-
-    .netacad-tab i {
-        color: #05aae8;
-        font-size: 26px;
-        font-weight: 400;
-    }
-
+    .netacad-tab i { color: #05aae8; font-size: 22px; font-weight: 400; }
     .netacad-tab:nth-child(1) i { color: #ff8b1a; }
     .netacad-tab:nth-child(2) i { color: #a764ff; }
-    .netacad-tab:nth-child(3) i { color: #6fc047; }
-    .netacad-tab:nth-child(5) i { color: #189df4; }
-
+    .netacad-tab:nth-child(3) i { color: #189df4; }
+    .netacad-tab:nth-child(4) i { color: #16a34a; }
     .netacad-tab.is-active::after {
         content: "";
         position: absolute;
-        right: 34px;
-        bottom: 0;
-        left: 34px;
+        right: 32px; bottom: 0; left: 32px;
         height: 3px;
         background: #66be4a;
     }
 
-    .netacad-panel {
-        padding-top: 56px;
-    }
+    /* Panels */
+    .netacad-panel { padding-top: 40px; }
+    .netacad-panel.is-hidden { display: none; }
 
-    .netacad-panel.is-hidden {
-        display: none;
+    /* Two-column profile layout */
+    .netacad-two-col {
+        display: grid;
+        grid-template-columns: minmax(0,1fr) minmax(0,1.2fr);
+        gap: 28px;
+        align-items: start;
     }
-
-    .netacad-subtabs {
-        display: flex;
-        align-items: center;
-        gap: 0;
-        border-bottom: 1px solid #d9dee5;
-    }
-
-    .netacad-subtabs button {
-        position: relative;
-        min-height: 50px;
-        padding: 0 44px 0 0;
-        margin-right: 44px;
-        border: 0;
-        border-right: 2px solid #e0e4e8;
-        background: transparent;
-        color: #2f3b4a;
-        font-size: 17px;
-        font-weight: 700;
-        cursor: pointer;
-    }
-
-    .netacad-subtabs button.is-active::after {
-        content: "";
-        position: absolute;
-        right: 40px;
-        bottom: 0;
-        left: 0;
-        height: 4px;
-        background: #66be4a;
-    }
-
-    .netacad-toolbar {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
+    .netacad-info-col-right {
+        display: grid;
         gap: 24px;
-        margin: 25px 0 20px;
     }
 
-    .netacad-search {
-        position: relative;
-        width: 267px;
-        height: 44px;
-        margin: 0;
-        border: 2px solid #006dff;
-        color: #3d4652;
-        font-size: 17px;
-        font-weight: 400;
+    /* Info cards */
+    .netacad-info-card {
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        overflow: hidden;
     }
-
-    .netacad-search input {
-        width: 100%;
-        height: 100%;
-        border: 0;
-        outline: 0;
-        padding: 0 42px 0 22px;
-        background: transparent;
-        color: #3d4652;
-        font-size: 17px;
-    }
-
-    .netacad-search input::placeholder {
-        color: #3d4652;
-        opacity: 1;
-    }
-
-    .netacad-search i {
-        position: absolute;
-        right: 13px;
-        top: 13px;
-        color: #00a8e8;
-    }
-
-    .netacad-filters {
+    .netacad-info-card__head {
         display: flex;
         align-items: center;
         gap: 12px;
+        padding: 16px 22px;
+        background: linear-gradient(90deg, #15315e, #063f50);
+        color: #fff;
     }
-
-    .netacad-filters label {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
+    .netacad-info-card__head i { font-size: 18px; }
+    .netacad-info-card__head h2 {
         margin: 0;
-        color: #000;
-        font-size: 17px;
-        font-weight: 400;
-    }
-
-    .netacad-filters select {
-        min-width: 175px;
-        height: 44px;
-        border: 1px solid #d9dee5;
-        padding: 0 34px 0 10px;
-        background: #fff;
         font-size: 16px;
+        font-weight: 700;
+    }
+    .netacad-info-list {
+        margin: 0;
+        padding: 0 22px;
+        list-style: none;
+    }
+    .netacad-info-list div {
+        display: grid;
+        grid-template-columns: 160px 1fr;
+        gap: 8px;
+        padding: 10px 0;
+        border-bottom: 1px solid #f1f5f9;
+        align-items: baseline;
+    }
+    .netacad-info-list div:last-child { border-bottom: 0; }
+    .netacad-info-list dt {
+        color: #64748b;
+        font-size: 13px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: .4px;
+    }
+    .netacad-info-list dd {
+        margin: 0;
+        color: #1e293b;
+        font-size: 15px;
+        font-weight: 500;
+        word-break: break-word;
     }
 
+    /* Status badge */
+    .netacad-status {
+        display: inline-block;
+        padding: 2px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: capitalize;
+    }
+    .netacad-status--active,
+    .netacad-status--completed   { background: #dcfce7; color: #16a34a; }
+    .netacad-status--inactive,
+    .netacad-status--dropped     { background: #fee2e2; color: #dc2626; }
+    .netacad-status--enrolled    { background: #dbeafe; color: #2563eb; }
+    .netacad-status--pending     { background: #fef9c3; color: #854d0e; }
+
+    /* Edit form */
+    .netacad-form {
+        padding: 24px;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        background: #f8fafc;
+    }
+    .netacad-form h2 { margin: 0 0 18px; font-size: 17px; font-weight: 800; color: #1e293b; }
+    .netacad-form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0,1fr));
+        gap: 14px;
+    }
+    .netacad-form label { display: grid; gap: 6px; color: #374151; font-size: 13px; font-weight: 700; margin: 0; }
+    .netacad-form input,
+    .netacad-form select {
+        height: 40px;
+        border: 1px solid #cbd5e1;
+        border-radius: 6px;
+        padding: 0 12px;
+        background: #fff;
+        font-size: 14px;
+        transition: border-color .15s;
+    }
+    .netacad-form input:focus,
+    .netacad-form select:focus { outline: 0; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,.15); }
+    .netacad-save {
+        height: 42px;
+        margin-top: 18px;
+        border: 0;
+        border-radius: 6px;
+        background: #006dff;
+        color: #fff;
+        padding: 0 28px;
+        font-size: 15px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: background .15s;
+    }
+    .netacad-save:hover { background: #005de8; }
+
+    /* Certificate cards */
     .netacad-card-grid {
         display: grid;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-        gap: 24px;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 22px;
     }
-
     .netacad-achievement-card {
-        min-height: 284px;
+        min-height: 260px;
         display: flex;
         flex-direction: column;
         align-items: center;
-        padding: 18px 24px 15px;
+        padding: 18px 22px 14px;
         border: 1px solid #d9dee5;
-        border-radius: 9px;
+        border-radius: 10px;
         background: #fff;
         text-align: center;
     }
-
     .netacad-ribbon {
-        min-width: 126px;
-        margin-bottom: 16px;
-        padding: 6px 16px;
-        border-left: 6px solid #4f8a40;
+        min-width: 110px; margin-bottom: 14px;
+        padding: 5px 14px;
+        border-left: 5px solid #4f8a40;
         background: #c9e8c4;
         color: #102134;
-        font-size: 16px;
-        font-weight: 700;
+        font-size: 14px; font-weight: 700;
     }
-
     .netacad-medal {
-        width: 106px;
-        height: 106px;
-        display: grid;
-        place-items: center;
-        margin-bottom: 20px;
+        width: 100px; height: 100px;
+        display: grid; place-items: center;
+        margin-bottom: 16px;
         border: 4px double #6bbf4a;
         border-radius: 50%;
         color: #6bbf4a;
-        font-size: 44px;
+        font-size: 40px;
     }
+    .netacad-achievement-card span { margin-top: auto; color: #3e4857; font-size: 13px; letter-spacing: 6px; text-transform: uppercase; }
+    .netacad-achievement-card h2   { max-width: 100%; margin: 10px 0 0; color: #061426; font-size: 18px; font-weight: 800; line-height: 1.2; }
+    .netacad-cert-date             { margin: 6px 0 0; color: #64748b; font-size: 12px; }
 
-    .netacad-medal--badge {
-        width: 106px;
-        height: 106px;
-        border: 0;
-        border-radius: 8px;
-        background: linear-gradient(160deg, #07b6e8, #1277cd 55%, #edf9ff 56%);
-        color: #fff;
-        font-size: 34px;
-    }
-
-    .netacad-achievement-card span {
-        margin-top: auto;
-        color: #3e4857;
-        font-size: 14px;
-        letter-spacing: 8px;
-        text-transform: uppercase;
-    }
-
-    .netacad-achievement-card h2 {
-        max-width: 100%;
-        margin: 14px 0 0;
-        color: #061426;
-        font-size: 22px;
-        font-weight: 800;
-        line-height: 1.2;
-    }
-
-    .netacad-form {
-        max-width: 920px;
-        padding: 30px;
-        border: 1px solid #d9dee5;
-        border-radius: 8px;
-    }
-
-    .netacad-form h2 {
-        margin: 0 0 22px;
-        font-size: 22px;
-        font-weight: 800;
-    }
-
-    .netacad-form-grid {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 18px;
-    }
-
-    .netacad-form label {
-        display: grid;
-        gap: 8px;
-        color: #3d4652;
-        font-size: 14px;
-        font-weight: 700;
-    }
-
-    .netacad-form input,
-    .netacad-form select {
-        height: 42px;
-        border: 1px solid #cbd5e1;
-        border-radius: 4px;
-        padding: 0 12px;
-    }
-
-    .netacad-save {
-        height: 42px;
-        margin-top: 24px;
-        border: 0;
-        border-radius: 4px;
-        background: #006dff;
-        color: #fff;
-        padding: 0 22px;
-        font-weight: 700;
-    }
-
+    /* Empty state */
     .netacad-empty {
         display: grid;
         place-items: center;
-        gap: 12px;
+        gap: 14px;
         padding: 60px 20px;
         border: 1px dashed #cbd5e1;
+        border-radius: 10px;
         color: #64748b;
+        text-align: center;
     }
+    .netacad-empty i { color: #66be4a; font-size: 40px; }
+    .netacad-empty p { margin: 0; font-size: 15px; }
 
-    .netacad-empty i {
-        color: #66be4a;
-        font-size: 38px;
-    }
+    /* Table overrides */
+    .netacad-panel .table th { background: #f1f5f9; font-size: 13px; font-weight: 700; }
+    .netacad-panel .table td { font-size: 14px; vertical-align: middle; }
 
+    /* Responsive */
     @media (max-width: 1200px) {
-        .netacad-hero__inner {
-            padding: 34px 32px;
-        }
-
-        .netacad-body {
-            padding-right: 24px;
-            padding-left: 24px;
-        }
-
-        .netacad-card-grid {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-        }
-
-        .netacad-toolbar {
-            align-items: stretch;
-            flex-direction: column;
-        }
-
-        .netacad-filters {
-            flex-wrap: wrap;
-        }
+        .netacad-hero__inner { padding: 34px 32px; }
+        .netacad-two-col { grid-template-columns: 1fr; }
     }
-
+    @media (max-width: 900px) {
+        .netacad-stats { flex-direction: column; gap: 20px; align-items: flex-start; }
+        .netacad-stat + .netacad-stat { border-left: 0; padding-left: 0; }
+    }
     @media (max-width: 767px) {
-        .netacad-back-btn {
-            top: 12px;
-            left: 12px;
-            min-height: 38px;
-            padding: 0 13px;
-        }
-
+        .netacad-back-btn { top: 12px; left: 12px; min-height: 38px; padding: 0 13px; }
         .netacad-hero__inner,
-        .netacad-identity,
-        .netacad-stats {
-            align-items: flex-start;
-            flex-direction: column;
-            gap: 24px;
-        }
-
-        .netacad-avatar {
-            width: 126px;
-            height: 126px;
-            flex-basis: 126px;
-        }
-
-        .netacad-user h1 {
-            font-size: 32px;
-        }
-
-        .netacad-stat + .netacad-stat {
-            border-left: 0;
-            padding-left: 0;
-        }
-
-        .netacad-tab {
-            padding: 0 20px;
-            font-size: 16px;
-        }
-
-        .netacad-card-grid,
-        .netacad-form-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .netacad-filters,
-        .netacad-filters label,
-        .netacad-filters select,
-        .netacad-search {
-            width: 100%;
-        }
+        .netacad-identity { flex-direction: column; align-items: flex-start; gap: 22px; }
+        .netacad-avatar { width: 110px; height: 110px; flex-basis: 110px; }
+        .netacad-user h1 { font-size: 28px; }
+        .netacad-tab { padding: 0 18px; font-size: 14px; }
+        .netacad-form-grid { grid-template-columns: 1fr; }
+        .netacad-info-list div { grid-template-columns: 130px 1fr; }
     }
 </style>
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        const tabs = document.querySelectorAll('[data-netacad-tab]');
+        const tabs   = document.querySelectorAll('[data-netacad-tab]');
         const panels = document.querySelectorAll('[data-netacad-panel]');
 
-        tabs.forEach((tab) => {
+        tabs.forEach(function (tab) {
             tab.addEventListener('click', function () {
                 const target = tab.dataset.netacadTab;
-
-                tabs.forEach((item) => item.classList.toggle('is-active', item === tab));
-                panels.forEach((panel) => panel.classList.toggle('is-hidden', panel.dataset.netacadPanel !== target));
+                tabs.forEach(function (t) { t.classList.toggle('is-active', t === tab); });
+                panels.forEach(function (p) { p.classList.toggle('is-hidden', p.dataset.netacadPanel !== target); });
             });
         });
 
+        // Avatar instant preview + auto-submit
         const fileInput = document.getElementById('file-input');
-        const preview = document.getElementById('netacadAvatarPreview');
-        const avatarForm = document.getElementById('netacadProfileForm');
+        const preview   = document.getElementById('netacadAvatarPreview');
+        const form      = document.getElementById('netacadProfileForm');
 
         if (fileInput && preview) {
             fileInput.addEventListener('change', function () {
                 const file = this.files[0];
-                if (!file) {
-                    return;
-                }
-
+                if (!file) return;
                 const reader = new FileReader();
-                reader.onload = (event) => preview.setAttribute('src', event.target.result);
+                reader.onload = function (e) { preview.src = e.target.result; };
                 reader.readAsDataURL(file);
-
-                if (avatarForm) {
-                    window.setTimeout(() => avatarForm.submit(), 120);
-                }
+                if (form) window.setTimeout(function () { form.submit(); }, 120);
             });
         }
     });

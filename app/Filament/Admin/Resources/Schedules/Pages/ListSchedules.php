@@ -31,6 +31,7 @@ class ListSchedules extends Page
     public ?string $scheduleDay = null;
     public ?string $scheduleStartTime = null;
     public ?string $scheduleEndTime = null;
+    public ?int $editScheduleId = null;
 
     protected function getHeaderActions(): array
     {
@@ -113,8 +114,111 @@ class ListSchedules extends Page
             ->send();
     }
 
+    public function editSchedule(int $id): void
+    {
+        abort_unless(auth()->user()?->hasAnyRole(['super_admin', 'admin']), 403);
+
+        $schedule = Schedule::findOrFail($id);
+
+        $this->editScheduleId = $schedule->id;
+        $this->scheduleDepartmentId = $schedule->course?->department_id ?? $schedule->classRoom?->course?->department_id;
+        $this->scheduleAcademicYearId = $schedule->classRoom?->academic_year_id ?? $schedule->course?->academic_year_id;
+        $this->scheduleSemesterId = $schedule->course?->semester_id ?? $schedule->classRoom?->course?->semester_id;
+        $this->scheduleCourseId = $schedule->course_id;
+        $this->scheduleTeacherId = $schedule->teacher_id;
+        $this->scheduleClassId = $schedule->class_id;
+        $this->scheduleDay = $schedule->day;
+        $this->scheduleStartTime = \Carbon\Carbon::parse($schedule->start_time)->format('H:i');
+        $this->scheduleEndTime = \Carbon\Carbon::parse($schedule->end_time)->format('H:i');
+
+        $this->dispatch('open-edit-schedule-modal');
+    }
+
+    public function updateSchedule(): void
+    {
+        abort_unless(auth()->user()?->hasAnyRole(['super_admin', 'admin']), 403);
+        abort_unless($this->editScheduleId, 404);
+
+        $data = $this->validate([
+            'scheduleDepartmentId' => ['nullable', 'integer', 'exists:departments,department_id'],
+            'scheduleAcademicYearId' => ['nullable', 'integer', 'exists:academic_years,academic_year_id'],
+            'scheduleSemesterId' => ['nullable', 'integer', 'exists:semesters,semester_id'],
+            'scheduleCourseId' => ['nullable', 'integer', 'exists:courses,course_id'],
+            'scheduleTeacherId' => ['required', 'integer', 'exists:teachers,teacher_id'],
+            'scheduleClassId' => ['required', 'integer', 'exists:class_rooms,class_room_id'],
+            'scheduleDay' => ['required', Rule::in(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'])],
+            'scheduleStartTime' => ['required', 'date_format:H:i'],
+            'scheduleEndTime' => ['required', 'date_format:H:i', 'after:scheduleStartTime'],
+        ], [], [
+            'scheduleTeacherId' => 'Teacher',
+            'scheduleClassId' => 'Class',
+            'scheduleDay' => 'Day',
+            'scheduleStartTime' => 'Start Time',
+            'scheduleEndTime' => 'End Time',
+        ]);
+
+        $classRoom = ClassRoom::query()
+            ->with('course')
+            ->find($data['scheduleClassId']);
+
+        if (! $classRoom) {
+            $this->addError('scheduleClassId', 'Class not found.');
+            return;
+        }
+
+        $classAcademicYearId = $classRoom->academic_year_id ?? $classRoom->course?->academic_year_id;
+
+        if ($this->scheduleAcademicYearId && $classAcademicYearId && (int) $classAcademicYearId !== (int) $this->scheduleAcademicYearId) {
+            $this->addError('scheduleClassId', 'Class does not match selected academic year.');
+            return;
+        }
+
+        if ($this->scheduleDepartmentId && $classRoom->course?->department_id && (int) $classRoom->course?->department_id !== (int) $this->scheduleDepartmentId) {
+            $this->addError('scheduleClassId', 'Class does not match selected department.');
+            return;
+        }
+
+        if ($this->scheduleSemesterId && $classRoom->course?->semester_id && (int) $classRoom->course?->semester_id !== (int) $this->scheduleSemesterId) {
+            $this->addError('scheduleClassId', 'Class does not match selected semester.');
+            return;
+        }
+
+        if ($this->scheduleCourseId && $classRoom->course_id && (int) $classRoom->course_id !== (int) $this->scheduleCourseId) {
+            $this->addError('scheduleClassId', 'Class does not match selected course.');
+            return;
+        }
+
+        $schedule = Schedule::findOrFail($this->editScheduleId);
+        $schedule->update([
+            'teacher_id' => $data['scheduleTeacherId'],
+            'class_id' => $data['scheduleClassId'],
+            'course_id' => $data['scheduleCourseId'] ?? $classRoom->course_id,
+            'day' => $data['scheduleDay'],
+            'start_time' => $data['scheduleStartTime'],
+            'end_time' => $data['scheduleEndTime'],
+        ]);
+
+        $this->resetCreateScheduleForm();
+        $this->dispatch('close-create-schedule-modal');
+
+        Notification::make()
+            ->title('Schedule updated successfully')
+            ->success()
+            ->send();
+    }
+
+    public function saveSchedule(): void
+    {
+        if ($this->editScheduleId) {
+            $this->updateSchedule();
+        } else {
+            $this->createSchedule();
+        }
+    }
+
     public function resetCreateScheduleForm(): void
     {
+        $this->editScheduleId = null;
         $this->scheduleDepartmentId = null;
         $this->scheduleAcademicYearId = null;
         $this->scheduleSemesterId = null;

@@ -17,9 +17,9 @@ class FacultyForm
                     ->schema([
                         TextInput::make('faculty_code')
                             ->label('លេខកូដមហាវិទ្យាល័យ')
-                            ->placeholder('FC001')
+                            ->default(fn () => \App\Models\Faculty::generateNextFacultyCode())
                             ->disabled()
-                            ->dehydrated(false)
+                            ->dehydrated(true)
                             ->columnSpanFull()
                             ->maxLength(30),
                         TextInput::make('faculty_name')

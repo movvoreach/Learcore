@@ -26,9 +26,9 @@ class StudentForm
                     ->schema([
                         TextInput::make('student_code')
                             ->label('លេខកូដនិស្សិត')
-                            ->placeholder('ST001')
+                            ->default(fn () => \App\Models\Student::generateNextStudentCode())
                             ->disabled()
-                            ->dehydrated(false)
+                            ->dehydrated(true)
                             ->maxLength(30),
                         Select::make('user_id')
                             ->label('គណនីអ្នកប្រើប្រាស់')
@@ -84,12 +84,21 @@ class StudentForm
                             ->default('active')
                             ->required(),
 
-                        TextInput::make('first_name')
-                            ->label('នាមខ្លួន')
+                        TextInput::make('last_name_kh')
+                            ->label('នាមត្រកូល (ភាសាខ្មែរ)')
+                            ->required()
+                            ->maxLength(100),
+                        TextInput::make('first_name_kh')
+                            ->label('នាមខ្លួន (ភាសាខ្មែរ)')
                             ->required()
                             ->maxLength(100),
                         TextInput::make('last_name')
-                            ->label('នាមត្រកូល')
+                            ->label('នាមត្រកូល (ភាសាអង់គ្លេស)')
+                            ->required()
+                            ->maxLength(100),
+                        TextInput::make('first_name')
+                            ->label('នាមខ្លួន (ភាសាអង់គ្លេស)')
+                            ->required()
                             ->maxLength(100),
                         Select::make('gender')
                             ->label('ភេទ')

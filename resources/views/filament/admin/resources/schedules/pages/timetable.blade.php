@@ -580,6 +580,7 @@
     <div class="schedule-show"
          x-data="{
             showCreateScheduleModal: false,
+            editScheduleId: null,
             scheduleSelects() {
                 return [
                     this.$refs.scheduleDepartmentSelect,
@@ -633,6 +634,32 @@
                 this.setScheduleField('scheduleClassId', this.nullableInt(this.$refs.scheduleClassSelect?.value));
                 this.setScheduleField('scheduleDay', this.$refs.scheduleDaySelect?.value || null);
             },
+            syncFormFromLivewire() {
+                this.$nextTick(() => {
+                    if (this.$refs.scheduleDepartmentSelect) {
+                        this.$refs.scheduleDepartmentSelect.value = this.$wire.scheduleDepartmentId || '';
+                    }
+                    if (this.$refs.scheduleAcademicYearSelect) {
+                        this.$refs.scheduleAcademicYearSelect.value = this.$wire.scheduleAcademicYearId || '';
+                    }
+                    if (this.$refs.scheduleSemesterSelect) {
+                        this.$refs.scheduleSemesterSelect.value = this.$wire.scheduleSemesterId || '';
+                    }
+                    if (this.$refs.scheduleCourseSelect) {
+                        this.$refs.scheduleCourseSelect.value = this.$wire.scheduleCourseId || '';
+                    }
+                    if (this.$refs.scheduleTeacherSelect) {
+                        this.$refs.scheduleTeacherSelect.value = this.$wire.scheduleTeacherId || '';
+                    }
+                    if (this.$refs.scheduleClassSelect) {
+                        this.$refs.scheduleClassSelect.value = this.$wire.scheduleClassId || '';
+                    }
+                    if (this.$refs.scheduleDaySelect) {
+                        this.$refs.scheduleDaySelect.value = this.$wire.scheduleDay || '';
+                    }
+                    this.filterScheduleModalOptions();
+                });
+            },
             filterScheduleModalOptions() {
                 const departmentId = this.$refs.scheduleDepartmentSelect?.value || '';
                 const academicYearId = this.$refs.scheduleAcademicYearSelect?.value || '';
@@ -673,17 +700,18 @@
                 return value ? parseInt(value, 10) : null;
             },
             resetScheduleModalUi() {
+                this.editScheduleId = null;
                 this.scheduleSelects().forEach((element) => {
                     element.value = '';
                 });
-
             },
             closeScheduleModal() {
                 this.showCreateScheduleModal = false;
                 this.resetScheduleModalUi();
             },
          }"
-         x-on:close-create-schedule-modal.window="showCreateScheduleModal = false; resetScheduleModalUi()">
+         x-on:close-create-schedule-modal.window="showCreateScheduleModal = false; resetScheduleModalUi()"
+         x-on:open-edit-schedule-modal.window="showCreateScheduleModal = true; editScheduleId = $wire.editScheduleId; initScheduleModal(); syncFormFromLivewire()">
         <div class="ss-toolbar">
             <div class="ss-filters-group">
                 @if(!$isTeacher && !$isStudent)
@@ -824,14 +852,14 @@
                  x-on:keydown.escape.window="closeScheduleModal()">
                 <form class="ss-modal"
                       x-ref="scheduleModal"
-                      wire:submit.prevent="createSchedule"
+                      wire:submit.prevent="saveSchedule"
                       x-on:click.stop
                       x-show="showCreateScheduleModal"
                       x-transition>
                     <div class="ss-modal-head">
                         <h3 class="ss-modal-title">
                             <i class="fa-solid fas fa-calendar-plus"></i>
-                            បញ្ចូលកាលវិភាគ
+                            <span x-text="editScheduleId ? 'កែសម្រួលកាលវិភាគ (Edit Schedule)' : 'បញ្ចូលកាលវិភាគ (Add Schedule)'"></span>
                         </h3>
                         <button class="ss-modal-close" type="button" x-on:click="closeScheduleModal()">x</button>
                     </div>
@@ -1065,11 +1093,12 @@
                                                     </a>
                                                     @if(\App\Filament\Admin\Resources\Schedules\ScheduleResource::canEdit($schedule))
                                                         <div class="tt-subject-actions">
-                                                            <a class="tt-subject-edit"
-                                                               href="{{ \App\Filament\Admin\Resources\Schedules\ScheduleResource::getUrl('edit', ['record' => $schedule]) }}"
-                                                               title="Edit schedule">
+                                                            <button class="tt-subject-edit"
+                                                                    type="button"
+                                                                    x-on:click="$wire.editSchedule({{ $schedule->id }})"
+                                                                    title="Edit schedule">
                                                                 Edit
-                                                            </a>
+                                                            </button>
                                                         </div>
                                                     @endif
                                                 </div>

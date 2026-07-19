@@ -44,6 +44,29 @@ class ContentLessonForm
                                 ->all())
                             ->searchable()
                             ->preload()
+                            ->createOptionForm([
+                                Forms\Components\Select::make('course_id')
+                                    ->label('វគ្គសិក្សា')
+                                    ->relationship('course', 'course_name')
+                                    ->required()
+                                    ->preload()
+                                    ->searchable(),
+                                Forms\Components\TextInput::make('title')
+                                    ->label('ចំណងជើងម៉ូឌុល')
+                                    ->required()
+                                    ->maxLength(255),
+                                Forms\Components\TextInput::make('module_number')
+                                    ->label('លេខម៉ូឌុល')
+                                    ->numeric()
+                                    ->placeholder('ទុកឲ្យទទេសម្រាប់ការកើនឡើងស្វ័យប្រវត្តិ (Auto-increment)'),
+                                Forms\Components\Textarea::make('description')
+                                    ->label('ការពិពណ៌នា')
+                                    ->rows(3),
+                            ])
+                            ->createOptionUsing(function (array $data): int {
+                                $module = CourseModule::create($data);
+                                return $module->course_module_id;
+                            })
                             ->default(fn (): ?int => request()->integer('course_module_id') ?: null)
                             ->live()
                             ->afterStateUpdated(function (Set $set, ?int $state): void {
@@ -139,7 +162,7 @@ class ContentLessonForm
                             ->rows(3)
                             ->columnSpanFull(),
 
-                        Forms\Components\ViewField::make('body')
+                        Forms\Components\RichEditor::make('body')
                             ->label(fn (Get $get): string => match ($get('content_type')) {
                                 'page' => 'ខ្លឹមសារទំព័រ',
                                 'assignment' => 'សេចក្ដីណែនាំកិច្ចការ',
@@ -147,7 +170,34 @@ class ContentLessonForm
                                 'forum' => 'ប្រធានបទពិភាក្សា',
                                 default => 'ខ្លឹមសារមេរៀន',
                             })
-                            ->view('filament.admin.components.lesson-tiptap-editor')
+                            ->toolbarButtons([
+                                'bold',
+                                'italic',
+                                'underline',
+                                'strike',
+                                'link',
+                                'textColor',
+                                'highlight',
+                                'h1',
+                                'h2',
+                                'h3',
+                                'paragraph',
+                                'alignStart',
+                                'alignCenter',
+                                'alignEnd',
+                                'alignJustify',
+                                'blockquote',
+                                'codeBlock',
+                                'bulletList',
+                                'orderedList',
+                                'table',
+                                'attachFiles',
+                                'horizontalRule',
+                                'undo',
+                                'redo',
+                            ])
+                            ->fileAttachmentsDirectory('learning/editor')
+                            ->fileAttachmentsDisk('public')
                             ->visible(fn (Get $get): bool => in_array($get('content_type'), ['lesson', 'page', 'assignment', 'quiz', 'forum'], true))
                             ->columnSpanFull(),
 

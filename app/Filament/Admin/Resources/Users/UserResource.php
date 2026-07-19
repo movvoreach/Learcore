@@ -29,6 +29,12 @@ class UserResource extends Resource
 
     protected static ?int $navigationSort = 10;
 
+    public static function canAccess(): bool
+    {
+        $user = auth()->user();
+        return $user && ($user->hasRole('super_admin') || $user->can('users.view'));
+    }
+
     public static function form(Schema $schema): Schema
     {
         return UserForm::configure($schema);

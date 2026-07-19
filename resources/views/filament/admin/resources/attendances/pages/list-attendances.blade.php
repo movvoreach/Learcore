@@ -140,10 +140,10 @@
             
             <div class="ss-actions-group" >
                 @if (\App\Filament\Admin\Resources\Attendances\AttendanceResource::canCreate())
-                    <button class="ss-tool" type="button" title="?????????????" wire:click="mountAction('create')">
+                    <button class="ss-tool" type="button" title="បញ្ចូលវត្តមាន" wire:click="mountAction('create')">
                         <i class="fa fa-plus-circle" aria-hidden="true"></i>
                     </button>
-                    <button class="ss-tool" type="button" title="?????????????????" wire:click="mountAction('quickCreateAttendance')" style="background-color: #22c55e;">
+                    <button class="ss-tool" type="button" title="បញ្ចូលវត្តមានរហ័ស" wire:click="mountAction('quickCreateAttendance')" style="background-color: #22c55e;">
                         <i class="fa fa-check-circle"></i>
                     </button>
                 @endif
@@ -153,7 +153,7 @@
         <div class="ss-card">
 
             <div class="ss-heading">
-                <h2>???????</h2>
+                <h2>បញ្ជីវត្តមាន</h2>
             </div>
 
             <div>

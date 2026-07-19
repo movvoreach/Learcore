@@ -24,9 +24,9 @@ class DepartmentForm
                             ->placeholder('ជ្រើសរើសជម្រើសណាមួយ'),
                         TextInput::make('department_code')
                             ->label('លេខកូដដេប៉ាតឺម៉ង់')
-                            ->placeholder('DP001')
+                            ->default(fn () => \App\Models\Department::generateNextDepartmentCode())
                             ->disabled()
-                            ->dehydrated(false)
+                            ->dehydrated(true)
                             ->maxLength(30),
                         TextInput::make('department_name')
                             ->label('ឈ្មោះដេប៉ាតឺម៉ង់')

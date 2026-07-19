@@ -140,7 +140,7 @@
             
             <div class="ss-actions-group" >
                 @if (\App\Filament\Admin\Resources\ContentChapters\ContentChapterResource::canCreate())
-                    <a class="ss-tool" href="{{ \App\Filament\Admin\Resources\ContentChapters\ContentChapterResource::getUrl('create') }}" title="????????????????">
+                    <a class="ss-tool" href="{{ \App\Filament\Admin\Resources\ContentChapters\ContentChapterResource::getUrl('create') }}" title="បញ្ចូលជំពូកមេរៀន">
                         <i class="fa fa-plus-circle" aria-hidden="true"></i>
                     </a>
                 @endif
@@ -150,7 +150,7 @@
         <div class="ss-card">
 
             <div class="ss-heading">
-                <h2>??????????</h2>
+                <h2>បញ្ជីជំពូកមេរៀន</h2>
             </div>
 
             <div>

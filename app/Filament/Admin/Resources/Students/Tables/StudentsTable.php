@@ -27,9 +27,12 @@ class StudentsTable
             ->columns([
                 TextColumn::make('student_code')
                     ->label('និស្សិត')
-                    ->getStateUsing(fn (Student $record): string => trim($record->first_name.' '.$record->last_name) ?: $record->student_code)
-                    ->description(fn (Student $record): string => $record->student_code.' · '.($record->email ?: 'គ្មានអ៊ីមែល'))
-                    ->searchable(['student_code', 'first_name', 'last_name', 'email'])
+                    ->getStateUsing(fn (Student $record): string => trim($record->last_name_kh.' '.$record->first_name_kh) ?: trim($record->last_name.' '.$record->first_name) ?: $record->student_code)
+                    ->description(fn (Student $record): string => collect([
+                        trim($record->last_name.' '.$record->first_name),
+                        $record->student_code
+                    ])->filter()->join(' · '))
+                    ->searchable(['student_code', 'first_name', 'last_name', 'first_name_kh', 'last_name_kh', 'email'])
                     ->sortable()
                     ->weight('bold')
                     ->copyable(),
